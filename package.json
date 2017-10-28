@@ -1,0 +1,39 @@
+{
+  "name": "taskforce-connector",
+  "version": "1.0.0",
+  "description": "Connects queues to Taskforce",
+  "preferGlobal": true,
+  "bin": {
+    "taskforce": "index.js"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "bufferutil": "^3.0.2",
+    "bull": "^3.0.0-rc.5",
+    "chalk": "^2.1.0",
+    "ioredis": "^3.1.2",
+    "lodash": "^4.17.4",
+    "primus": "^7.1.0",
+    "utf-8-validate": "^3.0.3",
+    "ws": "^3.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taskforcesh/bull-local.git"
+  },
+  "keywords": [
+    "taskforce",
+    "bull",
+    "queue"
+  ],
+  "author": "Taskforce.sh Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/taskforcesh/bull-local/issues"
+  },
+  "homepage": "https://github.com/taskforcesh/bull-local#readme"
+}
