@@ -51,6 +51,6 @@ Example:
 
 ```
 
-The token "2cfe6a1b-5f0e-466f-99ad-12f51bea79a7" is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
+The token ```2cfe6a1b-5f0e-466f-99ad-12f51bea79a7``` is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
 
 After running the command, you should be able to see the connection appear automatically on the dashboard:
