@@ -11,6 +11,7 @@
     "bufferutil": "^3.0.2",
     "bull": "^3.0.0-rc.5",
     "chalk": "^2.1.0",
+    "commander": "^2.11.0",
     "ioredis": "^3.1.2",
     "lodash": "^4.17.4",
     "primus": "^7.1.0",
