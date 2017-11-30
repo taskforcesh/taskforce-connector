@@ -47,7 +47,7 @@ Call the tool and get a help on the options:
 Example:
 
 ```bash
-✗ taskforce -n "transcoder-queue" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7
+✗ taskforce -n "transcoder connection" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7
 
 ```
 
