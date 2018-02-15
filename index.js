@@ -18,7 +18,7 @@ console.info(chalk.blue('Taskforce Connector v' + pkg.version + ' - (c) 2017 Tas
 const connection = {
   port: program.port,
   host: program.host,
-  passwd: program.passwd
+  password: program.passwd
 };
 
 const socket = require('./lib/socket');
