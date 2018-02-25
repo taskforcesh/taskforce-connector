@@ -8,15 +8,13 @@
   },
   "dependencies": {
     "bluebird": "^3.5.0",
-    "bufferutil": "^3.0.2",
-    "bull": "^3.0.0-rc.5",
-    "chalk": "^2.1.0",
-    "commander": "^2.11.0",
+    "bufferutil": "^3.0.3",
+    "bull": "^3.3.10",
+    "chalk": "^2.3.1",
+    "commander": "^2.14.1",
     "ioredis": "^3.1.2",
-    "lodash": "^4.17.4",
-    "primus": "^7.1.0",
-    "utf-8-validate": "^3.0.3",
-    "ws": "^3.1.0"
+    "lodash": "^4.17.5",
+    "ws": "^4.1.0"
   },
   "devDependencies": {},
   "scripts": {
