@@ -9,6 +9,7 @@ program
   .option('-t, --token [token]', 'api token (get yours at https://taskforce.sh)')
   .option('-p, --port [port]', 'redis port [6379]', '6379')
   .option('-h, --host [host]', 'redis host [localhost]', 'localhost')
+  .option('-d, --database [db]', 'redis database [0]', '0')
   .option('--passwd [passwd]', 'redis password')
   .option('-b, --backend [host]', 'backend domain [api.taskforce.sh]', 'wss://api.taskforce.sh')  
   .parse(process.argv);
@@ -18,7 +19,8 @@ console.info(chalk.blue('Taskforce Connector v' + pkg.version + ' - (c) 2017 Tas
 const connection = {
   port: program.port,
   host: program.host,
-  password: program.passwd
+  password: program.passwd,
+  db: program.database
 };
 
 const socket = require('./lib/socket');

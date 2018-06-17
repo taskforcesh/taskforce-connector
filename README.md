@@ -39,6 +39,7 @@ Call the tool and get a help on the options:
     -t, --token [token]   api token (get yours at https://taskforce.sh)
     -p, --port [port]     redis port [6379]
     -h, --host [host]     redis host [localhost]
+    -d, --database [db]   database number [0]
     --passwd [passwd]     redis password
     -b, --backend [host]  backend domain [api.taskforce.sh]
     -h, --help            output usage information
