@@ -4,7 +4,7 @@
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
   "bin": {
-    "taskforce": "index.js"
+    "taskforce": "cli.js"
   },
   "dependencies": {
     "bluebird": "^3.5.0",
