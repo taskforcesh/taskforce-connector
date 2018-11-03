@@ -1,6 +1,6 @@
 {
   "name": "taskforce-connector",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
   "bin": {
@@ -8,17 +8,25 @@
   },
   "dependencies": {
     "bluebird": "^3.5.0",
-    "bufferutil": "^3.0.3",
     "bull": "^3.3.10",
     "chalk": "^2.3.1",
     "commander": "^2.14.1",
-    "ioredis": "^3.1.2",
+    "ioredis": "^4.2.0",
     "lodash": "^4.17.5",
-    "ws": "^4.1.0"
+    "npmview": "^0.0.4",
+    "semver": "^5.5.1",
+    "ws": "^6.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/bull": "^3.3.20",
+    "@types/chalk": "^2.2.0",
+    "@types/ws": "^6.0.1",
+    "typescript": "^3.0.3"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./index.js"
   },
   "repository": {
     "type": "git",
