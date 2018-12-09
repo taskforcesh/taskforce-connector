@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "sourceMap": false,
+    "declaration": true,
+    "target": "es6",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true
+  },
+  "compileOnSave": false,
+  "include": ["./lib"],
+  "exclude": [
+    "node_modules"
+  ],
+  "output": "./dist"
+}
