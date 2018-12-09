@@ -13,6 +13,7 @@ const pkgVersion = require("./package.json").version;
 
 program
   .version(pkg.version)
+
   .option(
     "-n, --name [name]",
     "connection name [My Connection]",
@@ -33,6 +34,7 @@ program
     "redis host [localhost]",
     process.env.REDIS_HOST || "localhost"
   )
+  .option('-d, --database [db]', 'redis database [0]', '0')
   .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
   .option(
     "-b, --backend [host]",
@@ -58,7 +60,8 @@ npmview(pkgName, function(err, version, moduleInfo) {
     const connection = {
       port: program.port,
       host: program.host,
-      password: program.passwd
+      password: program.passwd,
+      db: program.database
     };
 
     const socket = require("./dist/socket");
