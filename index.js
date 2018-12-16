@@ -34,7 +34,7 @@ program
     "redis host [localhost]",
     process.env.REDIS_HOST || "localhost"
   )
-  .option('-d, --database [db]', 'redis database [0]', '0')
+  .option("-d, --database [db]", "redis database [0]", "0")
   .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
   .option(
     "-b, --backend [host]",
@@ -51,12 +51,19 @@ console.info(
 
 npmview(pkgName, function(err, version, moduleInfo) {
   if (semver.gt(version, pkgVersion)) {
-    chalk.red(
+    console.error(chalk.red(
       "New version " +
         version +
         " of taskforce available, please upgrade with yarn global add taskforce-connector"
-    );
+    ));
   } else {
+    if (!program.token) {
+      console.error(chalk.red(
+        `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
+      ));
+      process.exit();
+    }
+
     const connection = {
       port: program.port,
       host: program.host,
