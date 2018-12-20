@@ -4,7 +4,7 @@ const pkg = require(__dirname + "/package.json");
 const chalk = require("chalk");
 
 // Check version
-const npmview = require("npmview");
+const lastestVersion = require("latest-version");
 const semver = require("semver");
 
 // get local package name and version from package.json
@@ -49,7 +49,7 @@ console.info(
   )
 );
 
-npmview(pkgName, function(err, version, moduleInfo) {
+lastestVersion(pkgName).then(function(version) {
   if (semver.gt(version, pkgVersion)) {
     console.error(
       chalk.red(
