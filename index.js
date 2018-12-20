@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 const program = require("commander");
-const pkg = require("./package.json");
+const pkg = require(__dirname + "/package.json");
 const chalk = require("chalk");
 
 // Check version
@@ -51,16 +51,20 @@ console.info(
 
 npmview(pkgName, function(err, version, moduleInfo) {
   if (semver.gt(version, pkgVersion)) {
-    console.error(chalk.red(
-      "New version " +
-        version +
-        " of taskforce available, please upgrade with yarn global add taskforce-connector"
-    ));
+    console.error(
+      chalk.red(
+        "New version " +
+          version +
+          " of taskforce available, please upgrade with yarn global add taskforce-connector"
+      )
+    );
   } else {
     if (!program.token) {
-      console.error(chalk.red(
-        `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
-      ));
+      console.error(
+        chalk.red(
+          `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
+        )
+      );
       process.exit();
     }
 
