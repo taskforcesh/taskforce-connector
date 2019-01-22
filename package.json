@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.0",
-    "bull": "^3.3.10",
+    "bull": "^3.6.0",
     "chalk": "^2.3.1",
     "commander": "^2.14.1",
     "ioredis": "^4.2.0",
