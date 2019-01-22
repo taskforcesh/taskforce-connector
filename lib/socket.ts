@@ -83,25 +83,35 @@ module.exports = (
       return;
     }
 
-    var data = msg.data;
+    const data = msg.data;
+    const res = data.res;
 
-    switch (data.res) {
+    switch (res) {
       case "connections":
         respondConnectionCommand(connection, msg);
         break;
       case "queues":
+      case "jobs":
         var queue = queues[data.queueName];
 
-        if (queue) {
-          respondQueueCommand(queue, msg);
-        } else {
+        if (!queue) {
           ws.send(
             JSON.stringify({
               id: msg.id,
               err: "Queue not found"
             })
           );
+        } else {
+          switch (res) {
+            case "queues":
+              respondQueueCommand(queue, msg);
+              break;
+            case "jobs":
+              respondJobCommand(queue, msg);
+              break;
+          }
         }
+        break;
     }
   };
 
@@ -189,6 +199,32 @@ module.exports = (
     });
   }
 
+  async function respondJobCommand(queue: Bull.Queue, msg: any) {
+    const data = msg.data;
+    const job = await queue.getJob(data.jobId);
+
+    switch (data.cmd) {
+      case "retry":
+        await job.retry();
+        break;
+      case "promote":
+        await job.promote();
+        break;
+      case "remove":
+        await job.remove();
+        break;
+      case "discard":
+        await job.discard();
+        break;
+    }
+
+    ws.send(
+      JSON.stringify({
+        id: msg.id
+      })
+    );
+  }
+
   async function respondQueueCommand(queue: Bull.Queue, msg: any) {
     const data = msg.data;
     switch (data.cmd) {
@@ -232,6 +268,16 @@ module.exports = (
           JSON.stringify({
             id: msg.id,
             data: count
+          })
+        );
+        break;
+      case "removeRepeatableByKey":
+      console.log('Whatsa?', data)
+        await (<any>queue).removeRepeatableByKey(data.key);
+
+        ws.send(
+          JSON.stringify({
+            id: msg.id
           })
         );
         break;
