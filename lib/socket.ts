@@ -67,7 +67,7 @@ module.exports = (
         JSON.stringify({
           res: "connection",
           cmd: "update",
-          queues: queues,
+          queues,
           connection: name
         })
       );
@@ -155,6 +155,9 @@ module.exports = (
         };
       }
     });
+
+    await redisClient.quit();
+
     return queues;
   }
 
