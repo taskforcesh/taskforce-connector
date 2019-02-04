@@ -1,4 +1,9 @@
-v1.0.8
+v1.1.1
+======
+
+- fix: close redis connection after getting queues.  
+
+v1.1.0
 ======
 
 - feat: add support for removing scheduled jobs.
