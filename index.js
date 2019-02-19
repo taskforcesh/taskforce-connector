@@ -52,30 +52,29 @@ console.info(
 lastestVersion(pkgName).then(function(version) {
   if (semver.gt(version, pkgVersion)) {
     console.error(
-      chalk.red(
+      chalk.yellow(
         "New version " +
           version +
           " of taskforce available, please upgrade with yarn global add taskforce-connector"
       )
     );
-  } else {
-    if (!program.token) {
-      console.error(
-        chalk.red(
-          `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
-        )
-      );
-      process.exit();
-    }
-
-    const connection = {
-      port: program.port,
-      host: program.host,
-      password: program.passwd,
-      db: program.database
-    };
-
-    const socket = require("./dist/socket");
-    socket(program.name, program.backend, program.token, connection);
   }
+  if (!program.token) {
+    console.error(
+      chalk.red(
+        `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
+      )
+    );
+    process.exit();
+  }
+
+  const connection = {
+    port: program.port,
+    host: program.host,
+    password: program.passwd,
+    db: program.database
+  };
+
+  const socket = require("./dist/socket");
+  socket(program.name, program.backend, program.token, connection);
 });
