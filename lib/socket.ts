@@ -1,23 +1,31 @@
 import { WebSocketClient } from "./ws-autoreconnect";
 import * as Bull from "bull";
 
+import * as url from "url";
+import { RedisOptions, Redis } from "ioredis";
+
 const Redis = require("ioredis");
 const _ = require("lodash");
 const chalk = require("chalk");
 
 interface Connection {
-  port: number;
-  host: string;
-  password: string;
+  port?: number;
+  host?: string;
+  password?: string;
+  db?: number;
+  uri?: string;
+  tls?: object;
 }
 
 module.exports = (
   name: string,
   server: string,
   token: string,
-  connection: Connection
+  connection: Connection,
+  team?: string
 ) => {
   const ws = new WebSocketClient();
+  const redisOpts = redisOptsFromConnection(connection);
 
   ws.open(server, {
     headers: {
@@ -25,6 +33,12 @@ module.exports = (
       Taskforce: "connector"
     }
   });
+
+  console.log(
+    chalk.yellow("WebSocket:") +
+      chalk.blue(" opening connection to ") +
+      chalk.gray("Taskforce.sh")
+  );
 
   const queues: { [index: string]: Bull.Queue } = {};
 
@@ -38,7 +52,7 @@ module.exports = (
 
   ws.onerror = function(err) {
     var msg;
-    if (err.message === "Unexpected server response (401)") {
+    if (err.message === "Unexpected server response: 401") {
       msg =
         "Authorization failed, please check that you are using the correct token from your account page";
     } else {
@@ -54,21 +68,25 @@ module.exports = (
         chalk.yellow("WebSocket: ") +
           chalk.green("Succesfully authorized to taskforce.sh service")
       );
+
       //
       // Send this connection.
       //
       const queues = await getConnectionQueues(connection);
       console.log(
-        chalk.yellow("WebSocket: ") +
-          chalk.green("sending connection: ") +
-          chalk.blue(name)
+        `${chalk.yellow("WebSocket: ")} ${chalk.green(
+          "sending connection: "
+        )} ${chalk.blue(name)} ${
+          team ? chalk.green(" for team ") + chalk.blue(team) : ""
+        }`
       );
       ws.send(
         JSON.stringify({
           res: "connection",
           cmd: "update",
           queues,
-          connection: name
+          connection: name,
+          team
         })
       );
       return;
@@ -122,26 +140,26 @@ module.exports = (
 
   const queueNameRegExp = new RegExp("(.*):(.*):id");
   async function getConnectionQueues(
-    connection: object
+    connection: Connection
   ): Promise<FoundQueue[]> {
-    const redisClient = new Redis(
-      _.pick(connection, ["port", "host", "family", "password", "db"]),
-      {
-        retryStrategy: function(times: number) {
-          times = times % 8;
-          const delay = Math.round(Math.pow(2, times + 8));
-          console.log(
-            chalk.yellow("WebSocket: ") + `Reconnecting in ${delay} ms`
-          );
-          return delay;
-        }
-      }
-    );
+    const redisClient = new Redis(redisOpts);
 
     redisClient.on("error", (err: Error) => {
       console.log(
-        chalk.yellow("WebSocket:") + chalk.red(" redis connection error "),
+        chalk.yellow("Redis:") + chalk.red(" redis connection error "),
         err.message
+      );
+    });
+
+    redisClient.on("connect", () => {
+      console.log(
+        chalk.yellow("Redis:") + chalk.green(" connected to redis server")
+      );
+    });
+
+    redisClient.on("end", () => {
+      console.log(
+        chalk.yellow("Redis:") + chalk.blue(" disconnected from redis server")
       );
     });
 
@@ -176,8 +194,8 @@ module.exports = (
 
     toAdd.forEach(function(queue: FoundQueue) {
       queues[queue.name] = new Bull(queue.name, {
-        redis: connection,
-        prefix: queue.prefix
+        prefix: queue.prefix,
+        redis: redisOpts
       });
     });
   }
@@ -271,14 +289,17 @@ module.exports = (
     switch (data.cmd) {
       case "getConnection":
         console.log(
-          chalk.yellow("WebSocket: ") +
-            chalk.green("sending connection: ") +
-            chalk.blue(name)
+          `${chalk.yellow("WebSocket: ")} ${chalk.green(
+            "sending connections: "
+          )} ${chalk.blue(name)} ${
+            team ? chalk.green(" for team ") + chalk.blue(team) : ""
+          }`
         );
 
         respond(msg.id, {
           queues,
-          connection: name
+          connection: name,
+          team
         });
         break;
       case "getQueues":
@@ -302,3 +323,39 @@ module.exports = (
     ws.send(response);
   }
 };
+
+function redisOptsFromConnection(connection: Connection): RedisOptions {
+  let opts: RedisOptions = {
+    ..._.pick(connection, ["port", "host", "family", "password", "db", "tls"])
+  };
+
+  if (connection.uri) {
+    opts = { ...opts, ...redisOptsFromUrl(connection.uri) };
+  }
+
+  opts.retryStrategy = function(times: number) {
+    times = times % 8;
+    const delay = Math.round(Math.pow(2, times + 8));
+    console.log(chalk.yellow("Redis: ") + `Reconnecting in ${delay} ms`);
+    return delay;
+  };
+  return opts;
+}
+
+function redisOptsFromUrl(urlString: string) {
+  const redisOpts: RedisOptions = {};
+  try {
+    const redisUrl = url.parse(urlString);
+    redisOpts.port = parseInt(redisUrl.port) || 6379;
+    redisOpts.host = redisUrl.hostname;
+    redisOpts.db = redisUrl.pathname
+      ? parseInt(redisUrl.pathname.split("/")[1])
+      : 0;
+    if (redisUrl.auth) {
+      redisOpts.password = redisUrl.auth.split(":")[1];
+    }
+  } catch (e) {
+    throw new Error(e.message);
+  }
+  return redisOpts;
+}

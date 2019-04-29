@@ -29,6 +29,7 @@ program
     "redis port [6379]",
     process.env.REDIS_PORT || "6379"
   )
+  .option("--tls [tls]", false, "Activate secured TLS connection to Redis")
   .option(
     "-h, --host [host]",
     "redis host [localhost]",
@@ -36,6 +37,8 @@ program
   )
   .option("-d, --database [db]", "redis database [0]", "0")
   .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
+  .option("-u, --uri [uri]", "redis uri", process.env.REDIS_URI)
+  .option("--team [team]", "specify team where to put the connection")
   .option(
     "-b, --backend [host]",
     "backend domain [api.taskforce.sh]",
@@ -45,7 +48,7 @@ program
 
 console.info(
   chalk.blue(
-    "Taskforce Connector v" + pkg.version + " - (c) 2017-2018 Taskforce.sh Inc."
+    "Taskforce Connector v" + pkg.version + " - (c) 2017-2019 Taskforce.sh Inc."
   )
 );
 
@@ -72,9 +75,23 @@ lastestVersion(pkgName).then(function(version) {
     port: program.port,
     host: program.host,
     password: program.passwd,
-    db: program.database
+    db: program.database,
+    uri: program.uri,
+    tls: program.tls
+      ? {
+          rejectUnauthorized: false,
+          requestCert: true,
+          agent: false
+        }
+      : void 0
   };
 
   const socket = require("./dist/socket");
-  socket(program.name, program.backend, program.token, connection);
+  socket(
+    program.name,
+    program.backend,
+    program.token,
+    connection,
+    program.team
+  );
 });
