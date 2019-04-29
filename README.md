@@ -35,13 +35,16 @@ Call the tool and get a help on the options:
   Options:
 
     -V, --version         output the version number
-    -n, --name [name]     connection name [My Connection]
+    -n, --name [name]     connection name [My Connection] (default: "My Connection")
     -t, --token [token]   api token (get yours at https://taskforce.sh)
-    -p, --port [port]     redis port [6379]
-    -h, --host [host]     redis host [localhost]
-    -d, --database [db]   database number [0]
+    -p, --port [port]     redis port [6379] (default: "6379")
+    --tls [tls]            (default: "Activate secured TLS connection to Redis")
+    -h, --host [host]     redis host [localhost] (default: "localhost")
+    -d, --database [db]   redis database [0] (default: "0")
     --passwd [passwd]     redis password
-    -b, --backend [host]  backend domain [api.taskforce.sh]
+    -u, --uri [uri]       redis uri
+    --team [team]         specify team where to put the connection
+    -b, --backend [host]  backend domain [api.taskforce.sh] (default: "wss://api.taskforce.sh")
     -h, --help            output usage information
 ```
 
@@ -52,6 +55,20 @@ Example:
 
 ```
 
-The token ```2cfe6a1b-5f0e-466f-99ad-12f51bea79a7``` is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
+The token `2cfe6a1b-5f0e-466f-99ad-12f51bea79a7` is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
 
 After running the command, you should be able to see the connection appear automatically on the dashboard:
+
+## Secured TLS Connections
+
+Services that support TLS can also be used using the connector, use the `--tls` flag. Note that some services such as Heroku expects the port number to be "one more" than the normal unencrypted port [read more](https://devcenter.heroku.com/articles/securing-heroku-redis).
+
+## Teams
+
+You can use the connector to spawn queue connections to any team that you created on your organization, just pass the team name
+as an option:
+
+```bash
+✗ taskforce -n "transcoder connection" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7 --team "my awesome team"
+
+```
