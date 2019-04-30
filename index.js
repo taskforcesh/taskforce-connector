@@ -29,7 +29,7 @@ program
     "redis port [6379]",
     process.env.REDIS_PORT || "6379"
   )
-  .option("--tls [tls]", false, "Activate secured TLS connection to Redis")
+  .option("--tls [tls]", "Activate secured TLS connection to Redis")
   .option(
     "-h, --host [host]",
     "redis host [localhost]",
