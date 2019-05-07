@@ -205,8 +205,7 @@ module.exports = (
     messageId: string,
     start: number,
     end: number,
-    method: string,
-    ws: WebSocketClient
+    method: string
   ) {
     start = start || 0;
     end = end || -1;
@@ -255,8 +254,16 @@ module.exports = (
       case "getFailed":
       case "getRepeatableJobs":
       case "getWorkers":
-        paginate(queue, msg.id, data.start, data.end, data.cmd, ws);
+        paginate(queue, msg.id, data.start, data.end, data.cmd);
         break;
+
+      case "getJobLogs":
+        const logs = await (<any>queue).getJobLogs(
+          data.jobId,
+          data.start,
+          data.end
+        );
+        respond(msg.id, logs);
 
       case "getWaitingCount":
       case "getActiveCount":
@@ -280,6 +287,7 @@ module.exports = (
         console.error(
           `Missing command ${data.cmd}. Too old version of taskforce-connector?`
         );
+        respond(msg.id, null);
     }
   }
 
