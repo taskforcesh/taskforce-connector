@@ -1,12 +1,15 @@
 import * as WebSocket from "ws";
 import chalk from "chalk";
 
+const HEARTBEAT_INTERVAL = 15000;
+
 export class WebSocketClient {
   private number = 0; // Message number
   private autoReconnectInterval = 5 * 1000; // ms
   private url: string;
   private opts: object;
   private instance: any;
+  private pingTimeout: NodeJS.Timeout;
 
   open(url: string, opts: object) {
     this.url = url;
@@ -14,6 +17,7 @@ export class WebSocketClient {
 
     this.instance = new WebSocket(url, opts);
     this.instance.on("open", () => {
+      this.heartbeat();
       this.onopen();
     });
 
@@ -22,7 +26,11 @@ export class WebSocketClient {
       this.onmessage(data, flags, this.number);
     });
 
+    this.instance.on("ping", () => this.heartbeat());
+
     this.instance.on("close", (codeOrError: number | Error) => {
+      clearTimeout(this.pingTimeout);
+
       switch (codeOrError) {
         case 1000: // CLOSE_NORMAL
           console.log(chalk.yellow("WebSocket:") + chalk.blue(" closed"));
@@ -66,15 +74,22 @@ export class WebSocketClient {
         chalk.red(` ${msg} retry in ${this.autoReconnectInterval}ms`)
     );
     this.instance.removeAllListeners();
-    var _this = this;
-    setTimeout(function() {
+    setTimeout(() => {
       console.log("WebSocket: reconnecting...");
-      _this.open(_this.url, _this.opts);
+      this.open(this.url, this.opts);
     }, this.autoReconnectInterval);
   }
 
   onopen() {
     console.log("WebSocket: open", arguments);
+  }
+
+  heartbeat() {
+    clearTimeout(this.pingTimeout);
+
+    this.pingTimeout = setTimeout(() => {
+      this.instance.terminate();
+    }, HEARTBEAT_INTERVAL);
   }
 
   onmessage = function(data: string, flags: object, num: number) {
