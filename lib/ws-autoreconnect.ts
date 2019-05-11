@@ -1,5 +1,6 @@
 import * as WebSocket from "ws";
 import chalk from "chalk";
+import { WebsocketError } from "./ws-errors.enum";
 
 const HEARTBEAT_INTERVAL = 15000;
 
@@ -32,9 +33,12 @@ export class WebSocketClient {
       clearTimeout(this.pingTimeout);
 
       switch (codeOrError) {
-        case 1000: // CLOSE_NORMAL
-          console.log(chalk.yellow("WebSocket:") + chalk.blue(" closed"));
+        case WebsocketError.NormalClosure:
+          console.log(
+            chalk.yellow("WebSocket:") + chalk.blue("normally closed")
+          );
           break;
+
         case 4000:
           console.log(
             chalk.yellow("WebSocket:") + chalk.red(" Invalid authentication")
@@ -50,7 +54,6 @@ export class WebSocketClient {
     this.instance.on("error", (err: any) => {
       switch (err["code"]) {
         case "ECONNREFUSED":
-          this.reconnect(err);
           break;
         default:
           this.onerror(err);
