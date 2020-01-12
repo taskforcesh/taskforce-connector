@@ -57,7 +57,9 @@ Example:
 
 The token `2cfe6a1b-5f0e-466f-99ad-12f51bea79a7` is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
 
-After running the command, you should be able to see the connection appear automatically on the dashboard:
+After running the command, you should be able to see the connection appear automatically on the dashboard.
+
+Note: You can also specify the taskforce token with the environment variable TASKFORCE_TOKEN
 
 ## Secured TLS Connections
 
