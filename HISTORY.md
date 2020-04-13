@@ -1,3 +1,8 @@
+v1.4.4
+======
+
+- fix: fix queues cache fixes #12
+
 v1.1.1
 ======
 

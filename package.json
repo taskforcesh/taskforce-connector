@@ -1,6 +1,6 @@
 {
   "name": "taskforce-connector",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
   "bin": {
