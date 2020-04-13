@@ -47,8 +47,8 @@ program
   .parse(process.argv);
 
 console.info(
-  chalk.blue(
-    "Taskforce Connector v" + pkg.version + " - (c) 2017-2019 Taskforce.sh Inc."
+  chalk.blueBright(
+    "Taskforce Connector v" + pkg.version + " - (c) 2017-2020 Taskforce.sh Inc."
   )
 );
 
