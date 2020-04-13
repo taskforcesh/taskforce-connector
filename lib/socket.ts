@@ -1,11 +1,10 @@
-import { WebSocketClient } from "./ws-autoreconnect";
 import * as Bull from "bull";
-
+import { RedisOptions } from "ioredis";
+import { pick } from "lodash";
 import * as url from "url";
-import { RedisOptions, Redis } from "ioredis";
+import { getCache, updateQueuesCache } from "./queues-cache";
+import { WebSocketClient } from "./ws-autoreconnect";
 
-const Redis = require("ioredis");
-const _ = require("lodash");
 const chalk = require("chalk");
 
 interface Connection {
@@ -30,27 +29,25 @@ module.exports = (
   ws.open(server, {
     headers: {
       Authorization: "Bearer " + token,
-      Taskforce: "connector"
-    }
+      Taskforce: "connector",
+    },
   });
 
   console.log(
     chalk.yellow("WebSocket:") +
-      chalk.blue(" opening connection to ") +
+      chalk.blueBright(" opening connection to ") +
       chalk.gray("Taskforce.sh")
   );
-
-  const queues: { [index: string]: Bull.Queue } = {};
 
   ws.onopen = function open() {
     console.log(
       chalk.yellow("WebSocket:") +
-        chalk.blue(" opened connection to ") +
+        chalk.blueBright(" opened connection to ") +
         chalk.gray("Taskforce.sh")
     );
   };
 
-  ws.onerror = function(err) {
+  ws.onerror = function (err) {
     var msg;
     if (err.message === "Unexpected server response: 401") {
       msg =
@@ -62,7 +59,10 @@ module.exports = (
   };
 
   ws.onmessage = async function incoming(input: string) {
-    console.log(chalk.yellow("WebSocket:") + chalk.blue(" received"), input);
+    console.log(
+      chalk.yellow("WebSocket:") + chalk.blueBright(" received"),
+      input
+    );
     if (input === "authorized") {
       console.log(
         chalk.yellow("WebSocket: ") +
@@ -72,12 +72,12 @@ module.exports = (
       //
       // Send this connection.
       //
-      const queues = await getConnectionQueues(connection);
+      const queues = await updateQueuesCache(redisOpts);
       console.log(
         `${chalk.yellow("WebSocket: ")} ${chalk.green(
           "sending connection: "
-        )} ${chalk.blue(name)} ${
-          team ? chalk.green(" for team ") + chalk.blue(team) : ""
+        )} ${chalk.blueBright(name)} ${
+          team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
         }`
       );
       ws.send(
@@ -86,119 +86,55 @@ module.exports = (
           cmd: "update",
           queues,
           connection: name,
-          team
+          team,
         })
       );
-      return;
-    }
-    const msg = JSON.parse(input);
+    } else {
+      const msg = JSON.parse(input);
 
-    if (!msg.data) {
-      console.error(
-        chalk.red("WebSocket:") + chalk.blue(" missing message data "),
-        msg
-      );
-      return;
-    }
+      if (!msg.data) {
+        console.error(
+          chalk.red("WebSocket:") + chalk.blueBright(" missing message data "),
+          msg
+        );
+        return;
+      }
 
-    const data = msg.data;
-    const res = data.res;
+      const { res, queueName } = msg.data;
 
-    switch (res) {
-      case "connections":
-        respondConnectionCommand(connection, msg);
-        break;
-      case "queues":
-      case "jobs":
-        var queue = queues[data.queueName];
-
-        if (!queue) {
-          ws.send(
-            JSON.stringify({
-              id: msg.id,
-              err: "Queue not found"
-            })
-          );
-        } else {
-          switch (res) {
-            case "queues":
-              respondQueueCommand(queue, msg);
-              break;
-            case "jobs":
-              respondJobCommand(queue, msg);
-              break;
+      switch (res) {
+        case "connections":
+          respondConnectionCommand(connection, msg);
+          break;
+        case "queues":
+        case "jobs":
+          const cache = getCache();
+          if (!cache) {
+            await updateQueuesCache(redisOpts);
           }
-        }
-        break;
+          var queue = cache[queueName];
+
+          if (!queue) {
+            ws.send(
+              JSON.stringify({
+                id: msg.id,
+                err: "Queue not found",
+              })
+            );
+          } else {
+            switch (res) {
+              case "queues":
+                respondQueueCommand(queue, msg);
+                break;
+              case "jobs":
+                respondJobCommand(queue, msg);
+                break;
+            }
+          }
+          break;
+      }
     }
   };
-
-  interface FoundQueue {
-    prefix: string;
-    name: string;
-  }
-
-  const queueNameRegExp = new RegExp("(.*):(.*):id");
-  async function getConnectionQueues(
-    connection: Connection
-  ): Promise<FoundQueue[]> {
-    const redisClient = new Redis(redisOpts);
-
-    redisClient.on("error", (err: Error) => {
-      console.log(
-        chalk.yellow("Redis:") + chalk.red(" redis connection error "),
-        err.message
-      );
-    });
-
-    redisClient.on("connect", () => {
-      console.log(
-        chalk.yellow("Redis:") + chalk.green(" connected to redis server")
-      );
-    });
-
-    redisClient.on("end", () => {
-      console.log(
-        chalk.yellow("Redis:") + chalk.blue(" disconnected from redis server")
-      );
-    });
-
-    const keys: string[] = await redisClient.keys("*:*:id");
-    const queues = keys.map(function(key) {
-      var match = queueNameRegExp.exec(key);
-      if (match) {
-        return {
-          prefix: match[1],
-          name: match[2]
-        };
-      }
-    });
-
-    await redisClient.quit();
-
-    return queues;
-  }
-
-  async function updateQueueCache(newQueues: FoundQueue[]) {
-    const oldQueues = Object.keys(queues);
-    const toRemove = _.difference(oldQueues, newQueues);
-    const toAdd = _.difference(newQueues, oldQueues);
-
-    await Promise.all(
-      toRemove.map(function(queueName: string) {
-        var closing = queues[queueName].close();
-        delete queues[queueName];
-        return closing;
-      })
-    );
-
-    toAdd.forEach(function(queue: FoundQueue) {
-      queues[queue.name] = new Bull(queue.name, {
-        prefix: queue.prefix,
-        redis: redisOpts
-      });
-    });
-  }
 
   function paginate(
     queue: Bull.Queue,
@@ -209,7 +145,7 @@ module.exports = (
   ) {
     start = start || 0;
     end = end || -1;
-    return (<any>queue)[method](start, end).then(function(jobs: Bull.Job[]) {
+    return (<any>queue)[method](start, end).then(function (jobs: Bull.Job[]) {
       respond(messageId, jobs);
     });
   }
@@ -293,27 +229,26 @@ module.exports = (
 
   async function respondConnectionCommand(connection: Connection, msg: any) {
     const data = msg.data;
-    const queues = await getConnectionQueues(connection);
+    const queues = await updateQueuesCache(redisOpts);
     switch (data.cmd) {
       case "getConnection":
         console.log(
           `${chalk.yellow("WebSocket: ")} ${chalk.green(
             "sending connections: "
-          )} ${chalk.blue(name)} ${
-            team ? chalk.green(" for team ") + chalk.blue(team) : ""
+          )} ${chalk.blueBright(name)} ${
+            team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
           }`
         );
 
         respond(msg.id, {
           queues,
           connection: name,
-          team
+          team,
         });
         break;
       case "getQueues":
-        await updateQueueCache(queues);
         console.log(
-          chalk.yellow("WebSocket:") + chalk.blue(" sending queues "),
+          chalk.yellow("WebSocket:") + chalk.blueBright(" sending queues "),
           queues
         );
 
@@ -326,7 +261,7 @@ module.exports = (
   function respond(id: string, data: any = {}) {
     const response = JSON.stringify({
       id,
-      data
+      data,
     });
     ws.send(response);
   }
@@ -334,14 +269,14 @@ module.exports = (
 
 function redisOptsFromConnection(connection: Connection): RedisOptions {
   let opts: RedisOptions = {
-    ..._.pick(connection, ["port", "host", "family", "password", "db", "tls"])
+    ...pick(connection, ["port", "host", "family", "password", "db", "tls"]),
   };
 
   if (connection.uri) {
     opts = { ...opts, ...redisOptsFromUrl(connection.uri) };
   }
 
-  opts.retryStrategy = function(times: number) {
+  opts.retryStrategy = function (times: number) {
     times = times % 8;
     const delay = Math.round(Math.pow(2, times + 8));
     console.log(chalk.yellow("Redis: ") + `Reconnecting in ${delay} ms`);
