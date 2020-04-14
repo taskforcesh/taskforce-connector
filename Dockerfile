@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:12.14.0
+FROM mhart/alpine-node:12.16.2
 
 RUN apk update
 RUN apk add curl
