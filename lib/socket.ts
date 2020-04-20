@@ -167,6 +167,9 @@ module.exports = (
       case "discard":
         await job.discard();
         break;
+      case "moveToFailed":
+        await job.moveToFailed({ message: "Failed manually" });
+        break;
     }
 
     respond(msg.id);
