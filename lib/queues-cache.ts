@@ -1,9 +1,9 @@
 import * as Bull from "bull";
 import { RedisOptions } from "ioredis";
 import { keyBy } from "lodash";
+import * as Redis from "ioredis";
 
 const chalk = require("chalk");
-const Redis = require("ioredis");
 
 let queuesCache: { [index: string]: Bull.Queue } = null;
 
@@ -67,6 +67,35 @@ const queueNameRegExp = new RegExp("(.*):(.*):id");
 async function getConnectionQueues(
   redisOpts: RedisOptions
 ): Promise<FoundQueue[]> {
+  const queues = await execRedisCommand(redisOpts, async (client) => {
+    const keys: string[] = await client.keys("*:*:id");
+    const queues = keys.map(function (key) {
+      var match = queueNameRegExp.exec(key);
+      if (match) {
+        return {
+          prefix: match[1],
+          name: match[2],
+        };
+      }
+    });
+    return queues;
+  });
+
+  return queues;
+}
+
+export async function getRedisInfo(redisOpts: RedisOptions) {
+  const info = await execRedisCommand(redisOpts, async (client) => {
+    return client.info();
+  });
+
+  return info;
+}
+
+async function execRedisCommand(
+  redisOpts: RedisOptions,
+  cb: (client: Redis.Redis) => any
+) {
   const redisClient = new Redis(redisOpts);
 
   redisClient.on("error", (err: Error) => {
@@ -89,18 +118,9 @@ async function getConnectionQueues(
     );
   });
 
-  const keys: string[] = await redisClient.keys("*:*:id");
-  const queues = keys.map(function (key) {
-    var match = queueNameRegExp.exec(key);
-    if (match) {
-      return {
-        prefix: match[1],
-        name: match[2],
-      };
-    }
-  });
+  const result = await cb(redisClient);
 
   await redisClient.quit();
 
-  return queues;
+  return result;
 }

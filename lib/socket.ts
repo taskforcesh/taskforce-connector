@@ -2,7 +2,7 @@ import * as Bull from "bull";
 import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import * as url from "url";
-import { getCache, updateQueuesCache } from "./queues-cache";
+import { getCache, updateQueuesCache, getRedisInfo } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 
 const chalk = require("chalk");
@@ -232,31 +232,41 @@ module.exports = (
 
   async function respondConnectionCommand(connection: Connection, msg: any) {
     const data = msg.data;
-    const queues = await updateQueuesCache(redisOpts);
     switch (data.cmd) {
       case "getConnection":
-        console.log(
-          `${chalk.yellow("WebSocket: ")} ${chalk.green(
-            "sending connections: "
-          )} ${chalk.blueBright(name)} ${
-            team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
-          }`
-        );
+        {
+          const queues = await updateQueuesCache(redisOpts);
 
-        respond(msg.id, {
-          queues,
-          connection: name,
-          team,
-        });
+          console.log(
+            `${chalk.yellow("WebSocket: ")} ${chalk.green(
+              "sending connections: "
+            )} ${chalk.blueBright(name)} ${
+              team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
+            }`
+          );
+
+          respond(msg.id, {
+            queues,
+            connection: name,
+            team,
+          });
+        }
         break;
       case "getQueues":
-        console.log(
-          chalk.yellow("WebSocket:") + chalk.blueBright(" sending queues "),
-          queues
-        );
+        {
+          const queues = await updateQueuesCache(redisOpts);
 
-        respond(msg.id, queues);
+          console.log(
+            chalk.yellow("WebSocket:") + chalk.blueBright(" sending queues "),
+            queues
+          );
 
+          respond(msg.id, queues);
+        }
+        break;
+      case "getInfo":
+        const info = await getRedisInfo(redisOpts);
+        respond(msg.id, info);
         break;
     }
   }
