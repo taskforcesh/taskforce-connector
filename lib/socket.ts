@@ -222,6 +222,18 @@ module.exports = (
         await queue.empty();
         respond(msg.id);
         break;
+      case "pause":
+        await queue.pause();
+        respond(msg.id);
+        break;
+      case "resume":
+        await queue.resume();
+        respond(msg.id);
+        break;
+      case "isPaused":
+        const isPaused = await (<any>queue)["isPaused"]();
+        respond(msg.id, isPaused);
+        break;
       default:
         console.error(
           `Missing command ${data.cmd}. Too old version of taskforce-connector?`
