@@ -1,3 +1,13 @@
+v1.6.0
+======
+
+- feat: get redis info support
+
+v1.5.0
+======
+
+- feat: add moveToFailed command
+
 v1.4.4
 ======
 
