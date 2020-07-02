@@ -1,5 +1,5 @@
 import * as WebSocket from "ws";
-import chalk from "chalk";
+import * as chalk from "chalk";
 import { WebsocketError } from "./ws-errors.enum";
 
 const HEARTBEAT_INTERVAL = 15000;

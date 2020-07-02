@@ -1,6 +1,6 @@
 {
   "name": "taskforce-connector",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
   "bin": {
@@ -8,12 +8,12 @@
   },
   "dependencies": {
     "bull": "^3.6.0",
-    "chalk": "^2.3.1",
-    "commander": "^2.14.1",
+    "chalk": "^4.1.0",
+    "commander": "^5.1.0",
     "ioredis": "^4.2.0",
     "latest-version": "^5.1.0",
     "lodash": "^4.17.5",
-    "semver": "^5.5.1",
+    "semver": "^7.3.2",
     "ws": "^7.0.0"
   },
   "devDependencies": {
