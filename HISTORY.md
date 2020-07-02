@@ -1,3 +1,9 @@
+v1.7.0
+======
+
+- feat: add pause, resume and isPaused commands
+- feat: send version to server
+
 v1.6.0
 ======
 
