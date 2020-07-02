@@ -1,3 +1,8 @@
+v1.7.1
+======
+
+- chore: upgrade all dependencies
+
 v1.7.0
 ======
 
