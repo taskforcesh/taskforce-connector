@@ -7,10 +7,6 @@ const chalk = require("chalk");
 const lastestVersion = require("latest-version");
 const semver = require("semver");
 
-// get local package name and version from package.json
-const pkgName = require("./package.json").name;
-const pkgVersion = require("./package.json").version;
-
 program
   .version(pkg.version)
 
@@ -52,8 +48,8 @@ console.info(
   )
 );
 
-lastestVersion(pkgName).then(function(version) {
-  if (semver.gt(version, pkgVersion)) {
+lastestVersion(pkg.name).then(function (version) {
+  if (semver.gt(version, pkg.version)) {
     console.error(
       chalk.yellow(
         "New version " +
@@ -81,9 +77,9 @@ lastestVersion(pkgName).then(function(version) {
       ? {
           rejectUnauthorized: false,
           requestCert: true,
-          agent: false
+          agent: false,
         }
-      : void 0
+      : void 0,
   };
 
   const socket = require("./dist/socket");
@@ -92,6 +88,7 @@ lastestVersion(pkgName).then(function(version) {
     program.backend,
     program.token,
     connection,
+    pkg.version,
     program.team
   );
 });

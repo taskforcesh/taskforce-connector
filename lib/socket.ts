@@ -21,6 +21,7 @@ module.exports = (
   server: string,
   token: string,
   connection: Connection,
+  version: string,
   team?: string
 ) => {
   const ws = new WebSocketClient();
@@ -87,6 +88,7 @@ module.exports = (
           queues,
           connection: name,
           team,
+          version,
         })
       );
     } else {
@@ -251,7 +253,7 @@ module.exports = (
 
           console.log(
             `${chalk.yellow("WebSocket: ")} ${chalk.green(
-              "sending connections: "
+              "sending connection:"
             )} ${chalk.blueBright(name)} ${
               team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
             }`
@@ -261,6 +263,7 @@ module.exports = (
             queues,
             connection: name,
             team,
+            version,
           });
         }
         break;
