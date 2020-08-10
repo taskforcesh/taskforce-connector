@@ -60,12 +60,22 @@ The token `2cfe6a1b-5f0e-466f-99ad-12f51bea79a7` is a private token that can be 
 
 After running the command, you should be able to see the connection appear automatically on the dashboard.
 
-Note: You can also specify the taskforce token with the environment variable TASKFORCE_TOKEN
-
 Sentinel Example:
 
 ```bash
 ✗ taskforce -n "transcoder connection" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7 -s sentinel1.mydomain:6379,sentinel2.mydomain:6379 -m mymaster
+```
+
+Note: You can also specify the following with environment variables.
+
+```bash
+token     TASKFORCE_TOKEN 
+port      REDIS_PORT
+host      REDIS_HOST
+password  REDIS_PASSWD
+uri       REDIS_URI
+sentinels REDIS_SENTINELS
+master    REDIS_MASTER
 ```
 
 ## Secured TLS Connections
