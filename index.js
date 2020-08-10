@@ -40,6 +40,8 @@ program
     "backend domain [api.taskforce.sh]",
     "wss://api.taskforce.sh"
   )
+  .option("-s, --sentinels [host:port]", "Comma-separated list of sentinel host/port pairs", process.env.REDIS_SENTINELS)
+  .option("-m, --master [name]", "Name of master node used in sentinel configuration", process.env.REDIS_MASTER)
   .parse(process.argv);
 
 console.info(
@@ -80,6 +82,11 @@ lastestVersion(pkg.name).then(function (version) {
           agent: false,
         }
       : void 0,
+    sentinels: program.sentinels && program.sentinels.split(",").map(hostPort => {
+      const [host, port] = hostPort.split(":");
+      return { host, port };
+    }),
+    name: program.master,
   };
 
   const socket = require("./dist/socket");
