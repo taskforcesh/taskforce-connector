@@ -40,8 +40,8 @@ program
     "backend domain [api.taskforce.sh]",
     "wss://api.taskforce.sh"
   )
-  .option("-s, --sentinels [host:port]", "Comma-separated list of sentinel host/port pairs", process.env.REDIS_SENTINELS)
-  .option("-m, --master [name]", "Name of master node used in sentinel configuration", process.env.REDIS_MASTER)
+  .option("-s, --sentinels [host:port]", "comma-separated list of sentinel host/port pairs", process.env.REDIS_SENTINELS)
+  .option("-m, --master [name]", "name of master node used in sentinel configuration", process.env.REDIS_MASTER)
   .parse(process.argv);
 
 console.info(

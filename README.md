@@ -34,18 +34,20 @@ Call the tool and get a help on the options:
 
   Options:
 
-    -V, --version         output the version number
-    -n, --name [name]     connection name [My Connection] (default: "My Connection")
-    -t, --token [token]   api token (get yours at https://taskforce.sh)
-    -p, --port [port]     redis port [6379] (default: "6379")
-    --tls [tls]            (default: "Activate secured TLS connection to Redis")
-    -h, --host [host]     redis host [localhost] (default: "localhost")
-    -d, --database [db]   redis database [0] (default: "0")
-    --passwd [passwd]     redis password
-    -u, --uri [uri]       redis uri
-    --team [team]         specify team where to put the connection
-    -b, --backend [host]  backend domain [api.taskforce.sh] (default: "wss://api.taskforce.sh")
-    -h, --help            output usage information
+    -V, --version               output the version number
+    -n, --name [name]           connection name [My Connection] (default: "My Connection")
+    -t, --token [token]         api token (get yours at https://taskforce.sh)
+    -p, --port [port]           redis port [6379] (default: "6379")
+    --tls [tls]                 (default: "Activate secured TLS connection to Redis")
+    -h, --host [host]           redis host [localhost] (default: "localhost")
+    -d, --database [db]         redis database [0] (default: "0")
+    --passwd [passwd]           redis password
+    -u, --uri [uri]             redis uri
+    --team [team]               specify team where to put the connection
+    -b, --backend [host]        backend domain [api.taskforce.sh] (default: "wss://api.taskforce.sh")
+    -s, --sentinels [host:port] comma-separated list of sentinel host/port pairs
+    -m, --master [name]         name of master node used in sentinel configuration
+    -h, --help                  output usage information
 ```
 
 Example:
