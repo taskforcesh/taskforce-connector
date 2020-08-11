@@ -297,7 +297,7 @@ module.exports = (
 
 function redisOptsFromConnection(connection: Connection): RedisOptions {
   let opts: RedisOptions = {
-    ...pick(connection, ["port", "host", "family", "password", "db", "tls"]),
+    ...pick(connection, ["port", "host", "family", "password", "db", "tls", "sentinels", "name"]),
   };
 
   if (connection.uri) {

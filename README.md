@@ -34,32 +34,49 @@ Call the tool and get a help on the options:
 
   Options:
 
-    -V, --version         output the version number
-    -n, --name [name]     connection name [My Connection] (default: "My Connection")
-    -t, --token [token]   api token (get yours at https://taskforce.sh)
-    -p, --port [port]     redis port [6379] (default: "6379")
-    --tls [tls]            (default: "Activate secured TLS connection to Redis")
-    -h, --host [host]     redis host [localhost] (default: "localhost")
-    -d, --database [db]   redis database [0] (default: "0")
-    --passwd [passwd]     redis password
-    -u, --uri [uri]       redis uri
-    --team [team]         specify team where to put the connection
-    -b, --backend [host]  backend domain [api.taskforce.sh] (default: "wss://api.taskforce.sh")
-    -h, --help            output usage information
+    -V, --version               output the version number
+    -n, --name [name]           connection name [My Connection] (default: "My Connection")
+    -t, --token [token]         api token (get yours at https://taskforce.sh)
+    -p, --port [port]           redis port [6379] (default: "6379")
+    --tls [tls]                 (default: "Activate secured TLS connection to Redis")
+    -h, --host [host]           redis host [localhost] (default: "localhost")
+    -d, --database [db]         redis database [0] (default: "0")
+    --passwd [passwd]           redis password
+    -u, --uri [uri]             redis uri
+    --team [team]               specify team where to put the connection
+    -b, --backend [host]        backend domain [api.taskforce.sh] (default: "wss://api.taskforce.sh")
+    -s, --sentinels [host:port] comma-separated list of sentinel host/port pairs
+    -m, --master [name]         name of master node used in sentinel configuration
+    -h, --help                  output usage information
 ```
 
 Example:
 
 ```bash
 ✗ taskforce -n "transcoder connection" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7
-
 ```
 
 The token `2cfe6a1b-5f0e-466f-99ad-12f51bea79a7` is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
 
 After running the command, you should be able to see the connection appear automatically on the dashboard.
 
-Note: You can also specify the taskforce token with the environment variable TASKFORCE_TOKEN
+Sentinel Example:
+
+```bash
+✗ taskforce -n "transcoder connection" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7 -s sentinel1.mydomain:6379,sentinel2.mydomain:6379 -m mymaster
+```
+
+Note: You can also specify the following with environment variables.
+
+```bash
+token     TASKFORCE_TOKEN 
+port      REDIS_PORT
+host      REDIS_HOST
+password  REDIS_PASSWD
+uri       REDIS_URI
+sentinels REDIS_SENTINELS
+master    REDIS_MASTER
+```
 
 ## Secured TLS Connections
 

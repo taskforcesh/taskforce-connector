@@ -1,3 +1,8 @@
+v1.8.0
+======
+
+- Support for connecting to sentinels
+
 v1.7.1
 ======
 
