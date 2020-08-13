@@ -22,14 +22,14 @@ export async function updateQueuesCache(redisOpts: RedisOptions) {
   queuesCache = queuesCache || {};
 
   const oldQueues = Object.keys(queuesCache);
-  const newQueuesObject = keyBy(newQueues, "name");
+  const newQueuesObject = keyBy(newQueues, (queue) => queueKey(queue));
 
   const toAdd = [];
   const toRemove = [];
 
   for (let i = 0; i < newQueues.length; i++) {
     const newQueue = newQueues[i];
-    const oldQueue = queuesCache[newQueue.name];
+    const oldQueue = queuesCache[queueKey(newQueue)];
 
     if (!oldQueue) {
       toAdd.push(newQueue);
@@ -47,14 +47,15 @@ export async function updateQueuesCache(redisOpts: RedisOptions) {
 
   await Promise.all(
     toRemove.map(function (queue: Bull.Queue<any>) {
-      var closing = queue.close();
-      delete queuesCache[queue.name];
+      const closing = queue.close();
+      const name = (<any>queue)["name"] as string;
+      delete queuesCache[name];
       return closing;
     })
   );
 
   toAdd.forEach(function (queue: FoundQueue) {
-    queuesCache[queue.name] = new Bull(queue.name, {
+    queuesCache[queueKey(queue)] = new Bull(queue.name, {
       prefix: queue.prefix,
       redis: redisOpts,
     });
@@ -123,4 +124,8 @@ async function execRedisCommand(
   await redisClient.quit();
 
   return result;
+}
+
+export function queueKey(queue: FoundQueue) {
+  return `${queue.prefix}:${queue.name}`;
 }
