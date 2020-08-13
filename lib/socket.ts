@@ -2,7 +2,12 @@ import * as Bull from "bull";
 import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import * as url from "url";
-import { getCache, updateQueuesCache, getRedisInfo } from "./queues-cache";
+import {
+  getCache,
+  updateQueuesCache,
+  getRedisInfo,
+  queueKey,
+} from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 
 const chalk = require("chalk");
@@ -102,7 +107,7 @@ module.exports = (
         return;
       }
 
-      const { res, queueName } = msg.data;
+      const { res, queueName, queuePrefix } = msg.data;
 
       switch (res) {
         case "connections":
@@ -114,7 +119,8 @@ module.exports = (
           if (!cache) {
             await updateQueuesCache(redisOpts);
           }
-          var queue = cache[queueName];
+          var queue =
+            cache[queueKey({ name: queueName, prefix: queuePrefix || "bull" })];
 
           if (!queue) {
             ws.send(
@@ -297,7 +303,16 @@ module.exports = (
 
 function redisOptsFromConnection(connection: Connection): RedisOptions {
   let opts: RedisOptions = {
-    ...pick(connection, ["port", "host", "family", "password", "db", "tls", "sentinels", "name"]),
+    ...pick(connection, [
+      "port",
+      "host",
+      "family",
+      "password",
+      "db",
+      "tls",
+      "sentinels",
+      "name",
+    ]),
   };
 
   if (connection.uri) {

@@ -7,7 +7,7 @@
     "taskforce": "index.js"
   },
   "dependencies": {
-    "bull": "^3.6.0",
+    "bull": "^3.18.0",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^4.2.0",

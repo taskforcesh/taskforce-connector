@@ -65,21 +65,21 @@ ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-bull@^3.6.0:
-  version "3.15.0"
-  resolved "https://registry.yarnpkg.com/bull/-/bull-3.15.0.tgz#1cebf9f7fbf5ceb1aa5348e86910c2097554d980"
-  integrity sha512-5+HoYZXy5tYIpWdod7Xa0nahRkN2uItfmoCqgWEokabDjD4igvfB9CHf3uPWBnXngQ8EiTlglim5IGdz4MzdvA==
+bull@^3.18.0:
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/bull/-/bull-3.18.0.tgz#7d7730c8ab0975ea9ee4e74f6f85bd731c3526cb"
+  integrity sha512-nE/BKlg1dnJ/AcOy5D1nzthcmpAKqpUVXzQ43mJfnVC8ZM7mi4ZzP3spN7745UuikzmGGsbTe9px2TbEKhR+DQ==
   dependencies:
     cron-parser "^2.13.0"
     debuglog "^1.0.0"
     get-port "^5.1.1"
     ioredis "^4.14.1"
-    lodash "^4.17.15"
+    lodash "^4.17.19"
     p-timeout "^3.2.0"
     promise.prototype.finally "^3.1.2"
-    semver "^6.3.0"
+    semver "^7.3.2"
     util.promisify "^1.0.1"
-    uuid "^3.4.0"
+    uuid "^8.3.0"
 
 cacheable-request@^6.0.0:
   version "6.1.0"
@@ -361,7 +361,7 @@ lodash.flatten@^4.4.0:
   resolved "https://registry.yarnpkg.com/lodash.flatten/-/lodash.flatten-4.4.0.tgz#f31c22225a9632d2bbf8e4addbef240aa765a61f"
   integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
 
-lodash@^4.17.15, lodash@^4.17.5:
+lodash@^4.17.19, lodash@^4.17.5:
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
@@ -540,7 +540,7 @@ responselike@^1.0.2:
   dependencies:
     lowercase-keys "^1.0.0"
 
-semver@^6.2.0, semver@^6.3.0:
+semver@^6.2.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
@@ -610,10 +610,10 @@ util.promisify@^1.0.1:
     has-symbols "^1.0.1"
     object.getownpropertydescriptors "^2.1.0"
 
-uuid@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
-  integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+uuid@^8.3.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.0.tgz#ab738085ca22dc9a8c92725e459b1d507df5d6ea"
+  integrity sha512-fX6Z5o4m6XsXBdli9g7DtWgAx+osMsRRZFKma1mIUsLCz6vRvv+pz5VNbyu9UEDzpMWulZfvpgb/cmDXVulYFQ==
 
 wrappy@1:
   version "1.0.2"
