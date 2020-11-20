@@ -1,13 +1,13 @@
 {
   "name": "taskforce-connector",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
   "bin": {
     "taskforce": "index.js"
   },
   "dependencies": {
-    "bull": "^3.18.0",
+    "bull": "^3.19.1",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^4.2.0",
