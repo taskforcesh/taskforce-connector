@@ -149,13 +149,18 @@ module.exports = (
     messageId: string,
     start: number,
     end: number,
-    method: string
+    method: string,
+    opts?: {
+      excludeData: boolean;
+    }
   ) {
     start = start || 0;
     end = end || -1;
-    return (<any>queue)[method](start, end).then(function (jobs: Bull.Job[]) {
-      respond(messageId, jobs);
-    });
+    return (<any>queue)
+      [method](start, end, opts)
+      .then(function (jobs: Bull.Job[]) {
+        respond(messageId, jobs);
+      });
   }
 
   async function respondJobCommand(queue: Bull.Queue, msg: any) {
@@ -201,7 +206,7 @@ module.exports = (
       case "getFailed":
       case "getRepeatableJobs":
       case "getWorkers":
-        paginate(queue, msg.id, data.start, data.end, data.cmd);
+        paginate(queue, msg.id, data.start, data.end, data.cmd, data.opts);
         break;
 
       case "getJobLogs":
