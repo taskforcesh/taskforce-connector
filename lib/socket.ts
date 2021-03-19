@@ -228,7 +228,7 @@ module.exports = (
         respond(msg.id, count);
         break;
       case "removeRepeatableByKey":
-        await (<any>queue).removeRepeatableByKey(data.key);
+        await queue.removeRepeatableByKey(data.key);
         respond(msg.id);
         break;
       case "empty":
@@ -244,8 +244,12 @@ module.exports = (
         respond(msg.id);
         break;
       case "isPaused":
-        const isPaused = await (<any>queue)["isPaused"]();
+        const isPaused = await queue.isPaused();
         respond(msg.id, isPaused);
+        break;
+      case "obliterate":
+        await (<any>queue).obliterate();
+        respond(msg.id);
         break;
       default:
         console.error(
