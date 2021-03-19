@@ -7,21 +7,22 @@
     "taskforce": "index.js"
   },
   "dependencies": {
-    "bull": "^3.19.1",
+    "bull": "^3.21.1",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^4.2.0",
     "latest-version": "^5.1.0",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.21",
+    "redis": "^3.0.2",
     "semver": "^7.3.2",
     "ws": "^7.0.0"
   },
   "devDependencies": {
-    "@types/bull": "^3.3.20",
+    "@types/bull": "^3.15.0",
     "@types/chalk": "^2.2.0",
     "@types/lodash": "^4.14.149",
     "@types/ws": "^6.0.1",
-    "typescript": "^3.0.3"
+    "typescript": "^4.2.3"
   },
   "scripts": {
     "build": "tsc",
