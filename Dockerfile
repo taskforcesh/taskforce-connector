@@ -1,9 +1,8 @@
-FROM mhart/alpine-node:12.18.2
+FROM node:14-alpine
 
-RUN apk update
-RUN apk add curl
+RUN apk --no-cache add curl
 
-RUN yarn global add --ignore-optional taskforce-connector pm2@3.5.1
+RUN yarn global add --ignore-optional taskforce-connector pm2@3.5.2 && yarn cache clean
 
 CMD pm2-runtime taskforce --web 80 -- -n "${TASKFORCE_CONNECTION}" --team "${TASKFORCE_TEAM}"
 
