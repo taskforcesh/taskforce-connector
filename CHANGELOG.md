@@ -1,5 +1,4 @@
-# 1.0.0 (2021-05-03)
-
+# v1.13.0 and previous versions (2021-05-03)
 
 ### Bug Fixes
 
