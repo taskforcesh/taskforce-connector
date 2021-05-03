@@ -18,6 +18,12 @@
     "ws": "^7.0.0"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/github": "^7.2.1",
+    "@semantic-release/npm": "^7.1.1",
+    "@semantic-release/release-notes-generator": "^9.0.2",
     "@types/bull": "^3.15.0",
     "@types/chalk": "^2.2.0",
     "@types/lodash": "^4.14.149",
@@ -31,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taskforcesh/bull-local.git"
+    "url": "git+https://github.com/taskforcesh/taskforce-connector.git"
   },
   "keywords": [
     "taskforce",
@@ -41,7 +47,40 @@
   "author": "Taskforce.sh Inc.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/taskforcesh/bull-local/issues"
+    "url": "https://github.com/taskforcesh/taskforce-connector/issues"
   },
-  "homepage": "https://github.com/taskforcesh/bull-local#readme"
+  "homepage": "https://github.com/taskforcesh/taskforce-connector#readme",
+  "release": {
+    "branches": [
+      "develop"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": true
+        }
+      ],
+      "@semantic-release/github",
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "yarn.lock",
+            "CHANGELOG.md"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ]
+    ]
+  }
 }
