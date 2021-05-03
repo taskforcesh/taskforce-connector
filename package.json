@@ -52,7 +52,7 @@
   "homepage": "https://github.com/taskforcesh/taskforce-connector#readme",
   "release": {
     "branches": [
-      "develop"
+      "master"
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",
