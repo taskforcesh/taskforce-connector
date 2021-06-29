@@ -69,7 +69,7 @@ Sentinel Example:
 Note: You can also specify the following with environment variables.
 
 ```bash
-token     TASKFORCE_TOKEN 
+token     TASKFORCE_TOKEN
 port      REDIS_PORT
 host      REDIS_HOST
 password  REDIS_PASSWD
@@ -90,4 +90,32 @@ as an option:
 ```bash
 ✗ taskforce -n "transcoder connection" -t 2cfe6a1b-5f0e-466f-99ad-12f51bea79a7 --team "my awesome team"
 
+```
+
+## Use as a library
+
+It is also possible to add the connector as a library:
+
+As a commonjs dependency:
+
+```js
+const { Connect } = require("taskforce-connector");
+
+const taskforceConnection = Connect(
+  "adleria",
+  config.taskforce.token,
+  config.redisOpts
+);
+```
+
+or as a es6 module:
+
+```ts
+import { Connect } from "taskforce-connector";
+
+const taskforceConnection = Connect(
+  "adleria",
+  config.taskforce.token,
+  config.redisOpts
+);
 ```
