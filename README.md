@@ -101,11 +101,11 @@ As a commonjs dependency:
 ```js
 const { Connect } = require("taskforce-connector");
 
-const taskforceConnection = Connect(
-  "adleria",
-  config.taskforce.token,
-  config.redisOpts
-);
+const taskforceConnection = Connect("my connection", "my token", {
+  host,
+  port,
+  password,
+});
 ```
 
 or as a es6 module:
@@ -113,9 +113,9 @@ or as a es6 module:
 ```ts
 import { Connect } from "taskforce-connector";
 
-const taskforceConnection = Connect(
-  "adleria",
-  config.taskforce.token,
-  config.redisOpts
-);
+const taskforceConnection = Connect("my connection", "my token", {
+  host,
+  port,
+  password,
+});
 ```
