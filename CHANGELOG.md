@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.13.0...v1.14.0) (2021-06-29)
+
+
+### Features
+
+* support using connector as a library ([fe07e2b](https://github.com/taskforcesh/taskforce-connector/commit/fe07e2bf63f1591f46664147e56c495131125bae))
+
 # v1.13.0 and previous versions (2021-05-03)
 
 ### Bug Fixes
