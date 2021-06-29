@@ -39,7 +39,8 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./index.js"
+    "start": "./index.js",
+    "prepare": "yarn build"
   },
   "repository": {
     "type": "git",
