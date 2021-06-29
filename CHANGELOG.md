@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.14.0...v1.14.1) (2021-06-29)
+
+
+### Bug Fixes
+
+* remove socket.d.ts from dist ([a7dfceb](https://github.com/taskforcesh/taskforce-connector/commit/a7dfcebd5ba9686f241cc958a3dd34d3956422ae))
+
 # [1.14.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.13.0...v1.14.0) (2021-06-29)
 
 
