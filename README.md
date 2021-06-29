@@ -102,9 +102,9 @@ As a commonjs dependency:
 const { Connect } = require("taskforce-connector");
 
 const taskforceConnection = Connect("my connection", "my token", {
-  host,
-  port,
-  password,
+  host: "my redis host",
+  port: "my redis port",
+  password: "my redis password",
 });
 ```
 
@@ -114,8 +114,8 @@ or as a es6 module:
 import { Connect } from "taskforce-connector";
 
 const taskforceConnection = Connect("my connection", "my token", {
-  host,
-  port,
-  password,
+  host: "my redis host",
+  port: "my redis port",
+  password: "my redis password",
 });
 ```
