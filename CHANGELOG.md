@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.14.1...v1.14.2) (2021-06-29)
+
+
+### Bug Fixes
+
+* **package:** add prepare script ([bc7f7c0](https://github.com/taskforcesh/taskforce-connector/commit/bc7f7c0eeddbe4d3b0850d9cf0a5c0329865fb8f))
+
 ## [1.14.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.14.0...v1.14.1) (2021-06-29)
 
 
