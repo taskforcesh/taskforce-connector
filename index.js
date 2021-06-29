@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 const program = require("commander");
-const pkg = require(__dirname + "/package.json");
+const { name, version } = require(__dirname + "/package.json");
 const chalk = require("chalk");
 
 // Check version
@@ -8,7 +8,7 @@ const lastestVersion = require("latest-version");
 const semver = require("semver");
 
 program
-  .version(pkg.version)
+  .version(version)
 
   .option(
     "-n, --name [name]",
@@ -40,18 +40,26 @@ program
     "backend domain [api.taskforce.sh]",
     "wss://api.taskforce.sh"
   )
-  .option("-s, --sentinels [host:port]", "comma-separated list of sentinel host/port pairs", process.env.REDIS_SENTINELS)
-  .option("-m, --master [name]", "name of master node used in sentinel configuration", process.env.REDIS_MASTER)
+  .option(
+    "-s, --sentinels [host:port]",
+    "comma-separated list of sentinel host/port pairs",
+    process.env.REDIS_SENTINELS
+  )
+  .option(
+    "-m, --master [name]",
+    "name of master node used in sentinel configuration",
+    process.env.REDIS_MASTER
+  )
   .parse(process.argv);
 
 console.info(
   chalk.blueBright(
-    "Taskforce Connector v" + pkg.version + " - (c) 2017-2020 Taskforce.sh Inc."
+    "Taskforce Connector v" + version + " - (c) 2017-2021 Taskforce.sh Inc."
   )
 );
 
-lastestVersion(pkg.name).then(function (version) {
-  if (semver.gt(version, pkg.version)) {
+lastestVersion(name).then(function (version) {
+  if (semver.gt(version, version)) {
     console.error(
       chalk.yellow(
         "New version " +
@@ -82,20 +90,21 @@ lastestVersion(pkg.name).then(function (version) {
           agent: false,
         }
       : void 0,
-    sentinels: program.sentinels && program.sentinels.split(",").map(hostPort => {
-      const [host, port] = hostPort.split(":");
-      return { host, port };
-    }),
+    sentinels:
+      program.sentinels &&
+      program.sentinels.split(",").map((hostPort) => {
+        const [host, port] = hostPort.split(":");
+        return { host, port };
+      }),
     name: program.master,
   };
 
-  const socket = require("./dist/socket");
-  socket(
+  const { Socket } = require("./dist/socket");
+  Socket(
     program.name,
     program.backend,
     program.token,
     connection,
-    pkg.version,
     program.team
   );
 });
