@@ -10,9 +10,11 @@ import {
 } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 
+const { version } = require(`${__dirname}/../package.json`);
+
 const chalk = require("chalk");
 
-interface Connection {
+export interface Connection {
   port?: number;
   host?: string;
   password?: string;
@@ -21,12 +23,11 @@ interface Connection {
   tls?: object;
 }
 
-module.exports = (
+export const Socket = (
   name: string,
   server: string,
   token: string,
   connection: Connection,
-  version: string,
   team?: string
 ) => {
   const ws = new WebSocketClient();
