@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.14.2...v1.15.0) (2021-07-10)
+
+
+### Features
+
+* add job#update and queue#add methods ([e1d7e15](https://github.com/taskforcesh/taskforce-connector/commit/e1d7e15f5c905ae28dae058f825665284e42eb12))
+
 ## [1.14.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.14.1...v1.14.2) (2021-06-29)
 
 

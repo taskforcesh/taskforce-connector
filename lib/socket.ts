@@ -184,6 +184,12 @@ export const Socket = (
       case "moveToFailed":
         await job.moveToFailed({ message: "Failed manually" });
         break;
+      case "update":
+        await job.update(data.data);
+      default:
+        console.error(
+          `Missing command ${data.cmd}. Too old version of taskforce-connector?`
+        );
     }
 
     respond(msg.id);
@@ -232,6 +238,10 @@ export const Socket = (
         await queue.removeRepeatableByKey(data.key);
         respond(msg.id);
         break;
+      case "add":
+          await queue.add(...(data.args as [string, object, object]));
+          respond(msg.id);
+          break;
       case "empty":
         await queue.empty();
         respond(msg.id);
