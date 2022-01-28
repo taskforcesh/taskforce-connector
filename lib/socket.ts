@@ -252,6 +252,10 @@ export const Socket = (
         await (<any>queue).obliterate();
         respond(msg.id);
         break;
+      case "clean":
+        await (<any>queue).clean(data.grace, data.status, data.limit);
+        respond(msg.id);
+        break;
       default:
         console.error(
           `Missing command ${data.cmd}. Too old version of taskforce-connector?`
