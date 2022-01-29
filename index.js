@@ -58,8 +58,8 @@ console.info(
   )
 );
 
-lastestVersion(name).then(function (version) {
-  if (semver.gt(version, version)) {
+lastestVersion(name).then(function (newestVersion) {
+  if (semver.gt(newestVersion, version)) {
     console.error(
       chalk.yellow(
         "New version " +
