@@ -1,3 +1,15 @@
+# [1.16.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.15.0...v1.16.0) (2022-01-29)
+
+
+### Bug Fixes
+
+* correct new version check ([f3b6437](https://github.com/taskforcesh/taskforce-connector/commit/f3b6437265c62ea9b3f65790d675704c8aa4e800))
+
+
+### Features
+
+* **commands:** add support for clean ([a56eadb](https://github.com/taskforcesh/taskforce-connector/commit/a56eadb93ed1ceffb8ea63214a5c4cbc2d0f2e3d))
+
 # [1.15.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.14.2...v1.15.0) (2021-07-10)
 
 
