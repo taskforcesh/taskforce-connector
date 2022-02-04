@@ -13,7 +13,7 @@
     "dist"
   ],
   "dependencies": {
-    "bull": "^3.22.9",
+    "bull": "^4.5.0",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^4.27.6",

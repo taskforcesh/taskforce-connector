@@ -239,9 +239,9 @@ export const Socket = (
         respond(msg.id);
         break;
       case "add":
-          await queue.add(...(data.args as [string, object, object]));
-          respond(msg.id);
-          break;
+        await queue.add(...(data.args as [string, object, object]));
+        respond(msg.id);
+        break;
       case "empty":
         await queue.empty();
         respond(msg.id);
@@ -264,6 +264,13 @@ export const Socket = (
         break;
       case "clean":
         await (<any>queue).clean(data.grace, data.status, data.limit);
+        respond(msg.id);
+        break;
+      case "retryJobs":
+        await (<any>queue).retryJobs({
+          status: data.status,
+          count: data.count,
+        });
         respond(msg.id);
         break;
       default:
