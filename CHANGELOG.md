@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.16.0...v1.17.0) (2022-02-04)
+
+
+### Features
+
+* add support for retry all failed jobs ([f61db93](https://github.com/taskforcesh/taskforce-connector/commit/f61db935dbf2910c73cb0ac8f3ee35def0ba9596))
+
 # [1.16.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.15.0...v1.16.0) (2022-01-29)
 
 
