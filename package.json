@@ -13,7 +13,7 @@
     "dist"
   ],
   "dependencies": {
-    "bull": "^4.5.0",
+    "bull": "^4.8.1",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^4.27.6",
@@ -30,7 +30,7 @@
     "@semantic-release/github": "^7.2.1",
     "@semantic-release/npm": "^7.1.1",
     "@semantic-release/release-notes-generator": "^9.0.2",
-    "@types/bull": "^3.15.0",
+    "@types/bull": "^3.15.8",
     "@types/chalk": "^2.2.0",
     "@types/lodash": "^4.14.149",
     "@types/ws": "^6.0.1",

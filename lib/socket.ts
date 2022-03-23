@@ -191,7 +191,6 @@ export const Socket = (
           `Missing command ${data.cmd}. Too old version of taskforce-connector?`
         );
     }
-
     respond(msg.id);
   }
 
@@ -206,6 +205,14 @@ export const Socket = (
         const jobCounts = await queue.getJobCounts();
         respond(msg.id, jobCounts);
         break;
+      case "getMetrics":
+        const metrics = await (<any>queue).getMetrics(
+          data.type,
+          data.start,
+          data.end
+        );
+        respond(msg.id, metrics);
+        break;
       case "getWaiting":
       case "getActive":
       case "getDelayed":
@@ -217,11 +224,7 @@ export const Socket = (
         break;
 
       case "getJobLogs":
-        const logs = await (<any>queue).getJobLogs(
-          data.jobId,
-          data.start,
-          data.end
-        );
+        const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
         respond(msg.id, logs);
 
       case "getWaitingCount":
@@ -259,11 +262,11 @@ export const Socket = (
         respond(msg.id, isPaused);
         break;
       case "obliterate":
-        await (<any>queue).obliterate();
+        await queue.obliterate();
         respond(msg.id);
         break;
       case "clean":
-        await (<any>queue).clean(data.grace, data.status, data.limit);
+        await queue.clean(data.grace, data.status, data.limit);
         respond(msg.id);
         break;
       case "retryJobs":
