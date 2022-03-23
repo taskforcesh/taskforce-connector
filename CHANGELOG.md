@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.17.0...v1.18.0) (2022-03-23)
+
+
+### Features
+
+* add real-time metrics support. Fix [#46](https://github.com/taskforcesh/taskforce-connector/issues/46). ([7b65ee5](https://github.com/taskforcesh/taskforce-connector/commit/7b65ee5773eaddc222829ffbdef119751eb4f009))
+
 # [1.17.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.16.0...v1.17.0) (2022-02-04)
 
 
