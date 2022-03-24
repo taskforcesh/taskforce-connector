@@ -245,6 +245,10 @@ export const Socket = (
         await queue.add(...(data.args as [string, object, object]));
         respond(msg.id);
         break;
+      case "empty":
+        await queue.drain();
+        respond(msg.id);
+        break;
       case "pause":
         await queue.pause();
         respond(msg.id);
