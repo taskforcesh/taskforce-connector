@@ -1,4 +1,4 @@
-import * as Bull from "bull";
+import {Queue, Job} from "bullmq";
 import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import * as url from "url";
@@ -146,7 +146,7 @@ export const Socket = (
   };
 
   function paginate(
-    queue: Bull.Queue,
+    queue: Queue,
     messageId: string,
     start: number,
     end: number,
@@ -159,12 +159,12 @@ export const Socket = (
     end = end || -1;
     return (<any>queue)
       [method](start, end, opts)
-      .then(function (jobs: Bull.Job[]) {
+      .then(function (jobs: Job[]) {
         respond(messageId, jobs);
       });
   }
 
-  async function respondJobCommand(queue: Bull.Queue, msg: any) {
+  async function respondJobCommand(queue: Queue, msg: any) {
     const data = msg.data;
     const job = await queue.getJob(data.jobId);
 
@@ -182,7 +182,7 @@ export const Socket = (
         await job.discard();
         break;
       case "moveToFailed":
-        await job.moveToFailed({ message: "Failed manually" });
+        await job.moveToFailed(new Error("Failed manually"), '0');
         break;
       case "update":
         await job.update(data.data);
@@ -194,7 +194,7 @@ export const Socket = (
     respond(msg.id);
   }
 
-  async function respondQueueCommand(queue: Bull.Queue, msg: any) {
+  async function respondQueueCommand(queue: Queue, msg: any) {
     const data = msg.data;
     switch (data.cmd) {
       case "getJob":
@@ -243,10 +243,6 @@ export const Socket = (
         break;
       case "add":
         await queue.add(...(data.args as [string, object, object]));
-        respond(msg.id);
-        break;
-      case "empty":
-        await queue.empty();
         respond(msg.id);
         break;
       case "pause":

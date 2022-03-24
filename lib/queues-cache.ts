@@ -1,11 +1,11 @@
-import * as Bull from "bull";
+import {Queue} from "bullmq";
 import { RedisOptions } from "ioredis";
 import { keyBy } from "lodash";
 import * as Redis from "ioredis";
 
 const chalk = require("chalk");
 
-let queuesCache: { [index: string]: Bull.Queue } = null;
+let queuesCache: { [index: string]: Queue } = null;
 
 export const getCache = () => {
   return queuesCache;
@@ -46,7 +46,7 @@ export async function updateQueuesCache(redisOpts: RedisOptions) {
   }
 
   await Promise.all(
-    toRemove.map(function (queue: Bull.Queue<any>) {
+    toRemove.map(function (queue: Queue) {
       const closing = queue.close();
       const name = (<any>queue)["name"] as string;
       delete queuesCache[name];
@@ -55,9 +55,9 @@ export async function updateQueuesCache(redisOpts: RedisOptions) {
   );
 
   toAdd.forEach(function (queue: FoundQueue) {
-    queuesCache[queueKey(queue)] = new Bull(queue.name, {
+    queuesCache[queueKey(queue)] = new Queue(queue.name, {
       prefix: queue.prefix,
-      redis: redisOpts,
+      connection: redisOpts
     });
   });
 

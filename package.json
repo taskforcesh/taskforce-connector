@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "bull": "^4.8.1",
+    "bullmq": "^1.78.0",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^4.27.6",
