@@ -6,6 +6,7 @@ import {
   getCache,
   updateQueuesCache,
   getRedisInfo,
+  ping,
   queueKey,
 } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
@@ -67,7 +68,7 @@ export const Socket = (
 
   ws.onmessage = async function incoming(input: string) {
     console.log(
-      chalk.yellow("WebSocket:") + chalk.blueBright(" received"),
+      `${chalk.yellow("WebSocket:")} ${chalk.blueBright("received")} %s`,
       input
     );
     if (input === "authorized") {
@@ -287,6 +288,10 @@ export const Socket = (
   async function respondConnectionCommand(connection: Connection, msg: any) {
     const data = msg.data;
     switch (data.cmd) {
+      case "ping":
+        const pong = await ping(redisOpts);
+        respond(msg.id, pong);
+        break;
       case "getConnection":
         {
           const queues = await updateQueuesCache(redisOpts);
@@ -312,7 +317,9 @@ export const Socket = (
           const queues = await updateQueuesCache(redisOpts);
 
           console.log(
-            chalk.yellow("WebSocket:") + chalk.blueBright(" sending queues "),
+            `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
+              " sending queues "
+            )}`,
             queues
           );
 

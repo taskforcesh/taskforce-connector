@@ -85,11 +85,12 @@ async function getConnectionQueues(
   return queues;
 }
 
-export async function getRedisInfo(redisOpts: RedisOptions) {
-  const info = await execRedisCommand(redisOpts, async (client) => {
-    return client.info();
-  });
+export async function ping(redisOpts: RedisOptions) {
+  return execRedisCommand(redisOpts, (client) => client.ping());
+}
 
+export async function getRedisInfo(redisOpts: RedisOptions) {
+  const info = await execRedisCommand(redisOpts, (client) => client.info());
   return info;
 }
 
@@ -101,21 +102,23 @@ async function execRedisCommand(
 
   redisClient.on("error", (err: Error) => {
     console.log(
-      chalk.yellow("Redis:") + chalk.red(" redis connection error "),
-      err.message
+      `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
+        err.message
+      }`
     );
   });
 
   redisClient.on("connect", () => {
     console.log(
-      chalk.yellow("Redis:") + chalk.green(" connected to redis server")
+      `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
     );
   });
 
   redisClient.on("end", () => {
     console.log(
-      chalk.yellow("Redis:") +
-        chalk.blueBright(" disconnected from redis server")
+      `${chalk.yellow("Redis:")} ${chalk.blueBright(
+        "disconnected from redis server"
+      )}`
     );
   });
 
