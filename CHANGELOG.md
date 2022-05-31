@@ -1,3 +1,15 @@
+# [1.19.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.18.0...v1.19.0) (2022-05-31)
+
+
+### Bug Fixes
+
+* **dockerfile:** update pm2 fixes [#45](https://github.com/taskforcesh/taskforce-connector/issues/45) ([1aa1e5d](https://github.com/taskforcesh/taskforce-connector/commit/1aa1e5dc6d309ff3aae430c6a94e4c6322831d20))
+
+
+### Features
+
+* add ping support ([3805b5a](https://github.com/taskforcesh/taskforce-connector/commit/3805b5a6707e36cb493a3f097560892f19f23aa7))
+
 # [1.18.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.17.0...v1.18.0) (2022-03-23)
 
 
