@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.19.0...v1.20.0) (2022-06-09)
+
+
+### Features
+
+* add experimental support to redis cluster ([e0e12bb](https://github.com/taskforcesh/taskforce-connector/commit/e0e12bb0e18d9781924f63dd57e61ca872e436b6))
+
 # [1.19.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.18.0...v1.19.0) (2022-05-31)
 
 
