@@ -16,8 +16,14 @@ export interface FoundQueue {
   name: string;
 }
 
-export async function updateQueuesCache(redisOpts: RedisOptions) {
-  const newQueues = await getConnectionQueues(redisOpts);
+// We keep a redis client that we can reuse for all the queues.
+let redisClient: Redis.Redis | Redis.Cluster;
+
+export async function updateQueuesCache(
+  redisOpts: RedisOptions,
+  nodes?: string[]
+) {
+  const newQueues = await getConnectionQueues(redisOpts, nodes);
 
   queuesCache = queuesCache || {};
 
@@ -54,10 +60,19 @@ export async function updateQueuesCache(redisOpts: RedisOptions) {
     })
   );
 
+  const createClient = function (type: "client" /*, redisOpts */) {
+    switch (type) {
+      case "client":
+        return getRedisClient(redisOpts, nodes);
+      default:
+        throw new Error(`Unexpected connection type: ${type}`);
+    }
+  };
+
   toAdd.forEach(function (queue: FoundQueue) {
     queuesCache[queueKey(queue)] = new Bull(queue.name, {
+      createClient,
       prefix: queue.prefix,
-      redis: redisOpts,
     });
   });
 
@@ -66,65 +81,88 @@ export async function updateQueuesCache(redisOpts: RedisOptions) {
 
 const queueNameRegExp = new RegExp("(.*):(.*):id");
 async function getConnectionQueues(
-  redisOpts: RedisOptions
+  redisOpts: RedisOptions,
+  clusterNodes?: string[]
 ): Promise<FoundQueue[]> {
-  const queues = await execRedisCommand(redisOpts, async (client) => {
-    const keys: string[] = await client.keys("*:*:id");
-    const queues = keys.map(function (key) {
-      var match = queueNameRegExp.exec(key);
-      if (match) {
-        return {
-          prefix: match[1],
-          name: match[2],
-        };
-      }
-    });
-    return queues;
-  });
+  const queues = await execRedisCommand(
+    redisOpts,
+    async (client) => {
+      const keys: string[] = await client.keys("*:*:id");
+      const queues = keys.map(function (key) {
+        var match = queueNameRegExp.exec(key);
+        if (match) {
+          return {
+            prefix: match[1],
+            name: match[2],
+          };
+        }
+      });
+      return queues;
+    },
+    clusterNodes
+  );
 
   return queues;
 }
 
-export async function ping(redisOpts: RedisOptions) {
-  return execRedisCommand(redisOpts, (client) => client.ping());
+export async function ping(redisOpts: RedisOptions, clusterNodes?: string[]) {
+  return execRedisCommand(redisOpts, (client) => client.ping(), clusterNodes);
 }
 
-export async function getRedisInfo(redisOpts: RedisOptions) {
-  const info = await execRedisCommand(redisOpts, (client) => client.info());
+export async function getRedisInfo(
+  redisOpts: RedisOptions,
+  clusterNodes?: string[]
+) {
+  const info = await execRedisCommand(
+    redisOpts,
+    (client) => client.info(),
+    clusterNodes
+  );
   return info;
+}
+
+function getRedisClient(redisOpts: RedisOptions, clusterNodes?: string[]) {
+  if (!redisClient) {
+    if (clusterNodes && clusterNodes.length) {
+      redisClient = new Redis.Cluster(clusterNodes, redisOpts);
+    } else {
+      redisClient = new Redis(redisOpts);
+    }
+
+    redisClient.on("error", (err: Error) => {
+      console.log(
+        `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
+          err.message
+        }`
+      );
+    });
+
+    redisClient.on("connect", () => {
+      console.log(
+        `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
+      );
+    });
+
+    redisClient.on("end", () => {
+      console.log(
+        `${chalk.yellow("Redis:")} ${chalk.blueBright(
+          "disconnected from redis server"
+        )}`
+      );
+    });
+  }
+
+  return redisClient;
 }
 
 async function execRedisCommand(
   redisOpts: RedisOptions,
-  cb: (client: Redis.Redis) => any
+  cb: (client: Redis.Redis | Redis.Cluster) => any,
+  clusterNodes?: string[]
 ) {
-  const redisClient = new Redis(redisOpts);
-
-  redisClient.on("error", (err: Error) => {
-    console.log(
-      `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
-        err.message
-      }`
-    );
-  });
-
-  redisClient.on("connect", () => {
-    console.log(
-      `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
-    );
-  });
-
-  redisClient.on("end", () => {
-    console.log(
-      `${chalk.yellow("Redis:")} ${chalk.blueBright(
-        "disconnected from redis server"
-      )}`
-    );
-  });
+  const redisClient = getRedisClient(redisOpts, clusterNodes);
 
   const result = await cb(redisClient);
-
-  await redisClient.quit();
 
   return result;
 }

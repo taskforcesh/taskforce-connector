@@ -50,6 +50,11 @@ program
     "name of master node used in sentinel configuration",
     process.env.REDIS_MASTER
   )
+  .option(
+    "--nodes <nodes>",
+    "comma-separated list of cluster nodes uris to connect to",
+    (value, dummyPrevious) => value.split(",")
+  )
   .parse(process.argv);
 
 console.info(
@@ -105,6 +110,7 @@ lastestVersion(name).then(function (newestVersion) {
     program.backend,
     program.token,
     connection,
-    program.team
+    program.team,
+    program.nodes
   );
 });
