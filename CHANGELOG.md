@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.20.0...v1.21.0) (2023-01-23)
+
+
+### Features
+
+* support custom backend programmatically ([87a0e60](https://github.com/taskforcesh/taskforce-connector/commit/87a0e60a6c06b757cebf9c1e0c0241ec65379726))
+
 # [1.20.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.19.0...v1.20.0) (2022-06-09)
 
 
