@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.0...v1.21.1) (2023-01-23)
+
+
+### Bug Fixes
+
+* **queues:** use scan instead of keys fixes https://github.com/taskforcesh/issues/issues/65 ([3c017ec](https://github.com/taskforcesh/taskforce-connector/commit/3c017ec490e622b8054f5af6871ebb69a46638aa))
+
 # [1.21.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.20.0...v1.21.0) (2023-01-23)
 
 
