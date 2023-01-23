@@ -80,6 +80,30 @@ export async function updateQueuesCache(
 }
 
 const queueNameRegExp = new RegExp("(.*):(.*):id");
+const maxCount = 50000;
+const maxTime = 30000;
+
+const getQueueKeys = async (client: Redis.Redis | Redis.Cluster) => {
+  let keys = [],
+    cursor = "0";
+  const startTime = Date.now();
+
+  do {
+    const [nextCursor, scannedKeys] = await client.scan(
+      cursor,
+      "MATCH",
+      "*:*:id",
+      "COUNT",
+      maxCount
+    );
+    cursor = nextCursor;
+
+    keys.push(...scannedKeys);
+  } while (Date.now() - startTime < maxTime && cursor !== "0");
+
+  return keys;
+};
+
 async function getConnectionQueues(
   redisOpts: RedisOptions,
   clusterNodes?: string[]
@@ -87,7 +111,8 @@ async function getConnectionQueues(
   const queues = await execRedisCommand(
     redisOpts,
     async (client) => {
-      const keys: string[] = await client.keys("*:*:id");
+      const keys = await getQueueKeys(client);
+
       const queues = keys.map(function (key) {
         var match = queueNameRegExp.exec(key);
         if (match) {
