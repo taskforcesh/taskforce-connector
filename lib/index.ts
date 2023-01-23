@@ -4,7 +4,8 @@ export const Connect = (
   name: string,
   token: string,
   connection: Connection,
-  team?: string
+  team?: string,
+  backend: string = "wss://api.taskforce.sh",
 ) => {
-  return Socket(name, "wss://api.taskforce.sh", token, connection, team);
+  return Socket(name, backend, token, connection, team);
 };

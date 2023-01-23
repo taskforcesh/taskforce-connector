@@ -119,3 +119,19 @@ const taskforceConnection = Connect("my connection", "my token", {
   password: "my redis password",
 });
 ```
+
+If you are using the On Premises version of Taskforce, you can also specify the backend domain:
+
+```ts
+const taskforceConnection = Connect(
+  "my connection",
+  "my token",
+  {
+    host: "my redis host",
+    port: "my redis port",
+    password: "my redis password",
+  },
+  "My Prod Team", // optional team name
+  "wss://mybackend.domain"
+);
+```
