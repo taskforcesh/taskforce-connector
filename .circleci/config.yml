@@ -1,0 +1,30 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.3
+  aws-ecs: circleci/aws-ecs@3.2.0
+
+workflows:
+  standard-workflow:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          repo: taskforce-connector
+          region: eu-north-1
+          tag: "latest"
+          context: aws-account
+          filters:
+            branches:
+              only:
+                - master
+      - aws-ecs/deploy-service-update:
+          cluster: 'step-shared-cluster'
+          service-name: 'live-taskforce-connector-api-service'
+          family: 'live-taskforce-connector-api'
+          force-new-deployment: true
+          context: aws-account
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            branches:
+              only:
+                - master
