@@ -16,15 +16,3 @@ workflows:
             branches:
               only:
                 - master
-      - aws-ecs/deploy-service-update:
-          cluster: 'step-shared-cluster'
-          service-name: 'live-taskforce-connector-api-service'
-          family: 'live-taskforce-connector-api'
-          force-new-deployment: true
-          context: aws-account
-          requires:
-            - aws-ecr/build-and-push-image
-          filters:
-            branches:
-              only:
-                - master
