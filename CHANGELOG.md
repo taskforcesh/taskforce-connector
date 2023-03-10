@@ -1,3 +1,10 @@
+## [1.21.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.1...v1.21.2) (2023-03-10)
+
+
+### Bug Fixes
+
+* better error handling ([6981600](https://github.com/taskforcesh/taskforce-connector/commit/69816006ce39a3638baa8751b0fc5b797cf52ae0))
+
 ## [1.21.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.0...v1.21.1) (2023-01-23)
 
 
