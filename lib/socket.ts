@@ -72,78 +72,86 @@ export const Socket = (
       `${chalk.yellow("WebSocket:")} ${chalk.blueBright("received")} %s`,
       input
     );
-    if (input === "authorized") {
-      console.log(
-        chalk.yellow("WebSocket: ") +
-          chalk.green("Succesfully authorized to taskforce.sh service")
-      );
 
-      //
-      // Send this connection.
-      //
-      const queues = await updateQueuesCache(redisOpts, nodes);
-      console.log(
-        `${chalk.yellow("WebSocket: ")} ${chalk.green(
-          "sending connection: "
-        )} ${chalk.blueBright(name)} ${
-          team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
-        }`
-      );
-      ws.send(
-        JSON.stringify({
-          res: "connection",
-          cmd: "update",
-          queues,
-          connection: name,
-          team,
-          version,
-        })
-      );
-    } else {
-      const msg = JSON.parse(input);
-
-      if (!msg.data) {
-        console.error(
-          chalk.red("WebSocket:") + chalk.blueBright(" missing message data "),
-          msg
+    try {
+      if (input === "authorized") {
+        console.log(
+          chalk.yellow("WebSocket: ") +
+            chalk.green("Succesfully authorized to taskforce.sh service")
         );
-        return;
-      }
 
-      const { res, queueName, queuePrefix } = msg.data;
+        //
+        // Send this connection.
+        //
+        const queues = await updateQueuesCache(redisOpts, nodes);
+        console.log(
+          `${chalk.yellow("WebSocket: ")} ${chalk.green(
+            "sending connection: "
+          )} ${chalk.blueBright(name)} ${
+            team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
+          }`
+        );
+        ws.send(
+          JSON.stringify({
+            res: "connection",
+            cmd: "update",
+            queues,
+            connection: name,
+            team,
+            version,
+          })
+        );
+      } else {
+        const msg = JSON.parse(input);
 
-      switch (res) {
-        case "connections":
-          respondConnectionCommand(connection, msg);
-          break;
-        case "queues":
-        case "jobs":
-          const cache = getCache();
-          if (!cache) {
-            await updateQueuesCache(redisOpts, nodes);
-          }
-          const queue =
-            cache[queueKey({ name: queueName, prefix: queuePrefix || "bull" })];
+        if (!msg.data) {
+          console.error(
+            chalk.red("WebSocket:") +
+              chalk.blueBright(" missing message data "),
+            msg
+          );
+          return;
+        }
 
-          if (!queue) {
-            ws.send(
-              JSON.stringify({
-                id: msg.id,
-                err: "Queue not found",
-              })
-            );
-          } else {
-            switch (res) {
-              case "queues":
-                respondQueueCommand(queue, msg);
-                break;
-              case "jobs":
-                respondJobCommand(queue, msg);
-                break;
+        const { res, queueName, queuePrefix } = msg.data;
+
+        switch (res) {
+          case "connections":
+            await respondConnectionCommand(connection, msg);
+            break;
+          case "queues":
+          case "jobs":
+            const cache = getCache();
+            if (!cache) {
+              await updateQueuesCache(redisOpts, nodes);
             }
-          }
-          break;
+            const queue =
+              cache[
+                queueKey({ name: queueName, prefix: queuePrefix || "bull" })
+              ];
+
+            if (!queue) {
+              ws.send(
+                JSON.stringify({
+                  id: msg.id,
+                  err: "Queue not found",
+                })
+              );
+            } else {
+              switch (res) {
+                case "queues":
+                  await respondQueueCommand(queue, msg);
+                  break;
+                case "jobs":
+                  await respondJobCommand(queue, msg);
+                  break;
+              }
+            }
+            break;
+        }
       }
+    } catch (err) {
+      console.error(err);
     }
   };
 

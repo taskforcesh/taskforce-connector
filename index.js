@@ -114,3 +114,12 @@ lastestVersion(name).then(function (newestVersion) {
     program.nodes
   );
 });
+
+// Catch uncaught exceptions and unhandled rejections
+process.on("uncaughtException", function (err) {
+  console.error(err, "Uncaught exception");
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error({ promise, reason }, "Unhandled Rejection at: Promise");
+});
