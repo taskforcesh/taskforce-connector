@@ -42,6 +42,7 @@ Call the tool and get a help on the options:
     -h, --host [host]           redis host [localhost] (default: "localhost")
     -d, --database [db]         redis database [0] (default: "0")
     --passwd [passwd]           redis password
+    --spasswd [spasswd]         redis sentinel password
     -u, --uri [uri]             redis uri
     --team [team]               specify team where to put the connection
     -b, --backend [host]        backend domain [api.taskforce.sh] (default: "wss://api.taskforce.sh")
@@ -69,13 +70,14 @@ Sentinel Example:
 Note: You can also specify the following with environment variables.
 
 ```bash
-token     TASKFORCE_TOKEN
-port      REDIS_PORT
-host      REDIS_HOST
-password  REDIS_PASSWD
-uri       REDIS_URI
-sentinels REDIS_SENTINELS
-master    REDIS_MASTER
+token                 TASKFORCE_TOKEN
+port                  REDIS_PORT
+host                  REDIS_HOST
+password              REDIS_PASSWD
+sentinel-password     REDIS_SENTINEL_PASSWD
+uri                   REDIS_URI
+sentinels             REDIS_SENTINELS
+master                REDIS_MASTER
 ```
 
 ## Secured TLS Connections

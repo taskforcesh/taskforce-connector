@@ -358,6 +358,7 @@ function redisOptsFromConnection(connection: Connection): RedisOptions {
       "host",
       "family",
       "password",
+      "sentinelPassword",
       "db",
       "tls",
       "sentinels",

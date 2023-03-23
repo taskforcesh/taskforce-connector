@@ -33,6 +33,11 @@ program
   )
   .option("-d, --database [db]", "redis database [0]", "0")
   .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
+  .option(
+    "--spasswd [spasswd]",
+    "redis sentinel password",
+    process.env.REDIS_SENTINEL_PASSWD
+  )
   .option("-u, --uri [uri]", "redis uri", process.env.REDIS_URI)
   .option("--team [team]", "specify team where to put the connection")
   .option(
@@ -86,6 +91,7 @@ lastestVersion(name).then(function (newestVersion) {
     port: program.port,
     host: program.host,
     password: program.passwd,
+    sentinelPassword: program.spasswd,
     db: program.database,
     uri: program.uri,
     tls: program.tls
