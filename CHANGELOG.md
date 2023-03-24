@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.2...v1.22.0) (2023-03-24)
+
+
+### Features
+
+* add sentinel password support ([3ee89e0](https://github.com/taskforcesh/taskforce-connector/commit/3ee89e0c2e1f8c5e0c9d55426671e3d0f6b1feb3))
+
 ## [1.21.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.1...v1.21.2) (2023-03-10)
 
 
