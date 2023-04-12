@@ -18,7 +18,7 @@
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "ioredis": "^5.3.1",
-    "latest-version": "^5.1.0",
+    "latest-version": "^7.0.0",
     "lodash": "^4.17.21",
     "semver": "^7.3.2",
     "ws": "^8.6.0"
