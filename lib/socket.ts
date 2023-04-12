@@ -1,15 +1,10 @@
-import * as Bull from "bull";
 import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import * as url from "url";
-import {
-  getCache,
-  updateQueuesCache,
-  getRedisInfo,
-  ping,
-  queueKey,
-} from "./queues-cache";
+import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
+import { execRedisCommand, getRedisInfo, ping } from "./queue-factory";
+import { getQueueType } from "./utils";
 
 const { version } = require(`${__dirname}/../package.json`);
 
@@ -125,7 +120,7 @@ export const Socket = (
             if (!cache) {
               await updateQueuesCache(redisOpts, nodes);
             }
-            const queue =
+            const { queue, responders } =
               cache[
                 queueKey({ name: queueName, prefix: queuePrefix || "bull" })
               ];
@@ -140,10 +135,10 @@ export const Socket = (
             } else {
               switch (res) {
                 case "queues":
-                  await respondQueueCommand(queue, msg);
+                  await responders.respondQueueCommand(ws, queue, msg);
                   break;
                 case "jobs":
-                  await respondJobCommand(queue, msg);
+                  await responders.respondJobCommand(ws, queue, msg);
                   break;
               }
             }
@@ -154,145 +149,6 @@ export const Socket = (
       console.error(err);
     }
   };
-
-  function paginate(
-    queue: Bull.Queue,
-    messageId: string,
-    start: number,
-    end: number,
-    method: string,
-    opts?: {
-      excludeData: boolean;
-    }
-  ) {
-    start = start || 0;
-    end = end || -1;
-    return (<any>queue)
-      [method](start, end, opts)
-      .then(function (jobs: Bull.Job[]) {
-        respond(messageId, jobs);
-      });
-  }
-
-  async function respondJobCommand(queue: Bull.Queue, msg: any) {
-    const data = msg.data;
-    const job = await queue.getJob(data.jobId);
-
-    switch (data.cmd) {
-      case "retry":
-        await job.retry();
-        break;
-      case "promote":
-        await job.promote();
-        break;
-      case "remove":
-        await job.remove();
-        break;
-      case "discard":
-        await job.discard();
-        break;
-      case "moveToFailed":
-        await job.moveToFailed({ message: "Failed manually" });
-        break;
-      case "update":
-        await job.update(data.data);
-      default:
-        console.error(
-          `Missing command ${data.cmd}. Too old version of taskforce-connector?`
-        );
-    }
-    respond(msg.id);
-  }
-
-  async function respondQueueCommand(queue: Bull.Queue, msg: any) {
-    const data = msg.data;
-    switch (data.cmd) {
-      case "getJob":
-        const job = await queue.getJob(data.jobId);
-        respond(msg.id, job);
-        break;
-      case "getJobCounts":
-        const jobCounts = await queue.getJobCounts();
-        respond(msg.id, jobCounts);
-        break;
-      case "getMetrics":
-        const metrics = await (<any>queue).getMetrics(
-          data.type,
-          data.start,
-          data.end
-        );
-        respond(msg.id, metrics);
-        break;
-      case "getWaiting":
-      case "getActive":
-      case "getDelayed":
-      case "getCompleted":
-      case "getFailed":
-      case "getRepeatableJobs":
-      case "getWorkers":
-        paginate(queue, msg.id, data.start, data.end, data.cmd, data.opts);
-        break;
-
-      case "getJobLogs":
-        const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
-        respond(msg.id, logs);
-
-      case "getWaitingCount":
-      case "getActiveCount":
-      case "getDelayedCount":
-      case "getCompletedCount":
-      case "getFailedCount":
-      case "getRepeatableCount":
-      case "getWorkersCount":
-        const count = await (<any>queue)[data.cmd]();
-        respond(msg.id, count);
-        break;
-      case "removeRepeatableByKey":
-        await queue.removeRepeatableByKey(data.key);
-        respond(msg.id);
-        break;
-      case "add":
-        await queue.add(...(data.args as [string, object, object]));
-        respond(msg.id);
-        break;
-      case "empty":
-        await queue.empty();
-        respond(msg.id);
-        break;
-      case "pause":
-        await queue.pause();
-        respond(msg.id);
-        break;
-      case "resume":
-        await queue.resume();
-        respond(msg.id);
-        break;
-      case "isPaused":
-        const isPaused = await queue.isPaused();
-        respond(msg.id, isPaused);
-        break;
-      case "obliterate":
-        await queue.obliterate();
-        respond(msg.id);
-        break;
-      case "clean":
-        await queue.clean(data.grace, data.status, data.limit);
-        respond(msg.id);
-        break;
-      case "retryJobs":
-        await (<any>queue).retryJobs({
-          status: data.status,
-          count: data.count,
-        });
-        respond(msg.id);
-        break;
-      default:
-        console.error(
-          `Missing command ${data.cmd}. Too old version of taskforce-connector?`
-        );
-        respond(msg.id, null);
-    }
-  }
 
   async function respondConnectionCommand(connection: Connection, msg: any) {
     const data = msg.data;
@@ -338,6 +194,15 @@ export const Socket = (
       case "getInfo":
         const info = await getRedisInfo(redisOpts, nodes);
         respond(msg.id, info);
+        break;
+
+      case "getQueueType":
+        const queueType = await execRedisCommand(
+          redisOpts,
+          (client) => getQueueType(data.name, data.prefix, client),
+          nodes
+        );
+        respond(msg.id, { queueType });
         break;
     }
   }
