@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.22.0...v1.23.0) (2023-04-12)
+
+
+### Features
+
+* add bullmq support ([1ff070b](https://github.com/taskforcesh/taskforce-connector/commit/1ff070ba57f480566f8c751e2c68444f7314a4e1))
+
 # [1.22.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.2...v1.22.0) (2023-03-24)
 
 
