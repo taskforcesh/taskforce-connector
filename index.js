@@ -73,7 +73,7 @@ lastestVersion(name).then(function (newestVersion) {
     console.error(
       chalk.yellow(
         "New version " +
-          version +
+          newestVersion +
           " of taskforce available, please upgrade with yarn global add taskforce-connector"
       )
     );
