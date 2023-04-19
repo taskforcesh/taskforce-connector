@@ -15,7 +15,7 @@ export const getQueueType = async (
   if (hasMeta) {
     const version = await client.hget(metaKey, "version");
     if (version && version.includes("bullmq-pro")) {
-      return "bullmq"; // "bullmq-pro"; // bullmq-pro is not supported yet.
+      return "bullmq-pro"; // Will fail unless a bullmq-pro integration is provided.
     }
 
     const maxLenEvents = await client.hget(metaKey, "opts.maxLenEvents");

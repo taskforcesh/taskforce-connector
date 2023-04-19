@@ -5,6 +5,7 @@ import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 import { execRedisCommand, getRedisInfo, ping } from "./queue-factory";
 import { getQueueType } from "./utils";
+import { Integration } from "./interfaces/integration";
 
 const { version } = require(`${__dirname}/../package.json`);
 
@@ -24,9 +25,15 @@ export const Socket = (
   server: string,
   token: string,
   connection: Connection,
-  team?: string,
-  nodes?: string[]
+  opts: {
+    team?: string;
+    nodes?: string[];
+    integrations?: {
+      [key: string]: Integration;
+    };
+  } = {}
 ) => {
+  const { team, nodes, integrations } = opts;
   const ws = new WebSocketClient();
   const redisOpts = redisOptsFromConnection(connection);
 
@@ -38,9 +45,9 @@ export const Socket = (
   });
 
   console.log(
-    chalk.yellow("WebSocket:") +
-      chalk.blueBright(" opening connection to ") +
-      chalk.gray("Taskforce.sh")
+    `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
+      "opening connection to"
+    )} ${chalk.gray("Taskforce.sh")} (${chalk.blueBright(server)})`
   );
 
   ws.onopen = function open() {
@@ -78,7 +85,10 @@ export const Socket = (
         //
         // Send this connection.
         //
-        const queues = await updateQueuesCache(redisOpts, nodes);
+        const queues = await updateQueuesCache(redisOpts, {
+          nodes,
+          integrations,
+        });
         console.log(
           `${chalk.yellow("WebSocket: ")} ${chalk.green(
             "sending connection: "
@@ -118,7 +128,7 @@ export const Socket = (
           case "jobs":
             const cache = getCache();
             if (!cache) {
-              await updateQueuesCache(redisOpts, nodes);
+              await updateQueuesCache(redisOpts, opts);
             }
             const { queue, responders } =
               cache[
@@ -159,7 +169,7 @@ export const Socket = (
         break;
       case "getConnection":
         {
-          const queues = await updateQueuesCache(redisOpts, nodes);
+          const queues = await updateQueuesCache(redisOpts, opts);
 
           console.log(
             `${chalk.yellow("WebSocket: ")} ${chalk.green(
@@ -179,7 +189,7 @@ export const Socket = (
         break;
       case "getQueues":
         {
-          const queues = await updateQueuesCache(redisOpts, nodes);
+          const queues = await updateQueuesCache(redisOpts, opts);
 
           console.log(
             `${chalk.yellow("WebSocket:")} ${chalk.blueBright(

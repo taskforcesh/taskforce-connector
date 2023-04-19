@@ -1,11 +1,11 @@
 import { Redis, Cluster, RedisOptions } from "ioredis";
 
 import { QueueType, getQueueType } from "./utils";
-import { queueKey } from "./queues-cache";
 import { Queue } from "bullmq";
 import * as Bull from "bull";
 import { BullMQResponders, BullResponders } from "./responders";
-import { Responders } from "./responders/responders";
+import { Responders } from "./interfaces/responders";
+import { Integration } from "./interfaces/integration";
 
 const chalk = require("chalk");
 
@@ -147,8 +147,14 @@ export async function execRedisCommand(
 export function createQueue(
   foundQueue: FoundQueue,
   redisOpts: RedisOptions,
-  nodes?: string[]
+  opts: {
+    nodes?: string[];
+    integrations?: {
+      [key: string]: Integration;
+    };
+  } = {}
 ): { queue: Bull.Queue | Queue; responders: Responders } {
+  const { nodes, integrations } = opts;
   const createClient = function (type: "client" /*, redisOpts */) {
     switch (type) {
       case "client":
@@ -158,8 +164,15 @@ export function createQueue(
     }
   };
 
+  if (integrations && integrations[foundQueue.type]) {
+    const integration = integrations[foundQueue.type];
+    return {
+      queue: integration.createQueue(foundQueue, redisOpts, nodes),
+      responders: integration.responders,
+    };
+  }
+
   switch (foundQueue.type) {
-    case "bullmq-pro":
     case "bullmq":
       return {
         queue: new Queue(foundQueue.name, {
@@ -178,6 +191,9 @@ export function createQueue(
         responders: BullResponders,
       };
     default:
-      throw new Error(`Unexpected queue type: ${foundQueue.type}`);
+      console.error(
+        chalk.red(`ERROR:`) +
+          `Unexpected queue type: ${foundQueue.type} for queue ${foundQueue.name}`
+      );
   }
 }

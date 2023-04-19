@@ -2,12 +2,9 @@ import * as Bull from "bull";
 import { Queue } from "bullmq";
 import { RedisOptions } from "ioredis";
 import { keyBy } from "lodash";
-import {
-  FoundQueue,
-  createQueue,
-  getConnectionQueues,
-} from "./queue-factory";
-import { Responders } from "./responders/responders";
+import { FoundQueue, createQueue, getConnectionQueues } from "./queue-factory";
+import { Responders } from "./interfaces/responders";
+import { Integration } from "./interfaces/integration";
 
 let queuesCache: {
   [index: string]: { queue: Bull.Queue | Queue; responders: Responders };
@@ -23,8 +20,14 @@ export function queueKey(queue: Omit<FoundQueue, "type">) {
 
 export async function updateQueuesCache(
   redisOpts: RedisOptions,
-  nodes?: string[]
+  opts: {
+    nodes?: string[];
+    integrations?: {
+      [key: string]: Integration;
+    };
+  } = {}
 ) {
+  const { nodes, integrations } = opts;
   const newQueues = await getConnectionQueues(redisOpts, nodes);
 
   queuesCache = queuesCache || {};
@@ -64,12 +67,11 @@ export async function updateQueuesCache(
 
   toAdd.forEach(function (foundQueue: FoundQueue) {
     const key = queueKey(foundQueue);
-    queuesCache[key] = createQueue(
-      foundQueue,
-      redisOpts,
-      nodes
-    );
+    const queue = createQueue(foundQueue, redisOpts, { nodes, integrations });
+    if (queue) {
+      queuesCache[key] = queue;
+    }
   });
 
-  return newQueues;
+  return newQueues.filter((queue) => !!queuesCache[queueKey(queue)]);
 }
