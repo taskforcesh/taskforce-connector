@@ -229,10 +229,11 @@ export const Socket = (
 function redisOptsFromConnection(connection: Connection): RedisOptions {
   let opts: RedisOptions = {
     ...pick(connection, [
-      "port",
       "host",
-      "family",
+      "port",
+      "username",
       "password",
+      "family",
       "sentinelPassword",
       "db",
       "tls",
@@ -264,6 +265,8 @@ function redisOptsFromUrl(urlString: string) {
       ? parseInt(redisUrl.pathname.split("/")[1])
       : 0;
     if (redisUrl.auth) {
+      const username = redisUrl.auth.split(":")[0];
+      redisOpts.username = username ? username : undefined;
       redisOpts.password = redisUrl.auth.split(":")[1];
     }
   } catch (e) {
