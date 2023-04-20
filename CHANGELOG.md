@@ -1,3 +1,16 @@
+# [1.24.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.23.0...v1.24.0) (2023-04-20)
+
+
+### Bug Fixes
+
+* **cli:** correct newest version reporting ([949dabb](https://github.com/taskforcesh/taskforce-connector/commit/949dabb19885e4fb75dc75f7259aa3cf0faf33ed))
+* upgrade bull and bullmq packages ([72fd1f2](https://github.com/taskforcesh/taskforce-connector/commit/72fd1f27a4835ec96632f1088cda388a3a8ad773))
+
+
+### Features
+
+* add support for queue integrations ([f8d2067](https://github.com/taskforcesh/taskforce-connector/commit/f8d2067d2988922e921a3dafb32ba4a12633ed78))
+
 # [1.23.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.22.0...v1.23.0) (2023-04-12)
 
 
