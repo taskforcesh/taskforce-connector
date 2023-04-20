@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.0...v1.24.1) (2023-04-20)
+
+
+### Bug Fixes
+
+* pick username from Connection options ([57fd2f5](https://github.com/taskforcesh/taskforce-connector/commit/57fd2f5fc958ea49adfd72c90d8cfd99def5e55f))
+
 # [1.24.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.23.0...v1.24.0) (2023-04-20)
 
 
