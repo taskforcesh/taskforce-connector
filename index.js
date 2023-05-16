@@ -64,7 +64,7 @@ program
 
 console.info(
   chalk.blueBright(
-    "Taskforce Connector v" + version + " - (c) 2017-2021 Taskforce.sh Inc."
+    "Taskforce Connector v" + version + " - (c) 2017-2023 Taskforce.sh Inc."
   )
 );
 
@@ -111,14 +111,10 @@ lastestVersion(name).then(function (newestVersion) {
   };
 
   const { Socket } = require("./dist/socket");
-  Socket(
-    program.name,
-    program.backend,
-    program.token,
-    connection,
-    program.team,
-    program.nodes
-  );
+  Socket(program.name, program.backend, program.token, connection, {
+    team: program.team,
+    nodes: program.nodes,
+  });
 });
 
 // Catch uncaught exceptions and unhandled rejections
