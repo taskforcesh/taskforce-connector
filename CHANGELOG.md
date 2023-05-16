@@ -1,3 +1,10 @@
+## [1.24.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.1...v1.24.2) (2023-05-16)
+
+
+### Bug Fixes
+
+* **bullmq:** call clean with correct arguments ([0822374](https://github.com/taskforcesh/taskforce-connector/commit/08223745983b9ed1310e7668573cfe6faf27ea10))
+
 ## [1.24.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.0...v1.24.1) (2023-04-20)
 
 
