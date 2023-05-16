@@ -1,3 +1,10 @@
+## [1.24.3](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.2...v1.24.3) (2023-05-16)
+
+
+### Bug Fixes
+
+* **cmdline:** fix teams and nodes options ([7981945](https://github.com/taskforcesh/taskforce-connector/commit/798194558067815bcb00030dfadcf4fcf089d886))
+
 ## [1.24.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.1...v1.24.2) (2023-05-16)
 
 
