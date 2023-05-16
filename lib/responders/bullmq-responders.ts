@@ -127,7 +127,7 @@ async function respondQueueCommand(
       respond(ws, msg.id);
       break;
     case "clean":
-      await queue.clean(data.grace, data.status, data.limit);
+      await queue.clean(data.grace, data.limit, data.status);
       respond(ws, msg.id);
       break;
     case "retryJobs":
