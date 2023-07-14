@@ -1,3 +1,58 @@
+## [1.24.3](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.2...v1.24.3) (2023-05-16)
+
+
+### Bug Fixes
+
+* **cmdline:** fix teams and nodes options ([7981945](https://github.com/taskforcesh/taskforce-connector/commit/798194558067815bcb00030dfadcf4fcf089d886))
+
+## [1.24.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.1...v1.24.2) (2023-05-16)
+
+
+### Bug Fixes
+
+* **bullmq:** call clean with correct arguments ([0822374](https://github.com/taskforcesh/taskforce-connector/commit/08223745983b9ed1310e7668573cfe6faf27ea10))
+
+## [1.24.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.0...v1.24.1) (2023-04-20)
+
+
+### Bug Fixes
+
+* pick username from Connection options ([57fd2f5](https://github.com/taskforcesh/taskforce-connector/commit/57fd2f5fc958ea49adfd72c90d8cfd99def5e55f))
+
+# [1.24.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.23.0...v1.24.0) (2023-04-20)
+
+
+### Bug Fixes
+
+* **cli:** correct newest version reporting ([949dabb](https://github.com/taskforcesh/taskforce-connector/commit/949dabb19885e4fb75dc75f7259aa3cf0faf33ed))
+* upgrade bull and bullmq packages ([72fd1f2](https://github.com/taskforcesh/taskforce-connector/commit/72fd1f27a4835ec96632f1088cda388a3a8ad773))
+
+
+### Features
+
+* add support for queue integrations ([f8d2067](https://github.com/taskforcesh/taskforce-connector/commit/f8d2067d2988922e921a3dafb32ba4a12633ed78))
+
+# [1.23.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.22.0...v1.23.0) (2023-04-12)
+
+
+### Features
+
+* add bullmq support ([1ff070b](https://github.com/taskforcesh/taskforce-connector/commit/1ff070ba57f480566f8c751e2c68444f7314a4e1))
+
+# [1.22.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.2...v1.22.0) (2023-03-24)
+
+
+### Features
+
+* add sentinel password support ([3ee89e0](https://github.com/taskforcesh/taskforce-connector/commit/3ee89e0c2e1f8c5e0c9d55426671e3d0f6b1feb3))
+
+## [1.21.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.1...v1.21.2) (2023-03-10)
+
+
+### Bug Fixes
+
+* better error handling ([6981600](https://github.com/taskforcesh/taskforce-connector/commit/69816006ce39a3638baa8751b0fc5b797cf52ae0))
+
 ## [1.21.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.21.0...v1.21.1) (2023-01-23)
 
 

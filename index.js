@@ -33,6 +33,11 @@ program
   )
   .option("-d, --database [db]", "redis database [0]", "0")
   .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
+  .option(
+    "--spasswd [spasswd]",
+    "redis sentinel password",
+    process.env.REDIS_SENTINEL_PASSWD
+  )
   .option("-u, --uri [uri]", "redis uri", process.env.REDIS_URI)
   .option("--team [team]", "specify team where to put the connection")
   .option(
@@ -59,7 +64,7 @@ program
 
 console.info(
   chalk.blueBright(
-    "Taskforce Connector v" + version + " - (c) 2017-2021 Taskforce.sh Inc."
+    "Taskforce Connector v" + version + " - (c) 2017-2023 Taskforce.sh Inc."
   )
 );
 
@@ -68,7 +73,7 @@ lastestVersion(name).then(function (newestVersion) {
     console.error(
       chalk.yellow(
         "New version " +
-          version +
+          newestVersion +
           " of taskforce available, please upgrade with yarn global add taskforce-connector"
       )
     );
@@ -86,6 +91,7 @@ lastestVersion(name).then(function (newestVersion) {
     port: program.port,
     host: program.host,
     password: program.passwd,
+    sentinelPassword: program.spasswd,
     db: program.database,
     uri: program.uri,
     tls: program.tls
@@ -105,12 +111,17 @@ lastestVersion(name).then(function (newestVersion) {
   };
 
   const { Socket } = require("./dist/socket");
-  Socket(
-    program.name,
-    program.backend,
-    program.token,
-    connection,
-    program.team,
-    program.nodes
-  );
+  Socket(program.name, program.backend, program.token, connection, {
+    team: program.team,
+    nodes: program.nodes,
+  });
+});
+
+// Catch uncaught exceptions and unhandled rejections
+process.on("uncaughtException", function (err) {
+  console.error(err, "Uncaught exception");
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error({ promise, reason }, "Unhandled Rejection at: Promise");
 });
