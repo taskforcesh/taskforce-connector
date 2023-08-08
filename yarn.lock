@@ -789,31 +789,30 @@ builtins@^1.0.3:
   resolved "https://registry.yarnpkg.com/builtins/-/builtins-1.0.3.tgz#cb94faeb61c8696451db36534e1422f94f0aee88"
   integrity sha512-uYBjakWipfaO/bXI7E8rq6kpwHRZK5cNYrUv2OzZSI/FvmdMyXJ2tG9dKcjEC5YHmHpUAwsargWIZNWdxb/bnQ==
 
-bull@^4.10.4:
-  version "4.10.4"
-  resolved "https://registry.yarnpkg.com/bull/-/bull-4.10.4.tgz#db39ee0c3bfbe3b76f1f35db800501de5bba4f84"
-  integrity sha512-o9m/7HjS/Or3vqRd59evBlWCXd9Lp+ALppKseoSKHaykK46SmRjAilX98PgmOz1yeVaurt8D5UtvEt4bUjM3eA==
+bull@^4.11.1:
+  version "4.11.1"
+  resolved "https://registry.yarnpkg.com/bull/-/bull-4.11.1.tgz#2442285478dc85056bfc459570aa2930c656ff35"
+  integrity sha512-d4223WchAnZDh3IlUnKqQ30ODfa2iXmv0/qiyrTSNrJSKdm4k48XesLaJHAtjsDgQw9kFwKB+fqo+DRyueuf6g==
   dependencies:
     cron-parser "^4.2.1"
-    debuglog "^1.0.0"
     get-port "^5.1.1"
-    ioredis "^5.0.0"
+    ioredis "^5.3.2"
     lodash "^4.17.21"
     msgpackr "^1.5.2"
-    semver "^7.3.2"
+    semver "^7.5.2"
     uuid "^8.3.0"
 
-bullmq@^3.12.0:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-3.12.0.tgz#5a3e9ac40e4d623c27f7cdd214a69fd4122270da"
-  integrity sha512-h5SMgKXfHe6wKzEEdKTO4zUkOV1TkyQagw3WVOaz+6XWuaWv4EhCAOIkzPAajI7ZNF9c+YwSRY3bQjXmxI0f9Q==
+bullmq@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-4.7.0.tgz#dd2d26219142cf76ab578386a0db75c4757f2380"
+  integrity sha512-xs6P4CWdYK5zb7Z1v95eLYtD3sOAARYmo860Zpk8mZgcrPXVjR4qT2sXdUU+uSoAVPB8t1OXr1OVoAkX0HgFKA==
   dependencies:
     cron-parser "^4.6.0"
     glob "^8.0.3"
     ioredis "^5.3.2"
     lodash "^4.17.21"
     msgpackr "^1.6.2"
-    semver "^7.3.7"
+    semver "^7.5.4"
     tslib "^2.0.0"
     uuid "^9.0.0"
 
@@ -1131,7 +1130,7 @@ debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.3.3, debug@^4.3.4:
   dependencies:
     ms "2.1.2"
 
-debuglog@^1.0.0, debuglog@^1.0.1:
+debuglog@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/debuglog/-/debuglog-1.0.1.tgz#aa24ffb9ac3df9a2351837cfb2d279360cd78492"
   integrity sha512-syBZ+rnAK3EgMsH2aYEOLUW7mZSY9Gb+0wUMCFsZvcmiz+HigA0LOcq/HoQqVuGG+EKykunc7QG2bzrponfaSw==
@@ -1745,7 +1744,7 @@ into-stream@^6.0.0:
     from2 "^2.3.0"
     p-is-promise "^3.0.0"
 
-ioredis@5.3.2, ioredis@^5.0.0, ioredis@^5.3.2:
+ioredis@5.3.2, ioredis@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-5.3.2.tgz#9139f596f62fc9c72d873353ac5395bcf05709f7"
   integrity sha512-1DKMMzlIHM02eBBVOFQ1+AolGjs6+xEcM4PDL7NqOS6szq7H9jSaEkIUH6/a5Hl241LzW6JLSiAbNvTQjUupUA==
@@ -3227,10 +3226,10 @@ semver@^7.1.3:
   dependencies:
     lru-cache "^6.0.0"
 
-semver@^7.3.7:
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.4.0.tgz#8481c92feffc531ab1e012a8ffc15bdd3a0f4318"
-  integrity sha512-RgOxM8Mw+7Zus0+zcLEUn8+JfoLpj/huFTItQy2hsM4khuC1HYRDp0cU482Ewn/Fcy6bCjufD8vAj7voC66KQw==
+semver@^7.5.2, semver@^7.5.4:
+  version "7.5.4"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz#483986ec4ed38e1c6c48c34894a9182dbff68a6e"
+  integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
   dependencies:
     lru-cache "^6.0.0"
 
