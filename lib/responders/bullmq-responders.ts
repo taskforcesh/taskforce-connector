@@ -103,7 +103,8 @@ async function respondQueueCommand(
       respond(ws, msg.id);
       break;
     case "add":
-      await queue.add(...(data.args as [string, object, object]));
+      const [name, jobData, opts] = data.args as [string, object, object];
+      await queue.add(name, jobData, opts);
       respond(ws, msg.id);
       break;
     case "empty":

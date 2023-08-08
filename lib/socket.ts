@@ -191,12 +191,18 @@ export const Socket = (
         {
           const queues = await updateQueuesCache(redisOpts, opts);
 
-          console.log(
-            `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
-              " sending queues "
-            )}`,
-            queues
-          );
+          for (const queue of queues) {
+            const { name, prefix, type } = queue;
+            console.log(
+              `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
+                "Sending queue:"
+              )} ${chalk.green(name)} ${chalk.blueBright(
+                "type:"
+              )} ${chalk.green(type)} ${chalk.blueBright(
+                "prefix:"
+              )} ${chalk.green(prefix)}`
+            );
+          }
 
           respond(msg.id, queues);
         }
