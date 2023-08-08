@@ -14,7 +14,7 @@ const maxCount = 50000;
 const maxTime = 30000;
 
 // We keep a redis client that we can reuse for all the queues.
-let redisClient: Redis | Cluster;
+let redisClients: Record<"bull" | "bullmq", Redis | Cluster> = {} as any;
 
 export interface FoundQueue {
   prefix: string;
@@ -97,16 +97,17 @@ export async function getRedisInfo(
 
 export function getRedisClient(
   redisOpts: RedisOptions,
+  type: "bull" | "bullmq",
   clusterNodes?: string[]
 ) {
-  if (!redisClient) {
+  if (!redisClients[type]) {
     if (clusterNodes && clusterNodes.length) {
-      redisClient = new Redis.Cluster(clusterNodes, redisOpts);
+      redisClients[type] = new Redis.Cluster(clusterNodes, redisOpts);
     } else {
-      redisClient = new Redis(redisOpts);
+      redisClients[type] = new Redis(redisOpts);
     }
 
-    redisClient.on("error", (err: Error) => {
+    redisClients[type].on("error", (err: Error) => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
           err.message
@@ -114,13 +115,13 @@ export function getRedisClient(
       );
     });
 
-    redisClient.on("connect", () => {
+    redisClients[type].on("connect", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
       );
     });
 
-    redisClient.on("end", () => {
+    redisClients[type].on("end", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.blueBright(
           "disconnected from redis server"
@@ -129,7 +130,7 @@ export function getRedisClient(
     });
   }
 
-  return redisClient;
+  return redisClients[type];
 }
 
 export async function execRedisCommand(
@@ -137,7 +138,7 @@ export async function execRedisCommand(
   cb: (client: Redis | Cluster) => any,
   clusterNodes?: string[]
 ) {
-  const redisClient = getRedisClient(redisOpts, clusterNodes);
+  const redisClient = getRedisClient(redisOpts, "bull", clusterNodes);
 
   const result = await cb(redisClient);
 
@@ -158,7 +159,7 @@ export function createQueue(
   const createClient = function (type: "client" /*, redisOpts */) {
     switch (type) {
       case "client":
-        return getRedisClient(redisOpts, nodes);
+        return getRedisClient(redisOpts, "bull", nodes);
       default:
         throw new Error(`Unexpected connection type: ${type}`);
     }
@@ -176,7 +177,7 @@ export function createQueue(
     case "bullmq":
       return {
         queue: new Queue(foundQueue.name, {
-          connection: getRedisClient(redisOpts, nodes),
+          connection: getRedisClient(redisOpts, "bullmq", nodes),
           prefix: foundQueue.prefix,
         }),
         responders: BullMQResponders,
