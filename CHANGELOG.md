@@ -1,3 +1,10 @@
+## [1.24.5](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.4...v1.24.5) (2023-08-08)
+
+
+### Bug Fixes
+
+* use different connections for bull and bullmq ([a7ebf24](https://github.com/taskforcesh/taskforce-connector/commit/a7ebf244903548c07ed3cc069a23918adbfc924f))
+
 ## [1.24.4](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.3...v1.24.4) (2023-08-08)
 
 
