@@ -75,8 +75,9 @@ host                  REDIS_HOST
 password              REDIS_PASSWD
 sentinel-password     REDIS_SENTINEL_PASSWD
 uri                   REDIS_URI
-sentinels             REDIS_SENTINELS
+sentinels             REDIS_SENTINELS (comma separated list of sentinels)
 master                REDIS_MASTER
+nodes                 REDIS_NODES (comma separated list of nodes)
 ```
 
 ## Secured TLS Connections
