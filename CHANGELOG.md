@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.5...v1.25.0) (2023-11-05)
+
+
+### Features
+
+* add support for env var REDIS_NODES ([ec32ad6](https://github.com/taskforcesh/taskforce-connector/commit/ec32ad6431d98681856849ed92d64127680ba33c))
+
 ## [1.24.5](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.4...v1.24.5) (2023-08-08)
 
 
