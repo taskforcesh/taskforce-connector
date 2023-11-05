@@ -58,7 +58,7 @@ program
   .option(
     "--nodes <nodes>",
     "comma-separated list of cluster nodes uris to connect to",
-    (value, dummyPrevious) => value.split(",")
+    process.env.REDIS_NODES ? process.env.REDIS_NODES.split(",") : undefined
   )
   .parse(process.argv);
 
@@ -84,7 +84,7 @@ lastestVersion(name).then(function (newestVersion) {
         `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
       )
     );
-    process.exit();
+    process.exit(1);
   }
 
   const connection = {
