@@ -43,9 +43,10 @@ const getQueueKeys = async (client: Redis | Cluster) => {
   return keys;
 };
 
-export async function getConnectionQueues(
+export async function _getConnectionQueues(
   redisOpts: RedisOptions,
-  clusterNodes?: string[]
+  node?: string,
+  redisClientId?: string,
 ): Promise<FoundQueue[]> {
   const queues = await execRedisCommand(
     redisOpts,
@@ -73,16 +74,25 @@ export async function getConnectionQueues(
       );
       return queues;
     },
-    clusterNodes,
-    {
-      scaleReads: (nodes: string[]) => {
-        return nodes[0];
-      },
-      slotsRefreshTimeout: 10000
-    },
-    clusterNodes?.length ? 'singleNodeScan' : undefined
+    node ? [node] : undefined,
+    {},
+    node ? redisClientId : undefined
   );
 
+  return queues;
+}
+export async function getConnectionQueues(
+  redisOpts: RedisOptions,
+  clusterNodes?: string[]
+): Promise<FoundQueue[]> {
+  if (!clusterNodes?.length) {
+    return _getConnectionQueues(redisOpts)
+  }
+
+  const queues = [];
+  for await(const node of clusterNodes) {
+    queues.push(...await _getConnectionQueues(redisOpts, node, `singleNodeScan.${node}`))
+  }
   return queues;
 }
 
@@ -112,9 +122,12 @@ export function getRedisClient(
   const redisConnectionKey = customRedisConnection ?? type;
   if (!redisClients[redisConnectionKey]) {
     if (clusterNodes && clusterNodes.length) {
-      console.log(clusterNodes);
-      console.log({...redisOpts, ...clusterOptions});
-      redisClients[redisConnectionKey] = new Redis.Cluster(clusterNodes, {...redisOpts, ...clusterOptions});
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      redisClients[redisConnectionKey] = new Redis.Cluster(clusterNodes, {...redisOpts, ...clusterOptions, redisOptions: {
+        tls: {
+            cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
+        },
+    }});
     } else {
       redisClients[redisConnectionKey] = new Redis(redisOpts);
     }
