@@ -84,9 +84,7 @@ nodes                 REDIS_NODES (comma separated list of nodes for Redis Clust
 
 Note for Redis Cluster: You may also need to specify following with environment variables.
 ```bash
-Cluster Username             REDIS_CLUSTER_USERNAME
-Cluster Password             REDIS_CLUSTER_PASSWORD
-Cluster TLS Certificate      REDIS_CLUSTER_PASSWORD
+Cluster TLS Certificate      REDIS_CLUSTER_TLS
 ```
 
 If your redis cluster still cannot connect due to failing certificate validation, you may need to pass this env to skip cert validation.

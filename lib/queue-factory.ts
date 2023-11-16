@@ -1,6 +1,6 @@
 import { Redis, Cluster, RedisOptions } from "ioredis";
 
-import { QueueType, getQueueType } from "./utils";
+import { QueueType, getQueueType, redisOptsFromUrl } from "./utils";
 import { Queue } from "bullmq";
 import * as Bull from "bull";
 import { BullMQResponders, BullResponders } from "./responders";
@@ -104,11 +104,12 @@ export function getRedisClient(
 ) {
   if (!redisClients[type]) {
     if (clusterNodes && clusterNodes.length) {
+      const { username, password } = redisOptsFromUrl(clusterNodes[0])
       redisClients[type] = new Redis.Cluster(clusterNodes, {
         ...redisOpts, 
         redisOptions: {
-          username: process.env.REDIS_CLUSTER_USERNAME,
-          password: process.env.REDIS_CLUSTER_PASSWORD,
+          username,
+          password,
           tls: process.env.REDIS_CLUSTER_TLS ? {
               cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
           } : undefined,

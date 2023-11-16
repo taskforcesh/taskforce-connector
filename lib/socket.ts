@@ -1,10 +1,9 @@
 import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
-import * as url from "url";
 import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 import { execRedisCommand, getRedisInfo, ping } from "./queue-factory";
-import { getQueueType } from "./utils";
+import { getQueueType, redisOptsFromUrl } from "./utils";
 import { Integration } from "./interfaces/integration";
 
 const { version } = require(`${__dirname}/../package.json`);
@@ -259,24 +258,4 @@ function redisOptsFromConnection(connection: Connection): RedisOptions {
     return delay;
   };
   return opts;
-}
-
-function redisOptsFromUrl(urlString: string) {
-  const redisOpts: RedisOptions = {};
-  try {
-    const redisUrl = url.parse(urlString);
-    redisOpts.port = parseInt(redisUrl.port) || 6379;
-    redisOpts.host = redisUrl.hostname;
-    redisOpts.db = redisUrl.pathname
-      ? parseInt(redisUrl.pathname.split("/")[1])
-      : 0;
-    if (redisUrl.auth) {
-      const username = redisUrl.auth.split(":")[0];
-      redisOpts.username = username ? username : undefined;
-      redisOpts.password = redisUrl.auth.split(":")[1];
-    }
-  } catch (e) {
-    throw new Error(e.message);
-  }
-  return redisOpts;
 }
