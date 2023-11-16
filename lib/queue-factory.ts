@@ -100,7 +100,7 @@ export async function getRedisInfo(
 export function getRedisClient(
   redisOpts: RedisOptions,
   type: "bull" | "bullmq",
-  clusterNodes?: string[],
+  clusterNodes?: string[]
 ) {
   if (!redisClients[type]) {
     if (clusterNodes && clusterNodes.length) {
