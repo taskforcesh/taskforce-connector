@@ -1,4 +1,4 @@
-import { Redis, Cluster, RedisOptions, ClusterOptions } from "ioredis";
+import { Redis, Cluster, RedisOptions } from "ioredis";
 
 import { QueueType, getQueueType } from "./utils";
 import { Queue } from "bullmq";
@@ -14,7 +14,7 @@ const maxCount = 50000;
 const maxTime = 30000;
 
 // We keep a redis client that we can reuse for all the queues.
-let redisClients: Record<string, Redis | Cluster> = {} as any;
+let redisClients: Record<"bull" | "bullmq", Redis | Cluster> = {} as any;
 
 export interface FoundQueue {
   prefix: string;
@@ -23,30 +23,31 @@ export interface FoundQueue {
 }
 
 const getQueueKeys = async (client: Redis | Cluster) => {
-  let keys = [],
-    cursor = "0";
+  let nodes = "nodes" in client ? client.nodes('master'): [client]
+  let keys = [];
   const startTime = Date.now();
 
-  do {
-    const [nextCursor, scannedKeys] = await client.scan(
-      cursor,
-      "MATCH",
-      "*:*:id",
-      "COUNT",
-      maxCount
-    );
-    cursor = nextCursor;
+  for await (const node of nodes) {
+    let cursor = "0";
+    do {
+      const [nextCursor, scannedKeys] = await node.scan(
+        cursor,
+        "MATCH",
+        "*:*:id",
+        "COUNT",
+        maxCount
+      );
+      cursor = nextCursor;
 
-    keys.push(...scannedKeys);
-  } while (Date.now() - startTime < maxTime && cursor !== "0");
-
+      keys.push(...scannedKeys);
+    } while (Date.now() - startTime < maxTime && cursor !== "0");
+  }
   return keys;
 };
 
-export async function _getConnectionQueues(
+export async function getConnectionQueues(
   redisOpts: RedisOptions,
-  node?: string,
-  redisClientId?: string,
+  clusterNodes?: string[]
 ): Promise<FoundQueue[]> {
   const queues = await execRedisCommand(
     redisOpts,
@@ -74,25 +75,9 @@ export async function _getConnectionQueues(
       );
       return queues;
     },
-    node ? [node] : undefined,
-    {},
-    node ? redisClientId : undefined
+    clusterNodes
   );
 
-  return queues;
-}
-export async function getConnectionQueues(
-  redisOpts: RedisOptions,
-  clusterNodes?: string[]
-): Promise<FoundQueue[]> {
-  if (!clusterNodes?.length) {
-    return _getConnectionQueues(redisOpts)
-  }
-
-  const queues = [];
-  for await(const node of clusterNodes) {
-    queues.push(...await _getConnectionQueues(redisOpts, node, `singleNodeScan.${node}`))
-  }
   return queues;
 }
 
@@ -116,23 +101,24 @@ export function getRedisClient(
   redisOpts: RedisOptions,
   type: "bull" | "bullmq",
   clusterNodes?: string[],
-  clusterOptions?: ClusterOptions,
-  customRedisConnection?: string
 ) {
-  const redisConnectionKey = customRedisConnection ?? type;
-  if (!redisClients[redisConnectionKey]) {
+  if (!redisClients[type]) {
     if (clusterNodes && clusterNodes.length) {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-      redisClients[redisConnectionKey] = new Redis.Cluster(clusterNodes, {...redisOpts, ...clusterOptions, redisOptions: {
-        tls: {
-            cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
-        },
-    }});
+      redisClients[type] = new Redis.Cluster(clusterNodes, {
+        ...redisOpts, 
+        redisOptions: {
+          username: process.env.REDIS_CLUSTER_USERNAME,
+          password: process.env.REDIS_CLUSTER_PASSWORD,
+          tls: process.env.REDIS_CLUSTER_TLS ? {
+              cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
+          } : undefined,
+        }
+      });
     } else {
-      redisClients[redisConnectionKey] = new Redis(redisOpts);
+      redisClients[type] = new Redis(redisOpts);
     }
 
-    redisClients[redisConnectionKey].on("error", (err: Error) => {
+    redisClients[type].on("error", (err: Error) => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
           err.message
@@ -140,13 +126,13 @@ export function getRedisClient(
       );
     });
 
-    redisClients[redisConnectionKey].on("connect", () => {
+    redisClients[type].on("connect", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
       );
     });
 
-    redisClients[redisConnectionKey].on("end", () => {
+    redisClients[type].on("end", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.blueBright(
           "disconnected from redis server"
@@ -155,17 +141,15 @@ export function getRedisClient(
     });
   }
 
-  return redisClients[redisConnectionKey];
+  return redisClients[type];
 }
 
 export async function execRedisCommand(
   redisOpts: RedisOptions,
   cb: (client: Redis | Cluster) => any,
-  clusterNodes?: string[],
-  clusterOptions?: ClusterOptions,
-  customRedisConnection?: string
+  clusterNodes?: string[]
 ) {
-  const redisClient = getRedisClient(redisOpts, "bull", clusterNodes, clusterOptions, customRedisConnection);
+  const redisClient = getRedisClient(redisOpts, "bull", clusterNodes);
 
   const result = await cb(redisClient);
 
