@@ -1,3 +1,10 @@
+## [1.25.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.0...v1.25.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* correctly discover queues in redis clusters ([781e963](https://github.com/taskforcesh/taskforce-connector/commit/781e963cca48dcde7063fab13cd4148522480848))
+
 # [1.25.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.5...v1.25.0) (2023-11-05)
 
 
