@@ -1,6 +1,6 @@
 import { Redis, Cluster, RedisOptions } from "ioredis";
 
-import { QueueType, getQueueType } from "./utils";
+import { QueueType, getQueueType, redisOptsFromUrl } from "./utils";
 import { Queue } from "bullmq";
 import * as Bull from "bull";
 import { BullMQResponders, BullResponders } from "./responders";
@@ -23,23 +23,25 @@ export interface FoundQueue {
 }
 
 const getQueueKeys = async (client: Redis | Cluster) => {
-  let keys = [],
-    cursor = "0";
+  let nodes = "nodes" in client ? client.nodes('master'): [client]
+  let keys = [];
   const startTime = Date.now();
 
-  do {
-    const [nextCursor, scannedKeys] = await client.scan(
-      cursor,
-      "MATCH",
-      "*:*:id",
-      "COUNT",
-      maxCount
-    );
-    cursor = nextCursor;
+  for await (const node of nodes) {
+    let cursor = "0";
+    do {
+      const [nextCursor, scannedKeys] = await node.scan(
+        cursor,
+        "MATCH",
+        "*:*:id",
+        "COUNT",
+        maxCount
+      );
+      cursor = nextCursor;
 
-    keys.push(...scannedKeys);
-  } while (Date.now() - startTime < maxTime && cursor !== "0");
-
+      keys.push(...scannedKeys);
+    } while (Date.now() - startTime < maxTime && cursor !== "0");
+  }
   return keys;
 };
 
@@ -102,7 +104,17 @@ export function getRedisClient(
 ) {
   if (!redisClients[type]) {
     if (clusterNodes && clusterNodes.length) {
-      redisClients[type] = new Redis.Cluster(clusterNodes, redisOpts);
+      const { username, password } = redisOptsFromUrl(clusterNodes[0])
+      redisClients[type] = new Redis.Cluster(clusterNodes, {
+        ...redisOpts, 
+        redisOptions: {
+          username,
+          password,
+          tls: process.env.REDIS_CLUSTER_TLS ? {
+              cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
+          } : undefined,
+        }
+      });
     } else {
       redisClients[type] = new Redis(redisOpts);
     }

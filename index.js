@@ -58,7 +58,7 @@ program
   .option(
     "--nodes <nodes>",
     "comma-separated list of cluster nodes uris to connect to",
-    process.env.REDIS_NODES ? process.env.REDIS_NODES.split(",") : undefined
+    process.env.REDIS_NODES ? process.env.REDIS_NODES : undefined
   )
   .parse(process.argv);
 
@@ -113,7 +113,7 @@ lastestVersion(name).then(function (newestVersion) {
   const { Socket } = require("./dist/socket");
   Socket(program.name, program.backend, program.token, connection, {
     team: program.team,
-    nodes: program.nodes,
+    nodes: program.nodes ? program.nodes.split(",") : undefined,
   });
 });
 

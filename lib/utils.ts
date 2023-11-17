@@ -1,5 +1,7 @@
 import { Redis, Cluster } from "ioredis";
 export type QueueType = "bull" | "bullmq" | "bullmq-pro";
+import { RedisOptions } from "ioredis";
+import * as url from "url";
 
 export const getQueueType = async (
   queueName: string,
@@ -27,3 +29,24 @@ export const getQueueType = async (
   // otherwise, it is a bull queue type.
   return "bull";
 };
+
+
+export function redisOptsFromUrl(urlString: string) {
+  const redisOpts: RedisOptions = {};
+  try {
+    const redisUrl = url.parse(urlString);
+    redisOpts.port = parseInt(redisUrl.port) || 6379;
+    redisOpts.host = redisUrl.hostname;
+    redisOpts.db = redisUrl.pathname
+      ? parseInt(redisUrl.pathname.split("/")[1])
+      : 0;
+    if (redisUrl.auth) {
+      const username = redisUrl.auth.split(":")[0];
+      redisOpts.username = username ? username : undefined;
+      redisOpts.password = redisUrl.auth.split(":")[1];
+    }
+  } catch (e) {
+    throw new Error(e.message);
+  }
+  return redisOpts;
+}
