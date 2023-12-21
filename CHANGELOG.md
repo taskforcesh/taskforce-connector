@@ -1,3 +1,31 @@
+## [1.25.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.0...v1.25.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* correctly discover queues in redis clusters ([781e963](https://github.com/taskforcesh/taskforce-connector/commit/781e963cca48dcde7063fab13cd4148522480848))
+
+# [1.25.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.5...v1.25.0) (2023-11-05)
+
+
+### Features
+
+* add support for env var REDIS_NODES ([ec32ad6](https://github.com/taskforcesh/taskforce-connector/commit/ec32ad6431d98681856849ed92d64127680ba33c))
+
+## [1.24.5](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.4...v1.24.5) (2023-08-08)
+
+
+### Bug Fixes
+
+* use different connections for bull and bullmq ([a7ebf24](https://github.com/taskforcesh/taskforce-connector/commit/a7ebf244903548c07ed3cc069a23918adbfc924f))
+
+## [1.24.4](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.3...v1.24.4) (2023-08-08)
+
+
+### Bug Fixes
+
+* upgrade bull and bullmq ([30e7b38](https://github.com/taskforcesh/taskforce-connector/commit/30e7b38d480a5683892c4995e3b9a83c7d3ca8ca))
+
 ## [1.24.3](https://github.com/taskforcesh/taskforce-connector/compare/v1.24.2...v1.24.3) (2023-05-16)
 
 

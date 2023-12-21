@@ -42,7 +42,7 @@ async function respondJobCommand(ws: WebSocketClient, queue: Queue, msg: any) {
       await job.moveToFailed(new Error("Failed manually"), "0");
       break;
     case "update":
-      await job.update(data.data);
+      await job.updateData(data.data);
     default:
       console.error(
         `Missing command ${data.cmd}. Too old version of taskforce-connector?`
@@ -103,7 +103,8 @@ async function respondQueueCommand(
       respond(ws, msg.id);
       break;
     case "add":
-      await queue.add(...(data.args as [string, object, object]));
+      const [name, jobData, opts] = data.args as [string, object, object];
+      await queue.add(name, jobData, opts);
       respond(ws, msg.id);
       break;
     case "empty":

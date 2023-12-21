@@ -1,6 +1,6 @@
 import { Redis, Cluster, RedisOptions } from "ioredis";
 
-import { QueueType, getQueueType } from "./utils";
+import { QueueType, getQueueType, redisOptsFromUrl } from "./utils";
 import { Queue } from "bullmq";
 import * as Bull from "bull";
 import { BullMQResponders, BullResponders } from "./responders";
@@ -14,7 +14,7 @@ const maxCount = 50000;
 const maxTime = 30000;
 
 // We keep a redis client that we can reuse for all the queues.
-let redisClient: Redis | Cluster;
+let redisClients: Record<"bull" | "bullmq", Redis | Cluster> = {} as any;
 
 export interface FoundQueue {
   prefix: string;
@@ -23,23 +23,25 @@ export interface FoundQueue {
 }
 
 const getQueueKeys = async (client: Redis | Cluster) => {
-  let keys = [],
-    cursor = "0";
+  let nodes = "nodes" in client ? client.nodes('master'): [client]
+  let keys = [];
   const startTime = Date.now();
 
-  do {
-    const [nextCursor, scannedKeys] = await client.scan(
-      cursor,
-      "MATCH",
-      "*:*:id",
-      "COUNT",
-      maxCount
-    );
-    cursor = nextCursor;
+  for await (const node of nodes) {
+    let cursor = "0";
+    do {
+      const [nextCursor, scannedKeys] = await node.scan(
+        cursor,
+        "MATCH",
+        "*:*:id",
+        "COUNT",
+        maxCount
+      );
+      cursor = nextCursor;
 
-    keys.push(...scannedKeys);
-  } while (Date.now() - startTime < maxTime && cursor !== "0");
-
+      keys.push(...scannedKeys);
+    } while (Date.now() - startTime < maxTime && cursor !== "0");
+  }
   return keys;
 };
 
@@ -97,16 +99,27 @@ export async function getRedisInfo(
 
 export function getRedisClient(
   redisOpts: RedisOptions,
+  type: "bull" | "bullmq",
   clusterNodes?: string[]
 ) {
-  if (!redisClient) {
+  if (!redisClients[type]) {
     if (clusterNodes && clusterNodes.length) {
-      redisClient = new Redis.Cluster(clusterNodes, redisOpts);
+      const { username, password } = redisOptsFromUrl(clusterNodes[0])
+      redisClients[type] = new Redis.Cluster(clusterNodes, {
+        ...redisOpts, 
+        redisOptions: {
+          username,
+          password,
+          tls: process.env.REDIS_CLUSTER_TLS ? {
+              cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
+          } : undefined,
+        }
+      });
     } else {
-      redisClient = new Redis(redisOpts);
+      redisClients[type] = new Redis(redisOpts);
     }
 
-    redisClient.on("error", (err: Error) => {
+    redisClients[type].on("error", (err: Error) => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
           err.message
@@ -114,13 +127,13 @@ export function getRedisClient(
       );
     });
 
-    redisClient.on("connect", () => {
+    redisClients[type].on("connect", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
       );
     });
 
-    redisClient.on("end", () => {
+    redisClients[type].on("end", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.blueBright(
           "disconnected from redis server"
@@ -129,7 +142,7 @@ export function getRedisClient(
     });
   }
 
-  return redisClient;
+  return redisClients[type];
 }
 
 export async function execRedisCommand(
@@ -137,7 +150,7 @@ export async function execRedisCommand(
   cb: (client: Redis | Cluster) => any,
   clusterNodes?: string[]
 ) {
-  const redisClient = getRedisClient(redisOpts, clusterNodes);
+  const redisClient = getRedisClient(redisOpts, "bull", clusterNodes);
 
   const result = await cb(redisClient);
 
@@ -158,7 +171,7 @@ export function createQueue(
   const createClient = function (type: "client" /*, redisOpts */) {
     switch (type) {
       case "client":
-        return getRedisClient(redisOpts, nodes);
+        return getRedisClient(redisOpts, "bull", nodes);
       default:
         throw new Error(`Unexpected connection type: ${type}`);
     }
@@ -176,7 +189,7 @@ export function createQueue(
     case "bullmq":
       return {
         queue: new Queue(foundQueue.name, {
-          connection: getRedisClient(redisOpts, nodes),
+          connection: getRedisClient(redisOpts, "bullmq", nodes),
           prefix: foundQueue.prefix,
         }),
         responders: BullMQResponders,

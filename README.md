@@ -2,8 +2,7 @@
 
 This small service allows you to connect queues to [Taskforce](https://taskforce.sh) acting as a proxy between your queues and the UI. It is useful for connecting local development queues as well as production grade queues without the need of sharing passwords or establishing SSH tunnels.
 
-Currently the connector supports [Bull](https://github.com/optimalbits/bull) queues, with more to come in later
-releases.
+Currently the connector supports [Bull](https://github.com/optimalbits/bull) and [BullMQ](https://github.com/taskforcesh/bullmq) queues.
 
 The connector is designed to be lightweight and using a minimal set of resources from the local queues.
 
@@ -49,6 +48,7 @@ Call the tool and get a help on the options:
     -s, --sentinels [host:port] comma-separated list of sentinel host/port pairs
     -m, --master [name]         name of master node used in sentinel configuration
     -h, --help                  output usage information
+    --nodes [nodes]             comma-separated list of cluster nodes uris to connect to (Redis Cluster)
 ```
 
 Example:
@@ -76,8 +76,20 @@ host                  REDIS_HOST
 password              REDIS_PASSWD
 sentinel-password     REDIS_SENTINEL_PASSWD
 uri                   REDIS_URI
-sentinels             REDIS_SENTINELS
+sentinels             REDIS_SENTINELS (comma separated list of sentinels)
 master                REDIS_MASTER
+nodes                 REDIS_NODES (comma separated list of nodes for Redis Cluster)
+```
+
+
+Note for Redis Cluster: You may also need to specify following with environment variables.
+```bash
+Cluster TLS Certificate      REDIS_CLUSTER_TLS
+```
+
+If your redis cluster still cannot connect due to failing certificate validation, you may need to pass this env to skip cert validation.
+```bash
+NODE_TLS_REJECT_UNAUTHORIZED="0"
 ```
 
 ## Secured TLS Connections
