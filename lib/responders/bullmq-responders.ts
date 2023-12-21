@@ -74,6 +74,12 @@ async function respondQueueCommand(
       );
       respond(ws, msg.id, metrics);
       break;
+    case "getDependencies":
+      const dependencies = await queue.getDependencies(data.parentId, data.type, data.start, data.end);
+      respond(ws, msg.id, dependencies);
+      break;
+
+    case "getWaitingChildren":
     case "getWaiting":
     case "getActive":
     case "getDelayed":
@@ -88,6 +94,7 @@ async function respondQueueCommand(
       const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
       respond(ws, msg.id, logs);
 
+    case "getWaitingChildrenCount":
     case "getWaitingCount":
     case "getActiveCount":
     case "getDelayedCount":
