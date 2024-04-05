@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.1...v1.26.0) (2023-12-21)
+
+
+### Features
+
+* add support for bullmq flows ([42281f9](https://github.com/taskforcesh/taskforce-connector/commit/42281f9190149af7a6f91de670f99f6e353973b2))
+
 ## [1.25.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.0...v1.25.1) (2023-11-17)
 
 
