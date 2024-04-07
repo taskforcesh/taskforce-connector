@@ -101,9 +101,12 @@ async function respondQueueCommand(
     case "getCompletedCount":
     case "getFailedCount":
     case "getRepeatableCount":
-    case "getWorkersCount":
       const count = await (<any>queue)[data.cmd]();
       respond(ws, msg.id, count);
+      break;
+    case "getWorkersCount":
+      const workers = await queue.getWorkers();
+      respond(ws, msg.id, workers.length);
       break;
     case "removeRepeatableByKey":
       await queue.removeRepeatableByKey(data.key);
