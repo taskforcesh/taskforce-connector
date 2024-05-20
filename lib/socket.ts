@@ -2,7 +2,7 @@ import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
-import { execRedisCommand, getRedisInfo, ping } from "./queue-factory";
+import { FoundQueue, execRedisCommand, getRedisInfo, ping } from "./queue-factory";
 import { getQueueType, redisOptsFromUrl } from "./utils";
 import { Integration } from "./interfaces/integration";
 
@@ -52,8 +52,8 @@ export const Socket = (
   ws.onopen = function open() {
     console.log(
       chalk.yellow("WebSocket:") +
-        chalk.blueBright(" opened connection to ") +
-        chalk.gray("Taskforce.sh")
+      chalk.blueBright(" opened connection to ") +
+      chalk.gray("Taskforce.sh")
     );
   };
 
@@ -78,7 +78,7 @@ export const Socket = (
       if (input === "authorized") {
         console.log(
           chalk.yellow("WebSocket: ") +
-            chalk.green("Succesfully authorized to taskforce.sh service")
+          chalk.green("Succesfully authorized to taskforce.sh service")
         );
 
         //
@@ -91,8 +91,7 @@ export const Socket = (
         console.log(
           `${chalk.yellow("WebSocket: ")} ${chalk.green(
             "sending connection: "
-          )} ${chalk.blueBright(name)} ${
-            team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
+          )} ${chalk.blueBright(name)} ${team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
           }`
         );
         ws.send(
@@ -111,7 +110,7 @@ export const Socket = (
         if (!msg.data) {
           console.error(
             chalk.red("WebSocket:") +
-              chalk.blueBright(" missing message data "),
+            chalk.blueBright(" missing message data "),
             msg
           );
           return;
@@ -131,7 +130,7 @@ export const Socket = (
             }
             const { queue, responders } =
               cache[
-                queueKey({ name: queueName, prefix: queuePrefix || "bull" })
+              queueKey({ name: queueName, prefix: queuePrefix || "bull" })
               ];
 
             if (!queue) {
@@ -173,10 +172,11 @@ export const Socket = (
           console.log(
             `${chalk.yellow("WebSocket: ")} ${chalk.green(
               "sending connection:"
-            )} ${chalk.blueBright(name)} ${
-              team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
+            )} ${chalk.blueBright(name)} ${team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
             }`
           );
+
+          logSendingQueues(queues)
 
           respond(msg.id, {
             queues,
@@ -190,18 +190,7 @@ export const Socket = (
         {
           const queues = await updateQueuesCache(redisOpts, opts);
 
-          for (const queue of queues) {
-            const { name, prefix, type } = queue;
-            console.log(
-              `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
-                "Sending queue:"
-              )} ${chalk.green(name)} ${chalk.blueBright(
-                "type:"
-              )} ${chalk.green(type)} ${chalk.blueBright(
-                "prefix:"
-              )} ${chalk.green(prefix)}`
-            );
-          }
+          logSendingQueues(queues);
 
           respond(msg.id, queues);
         }
@@ -219,6 +208,21 @@ export const Socket = (
         );
         respond(msg.id, { queueType });
         break;
+    }
+  }
+
+  function logSendingQueues(queues: FoundQueue[]) {
+    for (const queue of queues) {
+      const { name, prefix, type } = queue;
+      console.log(
+        `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
+          "Sending queue:"
+        )} ${chalk.green(name)} ${chalk.blueBright(
+          "type:"
+        )} ${chalk.green(type)} ${chalk.blueBright(
+          "prefix:"
+        )} ${chalk.green(prefix)}`
+      );
     }
   }
 

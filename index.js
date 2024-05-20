@@ -64,7 +64,7 @@ program
 
 console.info(
   chalk.blueBright(
-    "Taskforce Connector v" + version + " - (c) 2017-2023 Taskforce.sh Inc."
+    "Taskforce Connector v" + version + " - (c) 2017-2024 Taskforce.sh Inc."
   )
 );
 
