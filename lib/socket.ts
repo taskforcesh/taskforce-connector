@@ -89,8 +89,8 @@ export const Socket = (
           integrations,
         });
         console.log(
-          `${chalk.yellow("WebSocket: ")} ${chalk.green(
-            "sending connection: "
+          `${chalk.yellow("WebSocket:")} ${chalk.green(
+            "sending connection:"
           )} ${chalk.blueBright(name)} ${team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
           }`
         );
@@ -170,7 +170,7 @@ export const Socket = (
           const queues = await updateQueuesCache(redisOpts, opts);
 
           console.log(
-            `${chalk.yellow("WebSocket: ")} ${chalk.green(
+            `${chalk.yellow("WebSocket:")} ${chalk.green(
               "sending connection:"
             )} ${chalk.blueBright(name)} ${team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
             }`
