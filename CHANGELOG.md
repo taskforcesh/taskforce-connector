@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.2...v1.28.0) (2024-05-20)
+
+
+### Features
+
+* add response time to logs ([9b461f7](https://github.com/taskforcesh/taskforce-connector/commit/9b461f7a9a617506e1717901dd1576a5e7b0c426))
+
 ## [1.27.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.1...v1.27.2) (2024-05-20)
 
 
