@@ -1,3 +1,12 @@
+# [1.27.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.26.0...v1.27.0) (2024-05-20)
+
+
+### Features
+
+* add support for getWorkersCount ([f07db90](https://github.com/taskforcesh/taskforce-connector/commit/f07db908737a3fb9938e2d2276266ff0c5e883e1))
+* better logs when getting connection ([4dee10f](https://github.com/taskforcesh/taskforce-connector/commit/4dee10f7fd901caaf72a8f8a99a074551a051ec1))
+* upgrade bull and bullmq dependencies ([67235bf](https://github.com/taskforcesh/taskforce-connector/commit/67235bf6a27883d4173bfaa1d4690bff3af4f621))
+
 # [1.26.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.1...v1.26.0) (2023-12-21)
 
 
