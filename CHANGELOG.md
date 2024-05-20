@@ -1,3 +1,10 @@
+## [1.27.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.0...v1.27.1) (2024-05-20)
+
+
+### Bug Fixes
+
+* **ws:** log send errors ([4726f7b](https://github.com/taskforcesh/taskforce-connector/commit/4726f7b52cd48a8a4ccb54447413aab6976fcaa8))
+
 # [1.27.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.26.0...v1.27.0) (2024-05-20)
 
 

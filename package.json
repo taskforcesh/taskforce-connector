@@ -1,6 +1,6 @@
 {
   "name": "taskforce-connector",
-  "version": "1.27.0",
+  "version": "1.27.1",
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
   "main": "dist/index.js",
