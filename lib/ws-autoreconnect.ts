@@ -62,7 +62,7 @@ export class WebSocketClient {
     });
   }
 
-  send(data: string, option?: {
+  send(data: string, startTime: number, option?: {
     mask?: boolean;
     binary?: boolean;
     compress?: boolean;
@@ -76,7 +76,8 @@ export class WebSocketClient {
           );
         } else {
           console.log(
-            `${chalk.yellow("WebSocket:")} ${chalk.blue("data sent successfully")}`
+            `${chalk.yellow("WebSocket:")} ${chalk.blue("data sent successfully in")} ${chalk.green(
+              Date.now() - startTime)}ms`
           );
         }
       });

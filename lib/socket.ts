@@ -69,6 +69,8 @@ export const Socket = (
   };
 
   ws.onmessage = async function incoming(input: string) {
+    const startTime = Date.now();
+
     console.log(
       `${chalk.yellow("WebSocket:")} ${chalk.blueBright("received")} %s`,
       input
@@ -102,7 +104,7 @@ export const Socket = (
             connection: name,
             team,
             version,
-          })
+          }), startTime
         );
       } else {
         const msg = JSON.parse(input);
@@ -138,7 +140,7 @@ export const Socket = (
                 JSON.stringify({
                   id: msg.id,
                   err: "Queue not found",
-                })
+                }), startTime
               );
             } else {
               switch (res) {
@@ -159,7 +161,10 @@ export const Socket = (
   };
 
   async function respondConnectionCommand(connection: Connection, msg: any) {
+    const startTime = Date.now();
+
     const data = msg.data;
+
     switch (data.cmd) {
       case "ping":
         const pong = await ping(redisOpts, nodes);
@@ -178,7 +183,7 @@ export const Socket = (
 
           logSendingQueues(queues)
 
-          respond(msg.id, {
+          respond(msg.id, startTime, {
             queues,
             connection: name,
             team,
@@ -192,7 +197,7 @@ export const Socket = (
 
           logSendingQueues(queues);
 
-          respond(msg.id, queues);
+          respond(msg.id, startTime, queues);
         }
         break;
       case "getInfo":
@@ -206,7 +211,7 @@ export const Socket = (
           (client) => getQueueType(data.name, data.prefix, client),
           nodes
         );
-        respond(msg.id, { queueType });
+        respond(msg.id, startTime, { queueType });
         break;
     }
   }
@@ -226,12 +231,12 @@ export const Socket = (
     }
   }
 
-  function respond(id: string, data: any = {}) {
+  function respond(id: string, startTime: number, data: any = {}) {
     const response = JSON.stringify({
       id,
       data,
     });
-    ws.send(response);
+    ws.send(response, startTime);
   }
 };
 

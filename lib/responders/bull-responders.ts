@@ -19,7 +19,7 @@ function paginate(
   return (<any>queue)
   [method](start, end, opts)
     .then(function (jobs: Bull.Job[]) {
-      respond(ws, messageId, jobs);
+      respond(ws, Date.now(), messageId, jobs);
     });
 }
 
@@ -29,6 +29,7 @@ async function respondJobCommand(
   msg: any
 ) {
   const data = msg.data;
+  const startTime = Date.now();
   const job = await queue.getJob(data.jobId);
 
   switch (data.cmd) {
@@ -54,7 +55,7 @@ async function respondJobCommand(
         `Missing command ${data.cmd}. Too old version of taskforce-connector?`
       );
   }
-  respond(ws, msg.id);
+  respond(ws, startTime, msg.id);
 }
 
 async function respondQueueCommand(
@@ -62,15 +63,16 @@ async function respondQueueCommand(
   queue: Bull.Queue,
   msg: any
 ) {
+  const startTime = Date.now();
   const data = msg.data;
   switch (data.cmd) {
     case "getJob":
       const job = await queue.getJob(data.jobId);
-      respond(ws, msg.id, job);
+      respond(ws, startTime, msg.id, job);
       break;
     case "getJobCounts":
       const jobCounts = await queue.getJobCounts();
-      respond(ws, msg.id, jobCounts);
+      respond(ws, startTime, msg.id, jobCounts);
       break;
     case "getMetrics":
       const metrics = await (<any>queue).getMetrics(
@@ -78,7 +80,7 @@ async function respondQueueCommand(
         data.start,
         data.end
       );
-      respond(ws, msg.id, metrics);
+      respond(ws, startTime, msg.id, metrics);
       break;
     case "getWaiting":
     case "getActive":
@@ -92,7 +94,7 @@ async function respondQueueCommand(
 
     case "getJobLogs":
       const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
-      respond(ws, msg.id, logs);
+      respond(ws, startTime, msg.id, logs);
 
     case "getWaitingCount":
     case "getActiveCount":
@@ -101,50 +103,50 @@ async function respondQueueCommand(
     case "getFailedCount":
     case "getRepeatableCount":
       const count = await (<any>queue)[data.cmd]();
-      respond(ws, msg.id, count);
+      respond(ws, startTime, msg.id, count);
       break;
     case "getWorkersCount":
       const workers = await queue.getWorkers();
-      respond(ws, msg.id, workers.length);
+      respond(ws, startTime, msg.id, workers.length);
       break;
     case "removeRepeatableByKey":
       await queue.removeRepeatableByKey(data.key);
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "add":
       await queue.add(...(data.args as [string, object, object]));
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "empty":
       await queue.empty();
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "pause":
       await queue.pause();
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "resume":
       await queue.resume();
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "isPaused":
       const isPaused = await queue.isPaused();
-      respond(ws, msg.id, isPaused);
+      respond(ws, startTime, msg.id, isPaused);
       break;
     case "obliterate":
       await queue.obliterate();
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "clean":
       await queue.clean(data.grace, data.status, data.limit);
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     case "retryJobs":
       await (<any>queue).retryJobs({
         status: data.status,
         count: data.count,
       });
-      respond(ws, msg.id);
+      respond(ws, startTime, msg.id);
       break;
     default:
       console.error(
