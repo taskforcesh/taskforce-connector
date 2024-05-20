@@ -17,7 +17,7 @@ function paginate(
   start = start || 0;
   end = end || -1;
   return (<any>queue)
-    [method](start, end, opts)
+  [method](start, end, opts)
     .then(function (jobs: Bull.Job[]) {
       respond(ws, messageId, jobs);
     });
@@ -100,9 +100,12 @@ async function respondQueueCommand(
     case "getCompletedCount":
     case "getFailedCount":
     case "getRepeatableCount":
-    case "getWorkersCount":
       const count = await (<any>queue)[data.cmd]();
       respond(ws, msg.id, count);
+      break;
+    case "getWorkersCount":
+      const workers = await queue.getWorkers();
+      respond(ws, msg.id, workers.length);
       break;
     case "removeRepeatableByKey":
       await queue.removeRepeatableByKey(data.key);
