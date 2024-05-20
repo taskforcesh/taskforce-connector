@@ -9,7 +9,7 @@ export class WebSocketClient {
   private autoReconnectInterval = 5 * 1000; // ms
   private url: string;
   private opts: object;
-  private instance: any;
+  private instance: WebSocket;
   private pingTimeout: NodeJS.Timeout;
 
   open(url: string, opts: object) {
@@ -62,7 +62,12 @@ export class WebSocketClient {
     });
   }
 
-  send(data: string, option?: object) {
+  send(data: string, option?: {
+    mask?: boolean;
+    binary?: boolean;
+    compress?: boolean;
+    fin?: boolean;
+  }) {
     try {
       this.instance.send(data, option, (err: Error) => {
         if (err) {
