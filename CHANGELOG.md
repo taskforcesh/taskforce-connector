@@ -1,3 +1,10 @@
+## [1.27.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.1...v1.27.2) (2024-05-20)
+
+
+### Bug Fixes
+
+* improve scan max count ([dfaec16](https://github.com/taskforcesh/taskforce-connector/commit/dfaec16822695f2a31327a94971b1f2aefe66d09))
+
 ## [1.27.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.0...v1.27.1) (2024-05-20)
 
 
