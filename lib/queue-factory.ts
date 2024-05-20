@@ -23,7 +23,7 @@ export interface FoundQueue {
 }
 
 const getQueueKeys = async (client: Redis | Cluster) => {
-  let nodes = "nodes" in client ? client.nodes('master'): [client]
+  let nodes = "nodes" in client ? client.nodes('master') : [client]
   let keys = [];
   const startTime = Date.now();
 
@@ -106,12 +106,12 @@ export function getRedisClient(
     if (clusterNodes && clusterNodes.length) {
       const { username, password } = redisOptsFromUrl(clusterNodes[0])
       redisClients[type] = new Redis.Cluster(clusterNodes, {
-        ...redisOpts, 
+        ...redisOpts,
         redisOptions: {
           username,
           password,
           tls: process.env.REDIS_CLUSTER_TLS ? {
-              cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
+            cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
           } : undefined,
         }
       });
@@ -121,8 +121,7 @@ export function getRedisClient(
 
     redisClients[type].on("error", (err: Error) => {
       console.log(
-        `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
-          err.message
+        `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${err.message
         }`
       );
     });
@@ -197,7 +196,7 @@ export function createQueue(
 
     case "bull":
       return {
-        queue: new Bull(foundQueue.name, {
+        queue: new (<any>Bull)(foundQueue.name, {
           createClient,
           prefix: foundQueue.prefix,
         }),
@@ -206,7 +205,7 @@ export function createQueue(
     default:
       console.error(
         chalk.red(`ERROR:`) +
-          `Unexpected queue type: ${foundQueue.type} for queue ${foundQueue.name}`
+        `Unexpected queue type: ${foundQueue.type} for queue ${foundQueue.name}`
       );
   }
 }
