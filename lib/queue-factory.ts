@@ -10,8 +10,8 @@ import { Integration } from "./interfaces/integration";
 const chalk = require("chalk");
 
 const queueNameRegExp = new RegExp("(.*):(.*):id");
-const maxCount = 100000;
-const maxTime = 30000;
+const maxCount = 150000;
+const maxTime = 40000;
 
 // We keep a redis client that we can reuse for all the queues.
 let redisClients: Record<"bull" | "bullmq", Redis | Cluster> = {} as any;
