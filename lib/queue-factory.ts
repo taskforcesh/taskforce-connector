@@ -35,7 +35,9 @@ const getQueueKeys = async (client: Redis | Cluster) => {
         "MATCH",
         "*:*:id",
         "COUNT",
-        maxCount
+        maxCount,
+        "TYPE",
+        "string"
       );
       cursor = nextCursor;
 
