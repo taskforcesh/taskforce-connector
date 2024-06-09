@@ -1,3 +1,10 @@
+## [1.28.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.0...v1.28.1) (2024-06-09)
+
+
+### Bug Fixes
+
+* **queue-factory:** use type for faster queue discovery ([150c1e1](https://github.com/taskforcesh/taskforce-connector/commit/150c1e121a68dc5cb37c5a8b4ee269aee5035052))
+
 # [1.28.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.2...v1.28.0) (2024-05-20)
 
 
