@@ -1,3 +1,10 @@
+## [1.28.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.1...v1.28.2) (2024-06-09)
+
+
+### Bug Fixes
+
+* **queue-factory:** slightly larger defaults for queue discovery iterations ([1df5ff8](https://github.com/taskforcesh/taskforce-connector/commit/1df5ff88c2beb37f6f12f65cb1f4ae6077fd1a46))
+
 ## [1.28.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.0...v1.28.1) (2024-06-09)
 
 
