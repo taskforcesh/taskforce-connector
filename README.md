@@ -49,6 +49,8 @@ Call the tool and get a help on the options:
     -m, --master [name]         name of master node used in sentinel configuration
     -h, --help                  output usage information
     --nodes [nodes]             comma-separated list of cluster nodes uris to connect to (Redis Cluster)
+    --queues <queues>           optional comma-separated list of queues to monitor
+    --queuesFile <queuesFile>   optional file with queues to monitor
 ```
 
 Example:
