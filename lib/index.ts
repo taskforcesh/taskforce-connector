@@ -17,6 +17,7 @@ export const Connect = (
     team?: string;
     integrations?: { [key: string]: Integration };
     nodes?: string[];
+    queueNames?: string[];
   } = {}
 ) => {
   return Socket(name, backend, token, connection, opts);
