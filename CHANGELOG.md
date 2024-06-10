@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.30.0...v1.31.0) (2024-06-10)
+
+
+### Features
+
+* upgrade to latest bull and bullmq ([955f968](https://github.com/taskforcesh/taskforce-connector/commit/955f968c85f4a6dc6f654119d874a353053ad6e2))
+
 # [1.30.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.29.0...v1.30.0) (2024-06-10)
 
 
