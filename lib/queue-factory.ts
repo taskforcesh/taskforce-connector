@@ -22,39 +22,87 @@ export interface FoundQueue {
   type: QueueType;
 }
 
-const getQueueKeys = async (client: Redis | Cluster) => {
+const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
+  let cursor = "0";
+  const keys = [];
+  do {
+    const [nextCursor, scannedKeys] = await node.scan(
+      cursor,
+      "MATCH",
+      "*:*:id",
+      "COUNT",
+      maxCount,
+      "TYPE",
+      "string"
+    );
+    cursor = nextCursor;
+
+    keys.push(...scannedKeys);
+  } while (Date.now() - startTime < maxTime && cursor !== "0");
+
+  return keys;
+}
+
+const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
   let nodes = "nodes" in client ? client.nodes('master') : [client]
   let keys = [];
   const startTime = Date.now();
+  const foundQueues = new Set<string>();
 
   for await (const node of nodes) {
-    let cursor = "0";
-    do {
-      const [nextCursor, scannedKeys] = await node.scan(
-        cursor,
-        "MATCH",
-        "*:*:id",
-        "COUNT",
-        maxCount,
-        "TYPE",
-        "string"
-      );
-      cursor = nextCursor;
 
-      keys.push(...scannedKeys);
-    } while (Date.now() - startTime < maxTime && cursor !== "0");
+    // If we have proposed queue names, lets check if they exist (including prefix)
+    // Basically checking if there is a id key for the queue (prefix:name:id)
+    if (queueNames) {
+
+      const queueKeys = queueNames.map((queueName) => {
+        // Separate queue name from prefix
+        let [prefix, name] = queueName.split(":");
+        if (!name) {
+          name = prefix;
+          prefix = "bull";
+        }
+
+        // If the queue name includes a prefix use that, otherwise use the default prefix "bull"
+        return `${prefix}:${name}:id`;
+      });
+
+      for (const key of queueKeys) {
+        const exists = await node.exists(key);
+        if (exists) {
+          foundQueues.add(key);
+        }
+      }
+      keys.push(...foundQueues);
+
+      // Warn for missing queues
+      for (const key of queueKeys) {
+        if (!foundQueues.has(key)) {
+          // Extract queue name from key
+          const match = queueNameRegExp.exec(key);
+          console.log(
+            chalk.yellow("Redis:") +
+            chalk.red(` Queue "${match[1]}:${match[2]}" not found in Redis. Skipping...`)
+          );
+        }
+      }
+
+    } else {
+      keys.push(...await scanForQueues(node, startTime));
+    }
   }
   return keys;
 };
 
 export async function getConnectionQueues(
   redisOpts: RedisOptions,
-  clusterNodes?: string[]
+  clusterNodes?: string[],
+  queueNames?: string[]
 ): Promise<FoundQueue[]> {
   const queues = await execRedisCommand(
     redisOpts,
     async (client) => {
-      const keys = await getQueueKeys(client);
+      const keys = await getQueueKeys(client, queueNames);
 
       const queues = await Promise.all(
         keys
