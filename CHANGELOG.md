@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.2...v1.29.0) (2024-06-10)
+
+
+### Features
+
+* add support for specifying queue names ([aae22c5](https://github.com/taskforcesh/taskforce-connector/commit/aae22c5eec31b8f86400ef1d3a3ffc47d94226ef))
+
 ## [1.28.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.1...v1.28.2) (2024-06-09)
 
 
