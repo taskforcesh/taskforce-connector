@@ -13,15 +13,15 @@
     "dist"
   ],
   "dependencies": {
-    "bull": "^4.12.6",
-    "bullmq": "^5.7.9",
+    "bull": "^4.12.9",
+    "bullmq": "^5.7.15",
     "chalk": "^4.1.0",
     "commander": "^12.1.0",
     "ioredis": "^5.4.1",
     "latest-version": "^5.1.0",
     "lodash": "^4.17.21",
     "semver": "^7.3.2",
-    "ws": "^8.6.0"
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",
