@@ -25,10 +25,11 @@ export async function updateQueuesCache(
     integrations?: {
       [key: string]: Integration;
     };
+    queueNames?: string[];
   } = {}
 ) {
-  const { nodes, integrations } = opts;
-  const newQueues = await getConnectionQueues(redisOpts, nodes);
+  const { nodes, integrations, queueNames } = opts;
+  const newQueues = await getConnectionQueues(redisOpts, nodes, queueNames);
 
   queuesCache = queuesCache || {};
 

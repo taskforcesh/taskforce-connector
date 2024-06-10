@@ -30,9 +30,10 @@ export const Socket = (
     integrations?: {
       [key: string]: Integration;
     };
+    queueNames?: string[]
   } = {}
 ) => {
-  const { team, nodes, integrations } = opts;
+  const { team, nodes } = opts;
   const ws = new WebSocketClient();
   const redisOpts = redisOptsFromConnection(connection);
 
@@ -86,10 +87,7 @@ export const Socket = (
         //
         // Send this connection.
         //
-        const queues = await updateQueuesCache(redisOpts, {
-          nodes,
-          integrations,
-        });
+        const queues = await updateQueuesCache(redisOpts, opts);
         console.log(
           `${chalk.yellow("WebSocket:")} ${chalk.green(
             "sending connection:"
@@ -168,7 +166,7 @@ export const Socket = (
     switch (data.cmd) {
       case "ping":
         const pong = await ping(redisOpts, nodes);
-        respond(msg.id, pong);
+        respond(msg.id, startTime, pong);
         break;
       case "getConnection":
         {
@@ -202,7 +200,7 @@ export const Socket = (
         break;
       case "getInfo":
         const info = await getRedisInfo(redisOpts, nodes);
-        respond(msg.id, info);
+        respond(msg.id, startTime, info);
         break;
 
       case "getQueueType":

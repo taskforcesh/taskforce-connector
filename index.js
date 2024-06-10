@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const program = require("commander");
+const { Command, Option } = require("commander");
 const { name, version } = require(__dirname + "/package.json");
 const chalk = require("chalk");
 
@@ -7,6 +7,7 @@ const chalk = require("chalk");
 const lastestVersion = require("latest-version");
 const semver = require("semver");
 
+const program = new Command();
 program
   .version(version)
 
@@ -60,6 +61,13 @@ program
     "comma-separated list of cluster nodes uris to connect to",
     process.env.REDIS_NODES ? process.env.REDIS_NODES : undefined
   )
+  .option("--queues <queues>", "comma-separated list of queues to monitor")
+  .addOption(
+    new Option(
+      "--queuesFile <queuesFile>",
+      "file with queues to monitor"
+    ).conflicts("queues")
+  )
   .parse(process.argv);
 
 console.info(
@@ -67,6 +75,8 @@ console.info(
     "Taskforce Connector v" + version + " - (c) 2017-2024 Taskforce.sh Inc."
   )
 );
+
+const options = program.opts();
 
 lastestVersion(name).then(function (newestVersion) {
   if (semver.gt(newestVersion, version)) {
@@ -78,7 +88,7 @@ lastestVersion(name).then(function (newestVersion) {
       )
     );
   }
-  if (!program.token) {
+  if (!options.token) {
     console.error(
       chalk.red(
         `ERROR: A valid token is required, use either TASKFORCE_TOKEN env or pass it with -t (get token at https://taskforce.sh)`
@@ -87,14 +97,20 @@ lastestVersion(name).then(function (newestVersion) {
     process.exit(1);
   }
 
+  const queueNames = options.queuesFile
+    ? parseQueuesFile(options.queuesFile)
+    : options.queues
+    ? parseQueues(options.queues)
+    : undefined;
+
   const connection = {
-    port: program.port,
-    host: program.host,
-    password: program.passwd,
-    sentinelPassword: program.spasswd,
-    db: program.database,
-    uri: program.uri,
-    tls: program.tls
+    port: options.port,
+    host: options.host,
+    password: options.passwd,
+    sentinelPassword: options.spasswd,
+    db: options.database,
+    uri: options.uri,
+    tls: options.tls
       ? {
           rejectUnauthorized: false,
           requestCert: true,
@@ -102,18 +118,19 @@ lastestVersion(name).then(function (newestVersion) {
         }
       : void 0,
     sentinels:
-      program.sentinels &&
-      program.sentinels.split(",").map((hostPort) => {
+      options.sentinels &&
+      options.sentinels.split(",").map((hostPort) => {
         const [host, port] = hostPort.split(":");
         return { host, port };
       }),
-    name: program.master,
+    name: options.master,
   };
 
   const { Socket } = require("./dist/socket");
-  Socket(program.name, program.backend, program.token, connection, {
-    team: program.team,
-    nodes: program.nodes ? program.nodes.split(",") : undefined,
+  Socket(options.name, options.backend, options.token, connection, {
+    team: options.team,
+    nodes: options.nodes ? options.nodes.split(",") : undefined,
+    queueNames,
   });
 });
 
@@ -125,3 +142,20 @@ process.on("uncaughtException", function (err) {
 process.on("unhandledRejection", (reason, promise) => {
   console.error({ promise, reason }, "Unhandled Rejection at: Promise");
 });
+
+function parseQueuesFile(file) {
+  // Load the queues from the file. The file must be a list of queues separated by new lines
+  const fs = require("fs");
+  const path = require("path");
+  const queuesFile = path.resolve(file);
+  if (fs.existsSync(queuesFile)) {
+    return fs.readFileSync(queuesFile, "utf8").split("\n").filter(Boolean);
+  } else {
+    console.error(chalk.red(`ERROR: File ${queuesFile} does not exist`));
+    process.exit(1);
+  }
+}
+
+function parseQueues(queuesString) {
+  return queuesString.split(",");
+}

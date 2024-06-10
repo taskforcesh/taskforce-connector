@@ -16,7 +16,7 @@
     "bull": "^4.12.6",
     "bullmq": "^5.7.9",
     "chalk": "^4.1.0",
-    "commander": "^5.1.0",
+    "commander": "^12.1.0",
     "ioredis": "^5.4.1",
     "latest-version": "^5.1.0",
     "lodash": "^4.17.21",
