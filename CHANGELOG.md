@@ -1,3 +1,10 @@
+## [1.31.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.0...v1.31.1) (2024-07-04)
+
+
+### Bug Fixes
+
+* upgrade dependencies for security patches ([f433335](https://github.com/taskforcesh/taskforce-connector/commit/f43333596723ebfd23abd251104140c587604aec))
+
 # [1.31.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.30.0...v1.31.0) (2024-06-10)
 
 
