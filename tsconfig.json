@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "Node16",
     "outDir": "dist",
     "sourceMap": false,
     "declaration": true,
-    "target": "es6",
-    "module": "commonjs",
     "noImplicitAny": true,
     "removeComments": true,
+    "moduleResolution": "Node16",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": false
   },
   "compileOnSave": false,
   "include": ["./lib"],
