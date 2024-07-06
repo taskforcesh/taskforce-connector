@@ -29,6 +29,5 @@ export const versionChecker = async (name: string, version: string) => {
       ),
       err
     );
-    process.exit(1);
   }
 };

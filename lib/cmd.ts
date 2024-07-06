@@ -9,10 +9,7 @@ import { versionChecker } from "./version-checker";
 export const run = () => {
 
   // Read the content of package.json
-  const packageJsonContent = readFileSync("./package.json", "utf8");
-
-  // Parse the JSON data
-  const { name, version } = JSON.parse(packageJsonContent);
+  const { name, version } = require(__dirname + "/../package.json") as { name: string, version: string }
 
   console.info(
     blueBright(
