@@ -6,11 +6,7 @@ import { resolve } from "path";
 import { Socket } from "./socket";
 import { versionChecker } from "./version-checker";
 
-export const run = () => {
-
-  // Read the content of package.json
-  const { name, version } = require(__dirname + "/../package.json") as { name: string, version: string }
-
+export const run = (name: string, version: string) => {
   console.info(
     blueBright(
       "Taskforce Connector v" + version + " - (c) 2017-2024 Taskforce.sh Inc."
@@ -107,8 +103,8 @@ export const run = () => {
     const queueNames = options.queuesFile
       ? parseQueuesFile(options.queuesFile)
       : options.queues
-        ? parseQueues(options.queues)
-        : undefined;
+      ? parseQueues(options.queues)
+      : undefined;
 
     const connection = {
       port: options.port,
@@ -119,10 +115,10 @@ export const run = () => {
       uri: options.uri,
       tls: options.tls
         ? {
-          rejectUnauthorized: false,
-          requestCert: true,
-          agent: false,
-        }
+            rejectUnauthorized: false,
+            requestCert: true,
+            agent: false,
+          }
         : void 0,
       sentinels:
         options.sentinels &&
@@ -163,4 +159,4 @@ export const run = () => {
   function parseQueues(queuesString: string) {
     return queuesString.split(",");
   }
-}
+};
