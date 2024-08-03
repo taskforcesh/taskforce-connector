@@ -1,3 +1,10 @@
+## [1.31.3](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.2...v1.31.3) (2024-08-03)
+
+
+### Bug Fixes
+
+* use a more compatible way to read package.json ([73d6804](https://github.com/taskforcesh/taskforce-connector/commit/73d68042ff9e8a16da213277aea003286d9e9209))
+
 ## [1.31.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.1...v1.31.2) (2024-07-06)
 
 
