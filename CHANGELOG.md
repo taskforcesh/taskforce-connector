@@ -1,3 +1,10 @@
+## [1.31.4](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.3...v1.31.4) (2024-08-04)
+
+
+### Bug Fixes
+
+* **socket:** make sure cache is updated before responding ([8a5f8a1](https://github.com/taskforcesh/taskforce-connector/commit/8a5f8a1a92efe31113ac87ef83499eaa6370edc7))
+
 ## [1.31.3](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.2...v1.31.3) (2024-08-03)
 
 
