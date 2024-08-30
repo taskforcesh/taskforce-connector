@@ -1,3 +1,10 @@
+## [1.31.5](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.4...v1.31.5) (2024-08-30)
+
+
+### Bug Fixes
+
+* prefix redis cache connection cache with checksum ([72e3deb](https://github.com/taskforcesh/taskforce-connector/commit/72e3deb5bc619ca1c9638916b689c7a0f6507ba2))
+
 ## [1.31.4](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.3...v1.31.4) (2024-08-04)
 
 
