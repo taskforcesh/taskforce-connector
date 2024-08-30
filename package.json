@@ -47,7 +47,7 @@
     "build": "tsc",
     "test": "jest",
     "start": "node app.js",
-    "prepare": "yarn build"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
