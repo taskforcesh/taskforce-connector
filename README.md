@@ -40,6 +40,7 @@ Call the tool and get a help on the options:
     --tls [tls]                 (default: "Activate secured TLS connection to Redis")
     -h, --host [host]           redis host [localhost] (default: "localhost")
     -d, --database [db]         redis database [0] (default: "0")
+    --username [username]       redis username
     --passwd [passwd]           redis password
     --spasswd [spasswd]         redis sentinel password
     -u, --uri [uri]             redis uri

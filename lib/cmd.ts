@@ -39,6 +39,7 @@ export const run = (name: string, version: string) => {
       process.env.REDIS_HOST || "localhost"
     )
     .option("-d, --database [db]", "redis database [0]", "0")
+    .option("--username [username]", "redis username", process.env.REDIS_USERNAME)
     .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
     .option(
       "--spasswd [spasswd]",
@@ -109,6 +110,7 @@ export const run = (name: string, version: string) => {
     const connection = {
       port: options.port,
       host: options.host,
+      username: options.username,
       password: options.passwd,
       sentinelPassword: options.spasswd,
       db: options.database,
