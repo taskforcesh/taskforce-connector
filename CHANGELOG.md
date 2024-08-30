@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.5...v1.32.0) (2024-08-30)
+
+
+### Features
+
+* add username for support with redis setups using ACL ([#99](https://github.com/taskforcesh/taskforce-connector/issues/99)) ([e8125ac](https://github.com/taskforcesh/taskforce-connector/commit/e8125acb84bab99c890df2345b3c155a0bb99c5c))
+
 ## [1.31.5](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.4...v1.31.5) (2024-08-30)
 
 
