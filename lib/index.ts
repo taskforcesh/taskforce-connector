@@ -8,6 +8,9 @@ export { Connection } from "./socket";
 export { respond } from "./responders/respond";
 export { BullMQResponders } from "./responders/bullmq-responders";
 
+export { versionChecker } from "./version-checker";
+export { Socket } from "./socket";
+
 export const Connect = (
   name: string,
   token: string,
@@ -17,6 +20,7 @@ export const Connect = (
     team?: string;
     integrations?: { [key: string]: Integration };
     nodes?: string[];
+    queueNames?: string[];
   } = {}
 ) => {
   return Socket(name, backend, token, connection, opts);

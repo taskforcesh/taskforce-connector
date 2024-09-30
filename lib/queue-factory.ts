@@ -10,11 +10,11 @@ import { Integration } from "./interfaces/integration";
 const chalk = require("chalk");
 
 const queueNameRegExp = new RegExp("(.*):(.*):id");
-const maxCount = 50000;
-const maxTime = 30000;
+const maxCount = 150000;
+const maxTime = 40000;
 
 // We keep a redis client that we can reuse for all the queues.
-let redisClients: Record<"bull" | "bullmq", Redis | Cluster> = {} as any;
+let redisClients: Record<string, Redis | Cluster> = {} as any;
 
 export interface FoundQueue {
   prefix: string;
@@ -22,37 +22,86 @@ export interface FoundQueue {
   type: QueueType;
 }
 
-const getQueueKeys = async (client: Redis | Cluster) => {
-  let nodes = "nodes" in client ? client.nodes('master'): [client]
+const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
+  let cursor = "0";
+  const keys = [];
+  do {
+    const [nextCursor, scannedKeys] = await node.scan(
+      cursor,
+      "MATCH",
+      "*:*:id",
+      "COUNT",
+      maxCount,
+      "TYPE",
+      "string"
+    );
+    cursor = nextCursor;
+
+    keys.push(...scannedKeys);
+  } while (Date.now() - startTime < maxTime && cursor !== "0");
+
+  return keys;
+};
+
+const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
+  let nodes = "nodes" in client ? client.nodes("master") : [client];
   let keys = [];
   const startTime = Date.now();
+  const foundQueues = new Set<string>();
 
   for await (const node of nodes) {
-    let cursor = "0";
-    do {
-      const [nextCursor, scannedKeys] = await node.scan(
-        cursor,
-        "MATCH",
-        "*:*:id",
-        "COUNT",
-        maxCount
-      );
-      cursor = nextCursor;
+    // If we have proposed queue names, lets check if they exist (including prefix)
+    // Basically checking if there is a id key for the queue (prefix:name:id)
+    if (queueNames) {
+      const queueKeys = queueNames.map((queueName) => {
+        // Separate queue name from prefix
+        let [prefix, name] = queueName.split(":");
+        if (!name) {
+          name = prefix;
+          prefix = "bull";
+        }
 
-      keys.push(...scannedKeys);
-    } while (Date.now() - startTime < maxTime && cursor !== "0");
+        // If the queue name includes a prefix use that, otherwise use the default prefix "bull"
+        return `${prefix}:${name}:id`;
+      });
+
+      for (const key of queueKeys) {
+        const exists = await node.exists(key);
+        if (exists) {
+          foundQueues.add(key);
+        }
+      }
+      keys.push(...foundQueues);
+
+      // Warn for missing queues
+      for (const key of queueKeys) {
+        if (!foundQueues.has(key)) {
+          // Extract queue name from key
+          const match = queueNameRegExp.exec(key);
+          console.log(
+            chalk.yellow("Redis:") +
+              chalk.red(
+                ` Queue "${match[1]}:${match[2]}" not found in Redis. Skipping...`
+              )
+          );
+        }
+      }
+    } else {
+      keys.push(...(await scanForQueues(node, startTime)));
+    }
   }
   return keys;
 };
 
 export async function getConnectionQueues(
   redisOpts: RedisOptions,
-  clusterNodes?: string[]
+  clusterNodes?: string[],
+  queueNames?: string[]
 ): Promise<FoundQueue[]> {
   const queues = await execRedisCommand(
     redisOpts,
     async (client) => {
-      const keys = await getQueueKeys(client);
+      const keys = await getQueueKeys(client, queueNames);
 
       const queues = await Promise.all(
         keys
@@ -102,24 +151,38 @@ export function getRedisClient(
   type: "bull" | "bullmq",
   clusterNodes?: string[]
 ) {
-  if (!redisClients[type]) {
+  // Compute checksum for redisOpts
+  const checksumJson = JSON.stringify(redisOpts);
+  const checksum = require("crypto")
+    .createHash("md5")
+    .update(checksumJson)
+    .digest("hex");
+
+  const key = `${type}-${checksum}`;
+
+  if (!redisClients[key]) {
     if (clusterNodes && clusterNodes.length) {
-      const { username, password } = redisOptsFromUrl(clusterNodes[0])
-      redisClients[type] = new Redis.Cluster(clusterNodes, {
-        ...redisOpts, 
+      const { username, password } = redisOptsFromUrl(clusterNodes[0]);
+      redisClients[key] = new Redis.Cluster(clusterNodes, {
+        ...redisOpts,
         redisOptions: {
           username,
           password,
-          tls: process.env.REDIS_CLUSTER_TLS ? {
-              cert: Buffer.from(process.env.REDIS_CLUSTER_TLS ?? '', 'base64').toString('ascii')
-          } : undefined,
-        }
+          tls: process.env.REDIS_CLUSTER_TLS
+            ? {
+                cert: Buffer.from(
+                  process.env.REDIS_CLUSTER_TLS ?? "",
+                  "base64"
+                ).toString("ascii"),
+              }
+            : undefined,
+        },
       });
     } else {
-      redisClients[type] = new Redis(redisOpts);
+      redisClients[key] = new Redis(redisOpts);
     }
 
-    redisClients[type].on("error", (err: Error) => {
+    redisClients[key].on("error", (err: Error) => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.red("redis connection error")} ${
           err.message
@@ -127,13 +190,13 @@ export function getRedisClient(
       );
     });
 
-    redisClients[type].on("connect", () => {
+    redisClients[key].on("connect", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.green("connected to redis server")}`
       );
     });
 
-    redisClients[type].on("end", () => {
+    redisClients[key].on("end", () => {
       console.log(
         `${chalk.yellow("Redis:")} ${chalk.blueBright(
           "disconnected from redis server"
@@ -142,7 +205,7 @@ export function getRedisClient(
     });
   }
 
-  return redisClients[type];
+  return redisClients[key];
 }
 
 export async function execRedisCommand(
@@ -197,7 +260,7 @@ export function createQueue(
 
     case "bull":
       return {
-        queue: new Bull(foundQueue.name, {
+        queue: new (<any>Bull)(foundQueue.name, {
           createClient,
           prefix: foundQueue.prefix,
         }),

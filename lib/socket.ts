@@ -2,7 +2,12 @@ import { RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
-import { execRedisCommand, getRedisInfo, ping } from "./queue-factory";
+import {
+  FoundQueue,
+  execRedisCommand,
+  getRedisInfo,
+  ping,
+} from "./queue-factory";
 import { getQueueType, redisOptsFromUrl } from "./utils";
 import { Integration } from "./interfaces/integration";
 
@@ -30,9 +35,10 @@ export const Socket = (
     integrations?: {
       [key: string]: Integration;
     };
+    queueNames?: string[];
   } = {}
 ) => {
-  const { team, nodes, integrations } = opts;
+  const { team, nodes } = opts;
   const ws = new WebSocketClient();
   const redisOpts = redisOptsFromConnection(connection);
 
@@ -69,6 +75,8 @@ export const Socket = (
   };
 
   ws.onmessage = async function incoming(input: string) {
+    const startTime = Date.now();
+
     console.log(
       `${chalk.yellow("WebSocket:")} ${chalk.blueBright("received")} %s`,
       input
@@ -84,13 +92,10 @@ export const Socket = (
         //
         // Send this connection.
         //
-        const queues = await updateQueuesCache(redisOpts, {
-          nodes,
-          integrations,
-        });
+        const queues = await updateQueuesCache(redisOpts, opts);
         console.log(
-          `${chalk.yellow("WebSocket: ")} ${chalk.green(
-            "sending connection: "
+          `${chalk.yellow("WebSocket:")} ${chalk.green(
+            "sending connection:"
           )} ${chalk.blueBright(name)} ${
             team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
           }`
@@ -103,7 +108,8 @@ export const Socket = (
             connection: name,
             team,
             version,
-          })
+          }),
+          startTime
         );
       } else {
         const msg = JSON.parse(input);
@@ -125,9 +131,13 @@ export const Socket = (
             break;
           case "queues":
           case "jobs":
-            const cache = getCache();
+            let cache = getCache();
             if (!cache) {
               await updateQueuesCache(redisOpts, opts);
+              cache = getCache();
+              if (!cache) {
+                throw new Error("Unable to update queues");
+              }
             }
             const { queue, responders } =
               cache[
@@ -139,7 +149,8 @@ export const Socket = (
                 JSON.stringify({
                   id: msg.id,
                   err: "Queue not found",
-                })
+                }),
+                startTime
               );
             } else {
               switch (res) {
@@ -160,25 +171,30 @@ export const Socket = (
   };
 
   async function respondConnectionCommand(connection: Connection, msg: any) {
+    const startTime = Date.now();
+
     const data = msg.data;
+
     switch (data.cmd) {
       case "ping":
         const pong = await ping(redisOpts, nodes);
-        respond(msg.id, pong);
+        respond(msg.id, startTime, pong);
         break;
       case "getConnection":
         {
           const queues = await updateQueuesCache(redisOpts, opts);
 
           console.log(
-            `${chalk.yellow("WebSocket: ")} ${chalk.green(
+            `${chalk.yellow("WebSocket:")} ${chalk.green(
               "sending connection:"
             )} ${chalk.blueBright(name)} ${
               team ? chalk.green(" for team ") + chalk.blueBright(team) : ""
             }`
           );
 
-          respond(msg.id, {
+          logSendingQueues(queues);
+
+          respond(msg.id, startTime, {
             queues,
             connection: name,
             team,
@@ -190,25 +206,14 @@ export const Socket = (
         {
           const queues = await updateQueuesCache(redisOpts, opts);
 
-          for (const queue of queues) {
-            const { name, prefix, type } = queue;
-            console.log(
-              `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
-                "Sending queue:"
-              )} ${chalk.green(name)} ${chalk.blueBright(
-                "type:"
-              )} ${chalk.green(type)} ${chalk.blueBright(
-                "prefix:"
-              )} ${chalk.green(prefix)}`
-            );
-          }
+          logSendingQueues(queues);
 
-          respond(msg.id, queues);
+          respond(msg.id, startTime, queues);
         }
         break;
       case "getInfo":
         const info = await getRedisInfo(redisOpts, nodes);
-        respond(msg.id, info);
+        respond(msg.id, startTime, info);
         break;
 
       case "getQueueType":
@@ -217,17 +222,30 @@ export const Socket = (
           (client) => getQueueType(data.name, data.prefix, client),
           nodes
         );
-        respond(msg.id, { queueType });
+        respond(msg.id, startTime, { queueType });
         break;
     }
   }
 
-  function respond(id: string, data: any = {}) {
+  function logSendingQueues(queues: FoundQueue[]) {
+    for (const queue of queues) {
+      const { name, prefix, type } = queue;
+      console.log(
+        `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
+          "Sending queue:"
+        )} ${chalk.green(name)} ${chalk.blueBright("type:")} ${chalk.green(
+          type
+        )} ${chalk.blueBright("prefix:")} ${chalk.green(prefix)}`
+      );
+    }
+  }
+
+  function respond(id: string, startTime: number, data: any = {}) {
     const response = JSON.stringify({
       id,
       data,
     });
-    ws.send(response);
+    ws.send(response, startTime);
   }
 };
 

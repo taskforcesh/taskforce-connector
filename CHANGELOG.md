@@ -1,3 +1,117 @@
+# [1.32.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.5...v1.32.0) (2024-08-30)
+
+
+### Features
+
+* add username for support with redis setups using ACL ([#99](https://github.com/taskforcesh/taskforce-connector/issues/99)) ([e8125ac](https://github.com/taskforcesh/taskforce-connector/commit/e8125acb84bab99c890df2345b3c155a0bb99c5c))
+
+## [1.31.5](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.4...v1.31.5) (2024-08-30)
+
+
+### Bug Fixes
+
+* prefix redis cache connection cache with checksum ([72e3deb](https://github.com/taskforcesh/taskforce-connector/commit/72e3deb5bc619ca1c9638916b689c7a0f6507ba2))
+
+## [1.31.4](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.3...v1.31.4) (2024-08-04)
+
+
+### Bug Fixes
+
+* **socket:** make sure cache is updated before responding ([8a5f8a1](https://github.com/taskforcesh/taskforce-connector/commit/8a5f8a1a92efe31113ac87ef83499eaa6370edc7))
+
+## [1.31.3](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.2...v1.31.3) (2024-08-03)
+
+
+### Bug Fixes
+
+* use a more compatible way to read package.json ([73d6804](https://github.com/taskforcesh/taskforce-connector/commit/73d68042ff9e8a16da213277aea003286d9e9209))
+
+## [1.31.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.1...v1.31.2) (2024-07-06)
+
+
+### Bug Fixes
+
+* fix package.json loading ([9998df3](https://github.com/taskforcesh/taskforce-connector/commit/9998df39ad6054f7336d94c045e2ef1bc7e766c2))
+
+## [1.31.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.0...v1.31.1) (2024-07-04)
+
+
+### Bug Fixes
+
+* upgrade dependencies for security patches ([f433335](https://github.com/taskforcesh/taskforce-connector/commit/f43333596723ebfd23abd251104140c587604aec))
+
+# [1.31.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.30.0...v1.31.0) (2024-06-10)
+
+
+### Features
+
+* upgrade to latest bull and bullmq ([955f968](https://github.com/taskforcesh/taskforce-connector/commit/955f968c85f4a6dc6f654119d874a353053ad6e2))
+
+# [1.30.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.29.0...v1.30.0) (2024-06-10)
+
+
+### Features
+
+* add support for specifying queue names programatically ([71adc07](https://github.com/taskforcesh/taskforce-connector/commit/71adc07a8ea5cc9829942fc945b818c6c26fdec3))
+
+# [1.29.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.2...v1.29.0) (2024-06-10)
+
+
+### Features
+
+* add support for specifying queue names ([aae22c5](https://github.com/taskforcesh/taskforce-connector/commit/aae22c5eec31b8f86400ef1d3a3ffc47d94226ef))
+
+## [1.28.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.1...v1.28.2) (2024-06-09)
+
+
+### Bug Fixes
+
+* **queue-factory:** slightly larger defaults for queue discovery iterations ([1df5ff8](https://github.com/taskforcesh/taskforce-connector/commit/1df5ff88c2beb37f6f12f65cb1f4ae6077fd1a46))
+
+## [1.28.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.28.0...v1.28.1) (2024-06-09)
+
+
+### Bug Fixes
+
+* **queue-factory:** use type for faster queue discovery ([150c1e1](https://github.com/taskforcesh/taskforce-connector/commit/150c1e121a68dc5cb37c5a8b4ee269aee5035052))
+
+# [1.28.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.2...v1.28.0) (2024-05-20)
+
+
+### Features
+
+* add response time to logs ([9b461f7](https://github.com/taskforcesh/taskforce-connector/commit/9b461f7a9a617506e1717901dd1576a5e7b0c426))
+
+## [1.27.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.1...v1.27.2) (2024-05-20)
+
+
+### Bug Fixes
+
+* improve scan max count ([dfaec16](https://github.com/taskforcesh/taskforce-connector/commit/dfaec16822695f2a31327a94971b1f2aefe66d09))
+
+## [1.27.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.27.0...v1.27.1) (2024-05-20)
+
+
+### Bug Fixes
+
+* **ws:** log send errors ([4726f7b](https://github.com/taskforcesh/taskforce-connector/commit/4726f7b52cd48a8a4ccb54447413aab6976fcaa8))
+
+# [1.27.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.26.0...v1.27.0) (2024-05-20)
+
+
+### Features
+
+* add support for getWorkersCount ([f07db90](https://github.com/taskforcesh/taskforce-connector/commit/f07db908737a3fb9938e2d2276266ff0c5e883e1))
+* better logs when getting connection ([4dee10f](https://github.com/taskforcesh/taskforce-connector/commit/4dee10f7fd901caaf72a8f8a99a074551a051ec1))
+* upgrade bull and bullmq dependencies ([67235bf](https://github.com/taskforcesh/taskforce-connector/commit/67235bf6a27883d4173bfaa1d4690bff3af4f621))
+
+# [1.26.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.1...v1.26.0) (2023-12-21)
+
+
+### Features
+
+* add support for bullmq flows ([42281f9](https://github.com/taskforcesh/taskforce-connector/commit/42281f9190149af7a6f91de670f99f6e353973b2))
+
 ## [1.25.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.25.0...v1.25.1) (2023-11-17)
 
 

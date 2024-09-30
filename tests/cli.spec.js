@@ -15,14 +15,14 @@ describe("CLI Options", () => {
 
   it("should use environment variable for nodes if set", () => {
     process.env.REDIS_NODES = "node1:6379,node2:6379";
-    require("../index.js"); // Update the path as necessary
+    require("../app.js"); // Update the path as necessary
 
     expect(program.nodes).toEqual(["node1:6379", "node2:6379"]);
   });
 
   it("should use default port if no environment variable is set", () => {
     delete process.env.REDIS_PORT;
-    require("../index.js"); // Update the path as necessary
+    require("../app.js"); // Update the path as necessary
 
     expect(program.port).toBe("6379");
   });
