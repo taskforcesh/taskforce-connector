@@ -4,14 +4,161 @@ orbs:
   aws-ecr: circleci/aws-ecr@8.1.3
   aws-ecs: circleci/aws-ecs@3.2.0
 
+executors:
+  custom:
+    machine:
+      image: ubuntu-2404:2024.05.1
+    resource_class: xlarge
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:20.9.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          name: "Restore Package Cache"
+          keys:
+            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: "Run build"
+          command: |
+            npm run build
+  code-checks:
+    docker:
+      - image: cimg/node:20.9.0
+    steps:
+        - checkout
+        - run:
+            name: "Install pnpm"
+            command: sudo npm install -g pnpm@^9
+        - restore_cache:
+            name: "Restore Package Cache"
+            keys:
+                - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+        - run:
+            name: "Install dependencies"
+            command: pnpm install --frozen-lockfile
+        - save_cache:
+            name: "Save Package Cache"
+            key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+            paths:
+                - node_modules
+# no lint and type checks in this project
+#        - run:
+#            name: "Run lint checks"
+#            command: pnpm lint-check
+#        - run:
+#            name: "Run type checks"
+#            command: pnpm type-check
+        - run:
+            name: "Run tests"
+            command: pnpm test
+
 workflows:
-  standard-workflow:
+  run-pipeline:
     jobs:
+      - code-checks
+      - build:
+          requires:
+            - code-checks
+          filters:
+            branches:
+              ignore:
+                - master
+
+      # Build and push image to ECR
       - aws-ecr/build-and-push-image:
+          requires:
+            - code-checks
+          executor: custom
           repo: taskforce-connector
           region: eu-north-1
-          tag: "latest"
+          tag: ${CIRCLE_BRANCH},${CIRCLE_BRANCH}-<< pipeline.number >>,${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
           context: aws-account
+          extra-build-args: '--build-arg=NPM_TOKEN=${NPM_TOKEN}'
+          filters:
+            branches:
+              only:
+                - master
+
+      # Pre API update (no hold required)
+      - aws-ecs/deploy-service-update:
+          cluster: "step-shared-cluster"
+          family: "pre-api-taskforce-connector"
+          service-name: "pre-api-taskforce-connector-service"
+          container-env-var-updates: container=pre-api-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=pre-api-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          enable-circuit-breaker: true
+          force-new-deployment: true
+          context: aws-account
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            branches:
+              only:
+                - master
+
+      # Pre indexer update (no hold required)
+      - aws-ecs/deploy-service-update:
+          cluster: "step-shared-cluster"
+          family: "pre-indexer-taskforce-connector"
+          service-name: "pre-indexer-taskforce-connector-service"
+          container-env-var-updates: container=pre-indexer-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=pre-indexer-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          enable-circuit-breaker: true
+          force-new-deployment: true
+          context: aws-account
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            branches:
+              only:
+                - master
+
+      # Live API and live indexer hold
+      - hold-live:
+          type: approval
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            branches:
+              only:
+                - master
+
+      # Live API update
+      - aws-ecs/deploy-service-update:
+          cluster: "step-shared-cluster"
+          family: "live-api-taskforce-connector"
+          service-name: "live-api-taskforce-connector-service"
+          container-env-var-updates: container=live-api-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=live-api-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          enable-circuit-breaker: true
+          force-new-deployment: true
+          context: aws-account
+          requires:
+            - aws-ecr/build-and-push-image
+            - hold-live
+          filters:
+            branches:
+              only:
+                - master
+
+      # Live indexer update
+      - aws-ecs/deploy-service-update:
+          cluster: "step-shared-cluster"
+          family: "live-indexer-taskforce-connector"
+          service-name: "live-indexer-taskforce-connector-service"
+          container-env-var-updates: container=live-indexer-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=live-indexer-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          enable-circuit-breaker: true
+          force-new-deployment: true
+          context: aws-account
+          requires:
+            - aws-ecr/build-and-push-image
+            - hold-live
           filters:
             branches:
               only:
