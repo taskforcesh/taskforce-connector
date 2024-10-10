@@ -23,6 +23,14 @@ jobs:
           keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
+          name: "Install dependencies"
+          command: yarn --frozen-lockfile
+      - save_cache:
+          name: "Save Package Cache"
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run:
           name: "Run build"
           command: npm run build
 
