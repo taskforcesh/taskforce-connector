@@ -24,55 +24,17 @@ jobs:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: "Run build"
-          command: |
-            npm run build
-  code-checks:
-    docker:
-      - image: cimg/node:20.9.0
-    steps:
-        - checkout
-        - run:
-            name: "Install yarn"
-            command: sudo npm install -g yarn
-        - restore_cache:
-            name: "Restore Package Cache"
-            keys:
-                - yarn-packages-{{ checksum "yarn.lock" }}
-        - run:
-            name: "Install dependencies"
-            command: yarn --frozen-lockfile
-        - save_cache:
-            name: "Save Package Cache"
-            key: yarn-packages-{{ checksum "yarn.lock" }}
-            paths:
-                - node_modules
-# no lint and type checks in this project
-#        - run:
-#            name: "Run lint checks"
-#            command: pnpm lint-check
-#        - run:
-#            name: "Run type checks"
-#            command: pnpm type-check
-#        - run:
-#            name: "Run tests"
-#            command: pnpm test
+          command: npm run build
 
 workflows:
   run-pipeline:
     jobs:
-      - code-checks
-      - build:
-          requires:
-            - code-checks
-          filters:
-            branches:
-              ignore:
-                - master
+      - build
 
       # Build and push image to ECR
       - aws-ecr/build-and-push-image:
           requires:
-            - code-checks
+            - build
           executor: custom
           repo: taskforce-connector
           region: eu-north-1
@@ -84,7 +46,7 @@ workflows:
               only:
                 - master
 
-      # Pre API update (no hold required)
+      # Pre API update
       - aws-ecs/deploy-service-update:
           cluster: "step-shared-cluster"
           family: "pre-api-taskforce-connector"
@@ -101,7 +63,7 @@ workflows:
               only:
                 - master
 
-      # Pre indexer update (no hold required)
+      # Pre indexer update
       - aws-ecs/deploy-service-update:
           cluster: "step-shared-cluster"
           family: "pre-indexer-taskforce-connector"
@@ -111,16 +73,6 @@ workflows:
           enable-circuit-breaker: true
           force-new-deployment: true
           context: aws-account
-          requires:
-            - aws-ecr/build-and-push-image
-          filters:
-            branches:
-              only:
-                - master
-
-      # Live API and live indexer hold
-      - hold-live:
-          type: approval
           requires:
             - aws-ecr/build-and-push-image
           filters:
@@ -140,7 +92,6 @@ workflows:
           context: aws-account
           requires:
             - aws-ecr/build-and-push-image
-            - hold-live
           filters:
             branches:
               only:
@@ -158,7 +109,6 @@ workflows:
           context: aws-account
           requires:
             - aws-ecr/build-and-push-image
-            - hold-live
           filters:
             branches:
               only:
