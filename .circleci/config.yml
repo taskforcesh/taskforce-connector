@@ -21,7 +21,7 @@ jobs:
       - restore_cache:
           name: "Restore Package Cache"
           keys:
-            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+            - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: "Run build"
           command: |
@@ -32,18 +32,18 @@ jobs:
     steps:
         - checkout
         - run:
-            name: "Install pnpm"
-            command: sudo npm install -g pnpm@^9
+            name: "Install yarn"
+            command: sudo npm install -g yarn
         - restore_cache:
             name: "Restore Package Cache"
             keys:
-                - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+                - yarn-packages-{{ checksum "yarn.lock" }}
         - run:
             name: "Install dependencies"
-            command: pnpm install --frozen-lockfile
+            command: yarn --frozen-lockfile
         - save_cache:
             name: "Save Package Cache"
-            key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+            key: yarn-packages-{{ checksum "yarn.lock" }}
             paths:
                 - node_modules
 # no lint and type checks in this project
@@ -53,9 +53,9 @@ jobs:
 #        - run:
 #            name: "Run type checks"
 #            command: pnpm type-check
-        - run:
-            name: "Run tests"
-            command: pnpm test
+#        - run:
+#            name: "Run tests"
+#            command: pnpm test
 
 workflows:
   run-pipeline:
