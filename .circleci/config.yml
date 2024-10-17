@@ -59,8 +59,8 @@ workflows:
           cluster: "step-shared-cluster"
           family: "pre-api-taskforce-connector"
           service-name: "pre-api-taskforce-connector-service"
-          container-env-var-updates: container=pre-api-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
-          container-image-name-updates: container=pre-api-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-env-var-updates: container=pre-api-taskforce-connector-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=pre-api-taskforce-connector-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
           enable-circuit-breaker: true
           force-new-deployment: true
           context: aws-account
@@ -76,8 +76,8 @@ workflows:
           cluster: "step-shared-cluster"
           family: "pre-indexer-taskforce-connector"
           service-name: "pre-indexer-taskforce-connector-service"
-          container-env-var-updates: container=pre-indexer-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
-          container-image-name-updates: container=pre-indexer-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-env-var-updates: container=pre-indexer-taskforce-connector-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=pre-indexer-taskforce-connector-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
           enable-circuit-breaker: true
           force-new-deployment: true
           context: aws-account
@@ -93,8 +93,8 @@ workflows:
           cluster: "step-shared-cluster"
           family: "live-api-taskforce-connector"
           service-name: "live-api-taskforce-connector-service"
-          container-env-var-updates: container=live-api-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
-          container-image-name-updates: container=live-api-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-env-var-updates: container=live-api-taskforce-connector-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=live-api-taskforce-connector-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
           enable-circuit-breaker: true
           force-new-deployment: true
           context: aws-account
@@ -110,8 +110,8 @@ workflows:
           cluster: "step-shared-cluster"
           family: "live-indexer-taskforce-connector"
           service-name: "live-indexer-taskforce-connector-service"
-          container-env-var-updates: container=live-indexer-taskforce-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
-          container-image-name-updates: container=live-indexer-taskforce-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-env-var-updates: container=live-indexer-taskforce-connector-container,name=STEP_VERSION,value=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
+          container-image-name-updates: container=live-indexer-taskforce-connector-container,tag=${CIRCLE_BRANCH}-<< pipeline.number >>-${CIRCLE_SHA1}
           enable-circuit-breaker: true
           force-new-deployment: true
           context: aws-account
