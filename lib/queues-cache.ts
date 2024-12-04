@@ -14,7 +14,9 @@ export const getCache = () => {
   return queuesCache;
 };
 
-export function queueKey(queue: Omit<FoundQueue, "type">) {
+export function queueKey(
+  queue: Omit<FoundQueue, "type" | "majorVersion" | "version">
+) {
   return `${queue.prefix}:${queue.name}`;
 }
 

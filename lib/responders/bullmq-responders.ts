@@ -77,7 +77,12 @@ async function respondQueueCommand(
       respond(ws, startTime, msg.id, metrics);
       break;
     case "getDependencies":
-      const dependencies = await queue.getDependencies(data.parentId, data.type, data.start, data.end);
+      const dependencies = await queue.getDependencies(
+        data.parentId,
+        data.type,
+        data.start,
+        data.end
+      );
       respond(ws, startTime, msg.id, dependencies);
       break;
 
@@ -88,6 +93,7 @@ async function respondQueueCommand(
     case "getCompleted":
     case "getFailed":
     case "getRepeatableJobs":
+    case "getJobSchedulers":
     case "getWorkers":
       paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
       break;
@@ -96,13 +102,21 @@ async function respondQueueCommand(
       const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
       respond(ws, startTime, msg.id, logs);
 
+    case "getRepeatableCount":
+    case "getJobSchedulersCount": {
+      const client = await queue.client;
+      const jobSchedulersKey = queue.keys.repeat;
+      const count = await client.zcard(jobSchedulersKey);
+      respond(ws, startTime, msg.id, count);
+      break;
+    }
+
     case "getWaitingChildrenCount":
     case "getWaitingCount":
     case "getActiveCount":
     case "getDelayedCount":
     case "getCompletedCount":
     case "getFailedCount":
-    case "getRepeatableCount":
       const count = await (<any>queue)[data.cmd]();
       respond(ws, startTime, msg.id, count);
       break;
