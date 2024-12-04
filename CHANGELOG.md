@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.32.0...v1.33.0) (2024-12-04)
+
+
+### Features
+
+* add versioning support ([46395df](https://github.com/taskforcesh/taskforce-connector/commit/46395df4eb1f423de81ee5d9f38dddd96d2166c0))
+
 # [1.32.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.31.5...v1.32.0) (2024-08-30)
 
 
