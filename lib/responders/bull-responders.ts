@@ -17,7 +17,7 @@ function paginate(
   start = start || 0;
   end = end || -1;
   return (<any>queue)
-  [method](start, end, opts)
+    [method](start, end, opts)
     .then(function (jobs: Bull.Job[]) {
       respond(ws, Date.now(), messageId, jobs);
     });

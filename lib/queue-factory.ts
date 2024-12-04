@@ -20,6 +20,8 @@ export interface FoundQueue {
   prefix: string;
   name: string;
   type: QueueType;
+  majorVersion: number;
+  version?: string;
 }
 
 const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
@@ -117,9 +119,12 @@ export async function getConnectionQueues(
           })
           .filter((queue) => queue !== undefined)
           .map(async function (queue) {
-            const type = await getQueueType(queue.name, queue.prefix, client);
-            queue.type = type;
-            return queue;
+            const { type, majorVersion, version } = await getQueueType(
+              queue.name,
+              queue.prefix,
+              client
+            );
+            return { ...queue, type, majorVersion, version };
           })
       );
       return queues;
@@ -250,13 +255,35 @@ export function createQueue(
 
   switch (foundQueue.type) {
     case "bullmq":
-      return {
-        queue: new Queue(foundQueue.name, {
-          connection: getRedisClient(redisOpts, "bullmq", nodes),
-          prefix: foundQueue.prefix,
-        }),
-        responders: BullMQResponders,
-      };
+      const connection = getRedisClient(redisOpts, "bullmq", nodes);
+      switch (foundQueue.majorVersion) {
+        case 0:
+          return {
+            queue: new Queue(foundQueue.name, {
+              connection,
+              prefix: foundQueue.prefix,
+            }),
+            responders: BullMQResponders,
+          };
+        case 3:
+          const { createQueue } = require("./queue-factory/bullmqv3-factory");
+          return createQueue(foundQueue.name, foundQueue.prefix, connection);
+        case 4:
+          const {
+            createQueue: createQueueV4,
+          } = require("./queue-factory/bullmqv4-factory");
+          return createQueueV4(foundQueue.name, foundQueue.prefix, connection);
+        case 5:
+          const {
+            createQueue: createQueueV5,
+          } = require("./queue-factory/bullmqv5-factory");
+          return createQueueV5(foundQueue.name, foundQueue.prefix, connection);
+        default:
+          console.error(
+            chalk.red(`ERROR:`) +
+              `Unexpected major version: ${foundQueue.majorVersion} for queue ${foundQueue.name}`
+          );
+      }
 
     case "bull":
       return {
