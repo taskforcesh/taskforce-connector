@@ -39,7 +39,11 @@ export const run = (name: string, version: string) => {
       process.env.REDIS_HOST || "localhost"
     )
     .option("-d, --database [db]", "redis database [0]", "0")
-    .option("--username [username]", "redis username", process.env.REDIS_USERNAME)
+    .option(
+      "--username [username]",
+      "redis username",
+      process.env.REDIS_USERNAME
+    )
     .option("--passwd [passwd]", "redis password", process.env.REDIS_PASSWD)
     .option(
       "--spasswd [spasswd]",
@@ -129,7 +133,20 @@ export const run = (name: string, version: string) => {
           return { host, port };
         }),
       name: options.master,
-    };
+    } as Record<string, any>;
+
+    // If uri is defined we should remove some port and host and also all the undefined
+    // properties.
+    if (options.uri) {
+      delete connection.port;
+      delete connection.host;
+
+      Object.keys(connection).forEach((key) => {
+        if (connection[key] === undefined) {
+          delete connection[key];
+        }
+      });
+    }
 
     Socket(options.name, options.backend, options.token, connection, {
       team: options.team,
