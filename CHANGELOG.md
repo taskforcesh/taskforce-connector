@@ -1,3 +1,15 @@
+# [1.34.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.33.0...v1.34.0) (2025-01-15)
+
+
+### Bug Fixes
+
+* remove undefined properties when using uri ([4a0dd9e](https://github.com/taskforcesh/taskforce-connector/commit/4a0dd9e5472701e4b922f196d556a5596a75e908))
+
+
+### Features
+
+* bump to latest bullmq version ([0ec5d4e](https://github.com/taskforcesh/taskforce-connector/commit/0ec5d4e8fa10675319c2c5489b6ccd5a084a616d))
+
 # [1.33.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.32.0...v1.33.0) (2024-12-04)
 
 
