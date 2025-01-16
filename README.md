@@ -84,6 +84,10 @@ master                REDIS_MASTER
 nodes                 REDIS_NODES (comma separated list of nodes for Redis Cluster)
 ```
 
+To enable use if TLS when using the container set this environment variable:
+```bash
+REDIS_USE_TLS=1
+```
 
 Note for Redis Cluster: You may also need to specify following with environment variables.
 ```bash
