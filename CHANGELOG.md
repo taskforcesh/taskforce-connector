@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.34.0...v1.35.0) (2025-01-16)
+
+
+### Features
+
+* updates Dockerfile and README with support for TLS flag usage ([#105](https://github.com/taskforcesh/taskforce-connector/issues/105)) ([ce68d17](https://github.com/taskforcesh/taskforce-connector/commit/ce68d17761430e1174daa76014f86546c1322ec9))
+
 # [1.34.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.33.0...v1.34.0) (2025-01-15)
 
 
