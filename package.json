@@ -21,13 +21,13 @@
     "bullmq": "^5.34.10",
     "bullmq-v3": "npm:bullmq@^3.16.2",
     "bullmq-v4": "npm:bullmq@^4.18.2",
-    "bullmq-v5": "npm:bullmq@^5.34.10",
+    "bullmq-v5": "npm:bullmq@^5.47.0",
     "chalk": "^4.1.0",
     "commander": "^12.1.0",
     "ioredis": "^5.4.1",
     "latest-version": "^9.0.0",
     "lodash": "^4.17.21",
-    "semver": "^7.6.2",
+    "semver": "^7.7.1",
     "ws": "^8.17.0"
   },
   "devDependencies": {

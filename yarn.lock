@@ -1541,10 +1541,10 @@ bull@^4.15.1:
     tslib "^2.0.0"
     uuid "^9.0.0"
 
-"bullmq-v5@npm:bullmq@^5.34.10":
-  version "5.34.10"
-  resolved "https://registry.npmjs.org/bullmq/-/bullmq-5.34.10.tgz"
-  integrity sha512-ia6EzpQm1ZPq6GUBSLyfvzJrhdBTd1f3Gn2g9pFtLX4hBOob6QHmcmBzGgPlSCyr/i2Qfe4OdjS21bRd02srbw==
+"bullmq-v5@npm:bullmq@^5.47.0":
+  version "5.47.0"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-5.47.0.tgz#a38d405b780a95ebf44e1c1e1df2c6560187a8e2"
+  integrity sha512-dgC0cAWVzFnyGzAToa8ui8iUSs9rCkEocsQ+QE0M4q7UTB68EKz2j6ukA39rD2RlWSnKFfQb6yy/syznmm6W2A==
   dependencies:
     cron-parser "^4.9.0"
     ioredis "^5.4.1"
@@ -4275,12 +4275,12 @@ semver@^6.3.0, semver@^6.3.1:
   resolved "https://registry.npmjs.org/semver/-/semver-6.3.1.tgz"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-semver@^7.1.1, semver@^7.3.5, semver@^7.6.3:
+semver@^7.1.1, semver@^7.3.5, semver@^7.6.3, semver@^7.7.1:
   version "7.7.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.7.1.tgz#abd5098d82b18c6c81f6074ff2647fd3e7220c9f"
   integrity sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==
 
-semver@^7.1.2, semver@^7.3.7, semver@^7.5.2, semver@^7.5.3, semver@^7.5.4, semver@^7.6.0, semver@^7.6.2:
+semver@^7.1.2, semver@^7.3.7, semver@^7.5.2, semver@^7.5.3, semver@^7.5.4, semver@^7.6.0:
   version "7.6.3"
   resolved "https://registry.npmjs.org/semver/-/semver-7.6.3.tgz"
   integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
