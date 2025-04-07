@@ -50,7 +50,8 @@
     "build": "tsc",
     "test": "jest",
     "start": "node app.js",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "remediate:relax": "osv-scanner fix --strategy=relax -M package.json -L package-lock.json && yarn install"
   },
   "repository": {
     "type": "git",
