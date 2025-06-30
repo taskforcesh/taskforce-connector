@@ -1,3 +1,15 @@
+# [1.36.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.35.0...v1.36.0) (2025-06-30)
+
+
+### Bug Fixes
+
+* **semantic-release:** do not use git commit after release ([c1fc982](https://github.com/taskforcesh/taskforce-connector/commit/c1fc982da1712eba56d740edf2a29bcddce658c5))
+
+
+### Features
+
+* implement PR-based release workflow to work with branch protection ([7989241](https://github.com/taskforcesh/taskforce-connector/commit/798924158462d5f5c42284ebe9bd1c83e5a63b44))
+
 # [1.35.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.34.0...v1.35.0) (2025-01-16)
 
 
