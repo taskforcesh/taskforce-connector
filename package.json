@@ -95,12 +95,7 @@
   },
   "overrides": {
     "brace-expansion": "2.0.2",
-    "npm": {
-      "brace-expansion": "2.0.2",
-      "minimatch": {
-        "brace-expansion": "2.0.2"
-      }
-    }
+    "npm": "11.6.1"
   },
   "resolutions": {
     "brace-expansion": "2.0.2"
