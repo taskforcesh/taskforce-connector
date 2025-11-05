@@ -1,4 +1,5 @@
 import { Redis, Cluster, RedisOptions } from "ioredis";
+import { ConnectionOptions as TlsConnectionOptions } from "tls";
 
 import { QueueType, getQueueType, redisOptsFromUrl } from "./utils";
 import { Queue } from "bullmq";
@@ -15,6 +16,13 @@ const maxTime = 40000;
 
 // We keep a redis client that we can reuse for all the queues.
 let redisClients: Record<string, Redis | Cluster> = {} as any;
+
+type NestedRedisOptions = Partial<RedisOptions> & {
+  tls?: TlsConnectionOptions;
+};
+type RedisOptionsWithNested = RedisOptions & {
+  redisOptions?: NestedRedisOptions;
+};
 
 export interface FoundQueue {
   prefix: string;
@@ -167,21 +175,52 @@ export function getRedisClient(
 
   if (!redisClients[key]) {
     if (clusterNodes && clusterNodes.length) {
-      const { username, password } = redisOptsFromUrl(clusterNodes[0]);
+      const { username: nodeUsername, password: nodePassword } =
+        redisOptsFromUrl(clusterNodes[0]);
+      const {
+        username: redisOptsUsername,
+        password: redisOptsPassword,
+        tls: redisOptsTls,
+        redisOptions: suppliedRedisOptionsRaw,
+        ...clusterLevelOpts
+      } = redisOpts as RedisOptionsWithNested;
+      const suppliedRedisOptions: NestedRedisOptions =
+        suppliedRedisOptionsRaw ?? {};
+      const baseRedisOptions: NestedRedisOptions = {
+        ...suppliedRedisOptions,
+      };
+      delete baseRedisOptions.username;
+      delete baseRedisOptions.password;
+      delete baseRedisOptions.tls;
+
+      const finalUsername =
+        redisOptsUsername ??
+        suppliedRedisOptions.username ??
+        nodeUsername;
+      if (finalUsername !== undefined) {
+        baseRedisOptions.username = finalUsername;
+      }
+
+      const finalPassword =
+        redisOptsPassword ??
+        suppliedRedisOptions.password ??
+        nodePassword;
+      if (finalPassword !== undefined) {
+        baseRedisOptions.password = finalPassword;
+      }
+
+      const mergedTls = mergeTlsConfigs(
+        getClusterTlsFromEnv(),
+        suppliedRedisOptions.tls,
+        redisOptsTls
+      );
+      if (mergedTls) {
+        baseRedisOptions.tls = mergedTls;
+      }
+
       redisClients[key] = new Redis.Cluster(clusterNodes, {
-        ...redisOpts,
-        redisOptions: {
-          username,
-          password,
-          tls: process.env.REDIS_CLUSTER_TLS
-            ? {
-                cert: Buffer.from(
-                  process.env.REDIS_CLUSTER_TLS ?? "",
-                  "base64"
-                ).toString("ascii"),
-              }
-            : undefined,
-        },
+        ...clusterLevelOpts,
+        redisOptions: baseRedisOptions,
       });
     } else {
       redisClients[key] = new Redis(redisOpts);
@@ -299,4 +338,26 @@ export function createQueue(
           `Unexpected queue type: ${foundQueue.type} for queue ${foundQueue.name}`
       );
   }
+}
+
+function getClusterTlsFromEnv(): TlsConnectionOptions | undefined {
+  if (!process.env.REDIS_CLUSTER_TLS) {
+    return undefined;
+  }
+  return {
+    cert: Buffer.from(
+      process.env.REDIS_CLUSTER_TLS ?? "",
+      "base64"
+    ).toString("ascii"),
+  };
+}
+
+function mergeTlsConfigs(
+  ...configs: Array<TlsConnectionOptions | undefined>
+): TlsConnectionOptions | undefined {
+  const valid = configs.filter(Boolean) as TlsConnectionOptions[];
+  if (!valid.length) {
+    return undefined;
+  }
+  return Object.assign({}, ...valid);
 }
