@@ -1,8 +1,15 @@
 FROM node:20-alpine
 
+ARG GITHUB_PACKAGES_TOKEN
+
 RUN apk --no-cache add curl
 
-RUN yarn global add --ignore-optional taskforce-connector pm2@5.2.0 && yarn cache clean
+RUN set -euxo pipefail \
+  && test -n "$GITHUB_PACKAGES_TOKEN" \
+  && printf "@magicaltome:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n" "$GITHUB_PACKAGES_TOKEN" > ~/.npmrc \
+  && yarn global add --ignore-optional @magicaltome/taskforce-connector pm2@5.2.0 \
+  && yarn cache clean \
+  && rm -f ~/.npmrc
 
 CMD pm2-runtime taskforce -- -n "${TASKFORCE_CONNECTION}" --team "${TASKFORCE_TEAM}" `([ "$REDIS_USE_TLS" == "1" ] && echo --tls)`
 

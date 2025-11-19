@@ -52,7 +52,7 @@ async function respondJobCommand(
       await job.update(data.data);
     default:
       console.error(
-        `Missing command ${data.cmd}. Too old version of taskforce-connector?`
+        `Missing command ${data.cmd}. Too old version of Taskforce Connector?`
       );
   }
   respond(ws, startTime, msg.id);
@@ -150,7 +150,7 @@ async function respondQueueCommand(
       break;
     default:
       console.error(
-        `Missing command ${data.cmd}. Too old version of taskforce-connector?`
+        `Missing command ${data.cmd}. Too old version of Taskforce Connector?`
       );
       respond(ws, msg.id, null);
   }

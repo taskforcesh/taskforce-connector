@@ -1,5 +1,5 @@
 {
-  "name": "taskforce-connector",
+  "name": "@magicaltome/taskforce-connector",
   "version": "1.36.0",
   "description": "Connects queues to Taskforce",
   "preferGlobal": true,
@@ -16,6 +16,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "dependencies": {
     "bull": "^4.15.1",
     "bullmq": "^5.34.10",

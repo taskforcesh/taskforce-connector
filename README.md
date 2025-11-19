@@ -8,18 +8,41 @@ The connector is designed to be lightweight and using a minimal set of resources
 
 ## Install
 
+Make sure you've authenticated with our GitHub Packages registry first (see [Authenticating](#authenticating)).
+
 Using [yarn](https://yarnpkg.com)
 
 ```bash
-yarn global add taskforce-connector
+yarn global add @magicaltome/taskforce-connector
 
 ```
 
 Using npm:
 
 ```bash
-npm install -g taskforce-connector
+npm install -g @magicaltome/taskforce-connector
 ```
+
+## Authenticating
+
+If you are not already configured to consume packages under the `@magicaltome` scope, follow these steps once on your machine.
+
+### Create a token
+
+1. In GitHub, open **Settings → Developer settings → Personal access tokens (classic)**.
+2. Generate a new token named `@magicaltome private npm registry key` with **No expiration**.
+3. Select the scopes `repo` and `read:packages`. Maintainers who will publish should also add `write:packages`.
+4. Store the token in your password manager.
+
+### Login for scoped package `@magicaltome`
+
+```bash
+npm login --scope=@magicaltome --auth-type=legacy --registry=https://npm.pkg.github.com
+> Username: YOUR_GITHUB_USERNAME
+> Password: TOKEN_CREATED_ABOVE
+```
+
+This stores the registry details and token in your `~/.npmrc`, which Yarn will also reuse.
 
 ## Usage
 
@@ -113,6 +136,30 @@ as an option:
 
 ```
 
+## Publishing
+
+Publishing is automated via [semantic-release](https://github.com/semantic-release/semantic-release) in [`.github/workflows/release.yml`](.github/workflows/release.yml). When changes land on `master`, the workflow:
+
+1. Builds the project (`yarn build`).
+2. Runs `npx semantic-release`, which bumps the version, updates `CHANGELOG.md`, and `npm publish`es to `https://npm.pkg.github.com`.
+3. Opens a PR with the generated changes.
+
+To make the publish step succeed:
+
+- Store a GitHub personal access token (classic) with `repo`, `read:packages`, and `write:packages` scopes in the `NPM_TOKEN` repository secret. The workflow exports the same token to `semantic-release`.
+- Locally, run the [Authenticating](#authenticating) steps and ensure `NPM_TOKEN` is present in your environment before invoking `npx semantic-release` (useful for dry runs or debugging).
+
+## Docker image
+
+Because the CLI is private, building the `Dockerfile` requires a GitHub Packages token:
+
+```bash
+docker build . \
+  --build-arg GITHUB_PACKAGES_TOKEN=TOKEN_WITH_READ_PACKAGES
+```
+
+The build writes the token to a temporary `.npmrc`, installs `@magicaltome/taskforce-connector`, and removes the file in the same layer so the final image does not contain the credential.
+
 ## Use as a library
 
 It is also possible to add the connector as a library:
@@ -120,7 +167,7 @@ It is also possible to add the connector as a library:
 As a commonjs dependency:
 
 ```js
-const { Connect } = require("taskforce-connector");
+const { Connect } = require("@magicaltome/taskforce-connector");
 
 const taskforceConnection = Connect("my connection", "my token", {
   host: "my redis host",
@@ -132,7 +179,7 @@ const taskforceConnection = Connect("my connection", "my token", {
 or as a es6 module:
 
 ```ts
-import { Connect } from "taskforce-connector";
+import { Connect } from "@magicaltome/taskforce-connector";
 
 const taskforceConnection = Connect("my connection", "my token", {
   host: "my redis host",

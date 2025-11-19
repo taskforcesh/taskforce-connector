@@ -91,7 +91,7 @@ export const run = (name: string, version: string) => {
         chalk.yellow(
           "New version " +
             newestVersion +
-            " of taskforce available, please upgrade with yarn global add taskforce-connector"
+            " of Taskforce Connector available, please upgrade with yarn global add @magicaltome/taskforce-connector"
         )
       );
     }

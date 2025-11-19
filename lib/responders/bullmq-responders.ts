@@ -46,7 +46,7 @@ async function respondJobCommand(ws: WebSocketClient, queue: Queue, msg: any) {
       await job.updateData(data.data);
     default:
       console.error(
-        `Missing command ${data.cmd}. Too old version of taskforce-connector?`
+        `Missing command ${data.cmd}. Too old version of Taskforce Connector?`
       );
   }
   respond(ws, startTime, msg.id);
@@ -166,7 +166,7 @@ async function respondQueueCommand(
       break;
     default:
       console.error(
-        `Missing command ${data.cmd}. Too old version of taskforce-connector?`
+        `Missing command ${data.cmd}. Too old version of Taskforce Connector?`
       );
       respond(ws, startTime, msg.id, null);
   }

@@ -18,14 +18,14 @@ export const versionChecker = async (name: string, version: string) => {
         yellow(
           "New version " +
           newestVersion +
-          " of taskforce available, please upgrade with yarn global add taskforce-connector"
+          " of Taskforce Connector available, please upgrade with yarn global add @magicaltome/taskforce-connector"
         )
       );
     }
   } catch (err) {
     console.error(
       yellow(
-        "Error checking for latest version of taskforce"
+        "Error checking for latest version of Taskforce Connector"
       ),
       err
     );
