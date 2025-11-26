@@ -95,10 +95,12 @@
   },
   "overrides": {
     "brace-expansion": "2.0.2",
-    "npm": "11.6.1"
+    "npm": "11.6.1",
+    "glob": "10.5.0"
   },
   "resolutions": {
-    "brace-expansion": "2.0.2"
+    "brace-expansion": "2.0.2",
+    "glob": "10.5.0"
   },
   "packageManager": "yarn@1.22.22"
 }
