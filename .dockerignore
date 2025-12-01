@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.github
+*.md
+!README.md
+.gitignore
+.vscode
+*.log
+*.tgz
+tests
+coverage
+.nyc_output
+
