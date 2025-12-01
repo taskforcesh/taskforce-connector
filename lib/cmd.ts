@@ -120,11 +120,7 @@ export const run = (name: string, version: string) => {
       db: options.database,
       uri: options.uri,
       tls: options.tls
-        ? {
-            rejectUnauthorized: false,
-            requestCert: true,
-            agent: false,
-          }
+        ? {} // Use system defaults with proper cert validation
         : void 0,
       sentinels:
         options.sentinels &&

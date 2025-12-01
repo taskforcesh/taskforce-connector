@@ -170,16 +170,15 @@ export function getRedisClient(
       const { username, password } = redisOptsFromUrl(clusterNodes[0]);
       redisClients[key] = new Redis.Cluster(clusterNodes, {
         ...redisOpts,
+        // Bypass DNS lookup to preserve hostname for TLS certificate validation
+        // Required for AWS MemoryDB where certs are issued for hostnames, not IPs
+        dnsLookup: (address: string, callback: (err: Error | null, address: string) => void) =>
+          callback(null, address),
         redisOptions: {
           username,
           password,
           tls: process.env.REDIS_CLUSTER_TLS
-            ? {
-                cert: Buffer.from(
-                  process.env.REDIS_CLUSTER_TLS ?? "",
-                  "base64"
-                ).toString("ascii"),
-              }
+            ? {} // Use system defaults with proper cert validation
             : undefined,
         },
       });
