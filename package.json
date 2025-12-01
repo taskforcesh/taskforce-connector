@@ -48,7 +48,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "start": "node app.js",
     "prepare": "npm run build",
     "remediate:relax": "osv-scanner fix --strategy=relax -M package.json -L package-lock.json && yarn install"
@@ -102,5 +102,5 @@
     "brace-expansion": "2.0.2",
     "glob": "10.5.0"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "npm@10.8.2"
 }

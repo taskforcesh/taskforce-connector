@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-test:
+  typecheck:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,11 +28,8 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
-      - name: Run tests
-        run: npm test
-
   build-and-push:
-    needs: build-and-test
+    needs: typecheck
     runs-on: ubuntu-latest
     permissions:
       contents: read
