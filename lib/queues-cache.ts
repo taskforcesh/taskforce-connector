@@ -1,12 +1,15 @@
 import * as Bull from "bull";
 import { Queue } from "bullmq";
-import { Redis, Cluster, RedisOptions } from "ioredis";
+import { RedisOptions } from "ioredis";
 import { keyBy } from "lodash";
-import { FoundQueue, createQueue, getConnectionQueues } from "./queue-factory";
+import {
+  FoundQueue,
+  RedisConnection,
+  createQueue,
+  getConnectionQueues,
+} from "./queue-factory";
 import { Responders } from "./interfaces/responders";
 import { Integration } from "./interfaces/integration";
-
-export type RedisConnection = Redis | Cluster;
 
 let queuesCache: {
   [index: string]: { queue: Bull.Queue | Queue; responders: Responders };

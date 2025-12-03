@@ -4,7 +4,7 @@ import { Socket, Connection } from "./socket";
 export { Integration } from "./interfaces/integration";
 export { getRedisClient, FoundQueue, RedisConnection } from "./queue-factory";
 export { WebSocketClient } from "./ws-autoreconnect";
-export { Connection, ConnectionOptions, RedisConnection as RedisClient } from "./socket";
+export { Connection, ConnectionOptions } from "./socket";
 export { respond } from "./responders/respond";
 export { BullMQResponders } from "./responders/bullmq-responders";
 

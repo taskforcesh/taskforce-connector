@@ -166,13 +166,31 @@ export async function getRedisInfo(
   return info;
 }
 
+/**
+ * Gets or creates a Redis client for queue operations.
+ *
+ * @param redisOpts - Redis connection options. Required if existingClient is not provided.
+ * @param type - The type of queue ("bull" or "bullmq"), used for client caching key.
+ * @param clusterNodes - Optional list of cluster node URIs for Redis Cluster.
+ * @param existingClient - Optional pre-configured Redis/Cluster instance.
+ * @returns A Redis or Cluster client.
+ *
+ * @remarks
+ * When `existingClient` is provided, it is returned directly without caching.
+ * This allows the caller to manage the client lifecycle independently.
+ *
+ * When `redisOpts` are provided (without existingClient), the created client
+ * is cached internally using a checksum of the options. Subsequent calls with
+ * the same options will reuse the cached client.
+ */
 export function getRedisClient(
   redisOpts: RedisOptions | undefined,
   type: "bull" | "bullmq",
   clusterNodes?: string[],
   existingClient?: RedisConnection
 ) {
-  // If we have an existing client, use it directly
+  // If an existing client is provided, return it directly.
+  // We don't cache it since the caller owns its lifecycle.
   if (existingClient) {
     return existingClient;
   }
@@ -181,7 +199,7 @@ export function getRedisClient(
     throw new Error("Redis options are required when no client is provided");
   }
 
-  // Compute checksum for redisOpts
+  // Compute checksum for redisOpts to use as cache key
   const checksumJson = JSON.stringify(redisOpts);
   const checksum = require("crypto")
     .createHash("md5")

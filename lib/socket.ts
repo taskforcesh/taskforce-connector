@@ -4,14 +4,13 @@ import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 import {
   FoundQueue,
+  RedisConnection,
   execRedisCommand,
   getRedisInfo,
   ping,
 } from "./queue-factory";
 import { getQueueType, redisOptsFromUrl } from "./utils";
 import { Integration } from "./interfaces/integration";
-
-export type RedisConnection = Redis | Cluster;
 
 const { version } = require(`${__dirname}/../package.json`);
 
