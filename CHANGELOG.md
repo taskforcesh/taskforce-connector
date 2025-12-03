@@ -5,6 +5,13 @@
 
 * fix deps vulns ([#127](https://github.com/taskforcesh/taskforce-connector/issues/127)) ([b0a6fda](https://github.com/taskforcesh/taskforce-connector/commit/b0a6fdae68d519805df66222b939dfd011139d26))
 
+## [1.36.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.0...v1.36.1) (2025-11-26)
+
+
+### Bug Fixes
+
+* Remediate CVE-2025-64756 by upgrading glob to 10.5.0 ([#124](https://github.com/taskforcesh/taskforce-connector/issues/124)) ([e80d3e5](https://github.com/taskforcesh/taskforce-connector/commit/e80d3e5207ef0157fd1f2f462b0f5a9073d5b47a))
+
 # [1.36.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.35.0...v1.36.0) (2025-06-30)
 
 
