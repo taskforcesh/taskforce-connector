@@ -13,6 +13,8 @@ const queueNameRegExp = new RegExp("(.*):(.*):id");
 const maxCount = 150000;
 const maxTime = 40000;
 
+export type RedisConnection = Redis | Cluster;
+
 // We keep a redis client that we can reuse for all the queues.
 let redisClients: Record<string, Redis | Cluster> = {} as any;
 
@@ -96,9 +98,10 @@ const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
 };
 
 export async function getConnectionQueues(
-  redisOpts: RedisOptions,
+  redisOpts: RedisOptions | undefined,
   clusterNodes?: string[],
-  queueNames?: string[]
+  queueNames?: string[],
+  redisClient?: RedisConnection
 ): Promise<FoundQueue[]> {
   const queues = await execRedisCommand(
     redisOpts,
@@ -129,33 +132,55 @@ export async function getConnectionQueues(
       );
       return queues;
     },
-    clusterNodes
+    clusterNodes,
+    redisClient
   );
 
   return queues;
 }
 
-export async function ping(redisOpts: RedisOptions, clusterNodes?: string[]) {
-  return execRedisCommand(redisOpts, (client) => client.ping(), clusterNodes);
+export async function ping(
+  redisOpts: RedisOptions | undefined,
+  clusterNodes?: string[],
+  redisClient?: RedisConnection
+) {
+  return execRedisCommand(
+    redisOpts,
+    (client) => client.ping(),
+    clusterNodes,
+    redisClient
+  );
 }
 
 export async function getRedisInfo(
-  redisOpts: RedisOptions,
-  clusterNodes?: string[]
+  redisOpts: RedisOptions | undefined,
+  clusterNodes?: string[],
+  redisClient?: RedisConnection
 ) {
   const info = await execRedisCommand(
     redisOpts,
     (client) => client.info(),
-    clusterNodes
+    clusterNodes,
+    redisClient
   );
   return info;
 }
 
 export function getRedisClient(
-  redisOpts: RedisOptions,
+  redisOpts: RedisOptions | undefined,
   type: "bull" | "bullmq",
-  clusterNodes?: string[]
+  clusterNodes?: string[],
+  existingClient?: RedisConnection
 ) {
+  // If we have an existing client, use it directly
+  if (existingClient) {
+    return existingClient;
+  }
+
+  if (!redisOpts) {
+    throw new Error("Redis options are required when no client is provided");
+  }
+
   // Compute checksum for redisOpts
   const checksumJson = JSON.stringify(redisOpts);
   const checksum = require("crypto")
@@ -214,32 +239,34 @@ export function getRedisClient(
 }
 
 export async function execRedisCommand(
-  redisOpts: RedisOptions,
+  redisOpts: RedisOptions | undefined,
   cb: (client: Redis | Cluster) => any,
-  clusterNodes?: string[]
+  clusterNodes?: string[],
+  redisClient?: RedisConnection
 ) {
-  const redisClient = getRedisClient(redisOpts, "bull", clusterNodes);
+  const client = getRedisClient(redisOpts, "bull", clusterNodes, redisClient);
 
-  const result = await cb(redisClient);
+  const result = await cb(client);
 
   return result;
 }
 
 export function createQueue(
   foundQueue: FoundQueue,
-  redisOpts: RedisOptions,
+  redisOpts: RedisOptions | undefined,
   opts: {
     nodes?: string[];
     integrations?: {
       [key: string]: Integration;
     };
+    redisClient?: RedisConnection;
   } = {}
 ): { queue: Bull.Queue | Queue; responders: Responders } {
-  const { nodes, integrations } = opts;
+  const { nodes, integrations, redisClient } = opts;
   const createClient = function (type: "client" /*, redisOpts */) {
     switch (type) {
       case "client":
-        return getRedisClient(redisOpts, "bull", nodes);
+        return getRedisClient(redisOpts, "bull", nodes, redisClient);
       default:
         throw new Error(`Unexpected connection type: ${type}`);
     }
@@ -255,7 +282,7 @@ export function createQueue(
 
   switch (foundQueue.type) {
     case "bullmq":
-      const connection = getRedisClient(redisOpts, "bullmq", nodes);
+      const connection = getRedisClient(redisOpts, "bullmq", nodes, redisClient);
       switch (foundQueue.majorVersion) {
         case 0:
           return {

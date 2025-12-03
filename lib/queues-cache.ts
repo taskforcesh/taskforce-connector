@@ -1,10 +1,12 @@
 import * as Bull from "bull";
 import { Queue } from "bullmq";
-import { RedisOptions } from "ioredis";
+import { Redis, Cluster, RedisOptions } from "ioredis";
 import { keyBy } from "lodash";
 import { FoundQueue, createQueue, getConnectionQueues } from "./queue-factory";
 import { Responders } from "./interfaces/responders";
 import { Integration } from "./interfaces/integration";
+
+export type RedisConnection = Redis | Cluster;
 
 let queuesCache: {
   [index: string]: { queue: Bull.Queue | Queue; responders: Responders };
@@ -21,17 +23,23 @@ export function queueKey(
 }
 
 export async function updateQueuesCache(
-  redisOpts: RedisOptions,
+  redisOpts: RedisOptions | undefined,
   opts: {
     nodes?: string[];
     integrations?: {
       [key: string]: Integration;
     };
     queueNames?: string[];
-  } = {}
+  } = {},
+  redisClient?: RedisConnection
 ) {
   const { nodes, integrations, queueNames } = opts;
-  const newQueues = await getConnectionQueues(redisOpts, nodes, queueNames);
+  const newQueues = await getConnectionQueues(
+    redisOpts,
+    nodes,
+    queueNames,
+    redisClient
+  );
 
   queuesCache = queuesCache || {};
 
@@ -70,7 +78,11 @@ export async function updateQueuesCache(
 
   toAdd.forEach(function (foundQueue: FoundQueue) {
     const key = queueKey(foundQueue);
-    const queue = createQueue(foundQueue, redisOpts, { nodes, integrations });
+    const queue = createQueue(foundQueue, redisOpts, {
+      nodes,
+      integrations,
+      redisClient,
+    });
     if (queue) {
       queuesCache[key] = queue;
     }

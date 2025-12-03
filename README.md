@@ -141,6 +141,41 @@ const taskforceConnection = Connect("my connection", "my token", {
 });
 ```
 
+### Using an existing IORedis instance
+
+You can also pass an existing IORedis instance instead of connection options. This is useful when you need more control over the Redis connection configuration:
+
+```ts
+import { Connect } from "taskforce-connector";
+import Redis from "ioredis";
+
+// Create your own Redis instance with custom configuration
+const redisClient = new Redis({
+  host: "my redis host",
+  port: 6379,
+  password: "my redis password",
+  // Any other IORedis options...
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
+});
+
+const taskforceConnection = Connect("my connection", "my token", redisClient);
+```
+
+This also works with Redis Cluster:
+
+```ts
+import { Connect } from "taskforce-connector";
+import Redis from "ioredis";
+
+const cluster = new Redis.Cluster([
+  { host: "node1", port: 6379 },
+  { host: "node2", port: 6379 },
+]);
+
+const taskforceConnection = Connect("my connection", "my token", cluster);
+```
+
 If you are using the On Premises version of Taskforce, you can also specify the backend domain:
 
 ```ts
