@@ -1,3 +1,10 @@
+## [1.36.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.1...v1.36.2) (2025-12-03)
+
+
+### Bug Fixes
+
+* fix deps vulns ([#127](https://github.com/taskforcesh/taskforce-connector/issues/127)) ([b0a6fda](https://github.com/taskforcesh/taskforce-connector/commit/b0a6fdae68d519805df66222b939dfd011139d26))
+
 ## [1.36.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.0...v1.36.1) (2025-11-26)
 
 
