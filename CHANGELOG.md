@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.2...v1.37.0) (2025-12-04)
+
+
+### Features
+
+* add support for connecting using a IORedis instance ([#129](https://github.com/taskforcesh/taskforce-connector/issues/129)) ([bb65491](https://github.com/taskforcesh/taskforce-connector/commit/bb65491304df15ea0dbcc3dac5105da71a43f3f8))
+
 ## [1.36.2](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.1...v1.36.2) (2025-12-03)
 
 
