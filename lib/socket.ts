@@ -1,9 +1,10 @@
-import { RedisOptions } from "ioredis";
+import { Redis, Cluster, RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
 import {
   FoundQueue,
+  RedisConnection,
   execRedisCommand,
   getRedisInfo,
   ping,
@@ -15,7 +16,7 @@ const { version } = require(`${__dirname}/../package.json`);
 
 const chalk = require("chalk");
 
-export interface Connection {
+export interface ConnectionOptions {
   port?: number;
   host?: string;
   password?: string;
@@ -23,6 +24,8 @@ export interface Connection {
   uri?: string;
   tls?: object;
 }
+
+export type Connection = ConnectionOptions | RedisConnection;
 
 export const Socket = (
   name: string,
@@ -40,7 +43,10 @@ export const Socket = (
 ) => {
   const { team, nodes } = opts;
   const ws = new WebSocketClient();
-  const redisOpts = redisOptsFromConnection(connection);
+  const redisOpts = isRedisInstance(connection)
+    ? undefined
+    : redisOptsFromConnection(connection);
+  const redisClient = isRedisInstance(connection) ? connection : undefined;
 
   ws.open(server, {
     headers: {
@@ -92,7 +98,7 @@ export const Socket = (
         //
         // Send this connection.
         //
-        const queues = await updateQueuesCache(redisOpts, opts);
+        const queues = await updateQueuesCache(redisOpts, opts, redisClient);
         console.log(
           `${chalk.yellow("WebSocket:")} ${chalk.green(
             "sending connection:"
@@ -133,7 +139,7 @@ export const Socket = (
           case "jobs":
             let cache = getCache();
             if (!cache) {
-              await updateQueuesCache(redisOpts, opts);
+              await updateQueuesCache(redisOpts, opts, redisClient);
               cache = getCache();
               if (!cache) {
                 throw new Error("Unable to update queues");
@@ -177,12 +183,12 @@ export const Socket = (
 
     switch (data.cmd) {
       case "ping":
-        const pong = await ping(redisOpts, nodes);
+        const pong = await ping(redisOpts, nodes, redisClient);
         respond(msg.id, startTime, pong);
         break;
       case "getConnection":
         {
-          const queues = await updateQueuesCache(redisOpts, opts);
+          const queues = await updateQueuesCache(redisOpts, opts, redisClient);
 
           console.log(
             `${chalk.yellow("WebSocket:")} ${chalk.green(
@@ -204,7 +210,7 @@ export const Socket = (
         break;
       case "getQueues":
         {
-          const queues = await updateQueuesCache(redisOpts, opts);
+          const queues = await updateQueuesCache(redisOpts, opts, redisClient);
 
           logSendingQueues(queues);
 
@@ -212,7 +218,7 @@ export const Socket = (
         }
         break;
       case "getInfo":
-        const info = await getRedisInfo(redisOpts, nodes);
+        const info = await getRedisInfo(redisOpts, nodes, redisClient);
         respond(msg.id, startTime, info);
         break;
 
@@ -220,7 +226,8 @@ export const Socket = (
         const queueType = await execRedisCommand(
           redisOpts,
           (client) => getQueueType(data.name, data.prefix, client),
-          nodes
+          nodes,
+          redisClient
         );
         respond(msg.id, startTime, { queueType });
         break;
@@ -249,7 +256,11 @@ export const Socket = (
   }
 };
 
-function redisOptsFromConnection(connection: Connection): RedisOptions {
+function isRedisInstance(connection: Connection): connection is RedisConnection {
+  return connection instanceof Redis || connection instanceof Cluster;
+}
+
+function redisOptsFromConnection(connection: ConnectionOptions): RedisOptions {
   let opts: RedisOptions = {
     ...pick(connection, [
       "host",
