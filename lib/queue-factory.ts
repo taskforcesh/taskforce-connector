@@ -1,4 +1,5 @@
 import { Redis, Cluster, RedisOptions } from "ioredis";
+import { ConnectionOptions as TlsConnectionOptions } from "tls";
 
 import { QueueType, getQueueType, redisOptsFromUrl } from "./utils";
 import { Queue } from "bullmq";
@@ -210,21 +211,59 @@ export function getRedisClient(
 
   if (!redisClients[key]) {
     if (clusterNodes && clusterNodes.length) {
-      const { username, password } = redisOptsFromUrl(clusterNodes[0]);
+      const firstClusterNode = clusterNodes[0];
+      const nodeCredentials: Partial<RedisOptions> = firstClusterNode
+        ? redisOptsFromUrl(firstClusterNode)
+        : {};
+      const userRedisOptions =
+        ((redisOpts as any).redisOptions as Record<string, any>) ?? {};
+      const redisOptions: Record<string, any> = {
+        ...userRedisOptions,
+      };
+
+      const resolvedUsername =
+        redisOpts.username ??
+        userRedisOptions.username ??
+        nodeCredentials.username;
+      if (resolvedUsername !== undefined) {
+        redisOptions.username = resolvedUsername;
+      } else {
+        delete redisOptions.username;
+      }
+
+      const resolvedPassword =
+        redisOpts.password ??
+        userRedisOptions.password ??
+        nodeCredentials.password;
+      if (resolvedPassword !== undefined) {
+        redisOptions.password = resolvedPassword;
+      } else {
+        delete redisOptions.password;
+      }
+
+      const tlsFromEnv = process.env.REDIS_CLUSTER_TLS
+        ? ({
+            cert: Buffer.from(
+              process.env.REDIS_CLUSTER_TLS,
+              "base64"
+            ).toString("ascii"),
+          } as TlsConnectionOptions)
+        : undefined;
+      const mergedTls = Object.assign(
+        {},
+        tlsFromEnv ?? {},
+        (userRedisOptions.tls as TlsConnectionOptions | undefined) ?? {},
+        (redisOpts.tls as TlsConnectionOptions | undefined) ?? {}
+      ) as TlsConnectionOptions;
+      if (Object.keys(mergedTls).length) {
+        redisOptions.tls = mergedTls;
+      } else {
+        delete redisOptions.tls;
+      }
+
       redisClients[key] = new Redis.Cluster(clusterNodes, {
         ...redisOpts,
-        redisOptions: {
-          username,
-          password,
-          tls: process.env.REDIS_CLUSTER_TLS
-            ? {
-                cert: Buffer.from(
-                  process.env.REDIS_CLUSTER_TLS ?? "",
-                  "base64"
-                ).toString("ascii"),
-              }
-            : undefined,
-        },
+        redisOptions,
       });
     } else {
       redisClients[key] = new Redis(redisOpts);
