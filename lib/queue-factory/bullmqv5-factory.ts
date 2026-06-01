@@ -8,7 +8,7 @@ export const createQueue = (
   connection: Redis
 ) => ({
   queue: new Queue(name, {
-    connection,
+    connection: connection as any,
     prefix,
   }),
   responders: BullMQResponders,
