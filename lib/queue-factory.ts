@@ -305,7 +305,7 @@ export function createQueue(
         case 0:
           return {
             queue: new Queue(foundQueue.name, {
-              connection,
+              connection: connection as any,
               prefix: foundQueue.prefix,
             }),
             responders: BullMQResponders,
