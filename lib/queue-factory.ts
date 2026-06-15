@@ -9,9 +9,36 @@ import { Integration } from "./interfaces/integration";
 
 const chalk = require("chalk");
 
-const queueNameRegExp = new RegExp("(.*):(.*):(id|meta)");
 const maxCount = 150000;
 const maxTime = 40000;
+
+const parseQueueKey = (key: string) => {
+  const suffixSeparator = key.lastIndexOf(":");
+  if (suffixSeparator === -1) {
+    return;
+  }
+
+  const keySuffix = key.slice(suffixSeparator + 1);
+  if (keySuffix !== "id" && keySuffix !== "meta") {
+    return;
+  }
+
+  const prefixAndQueueName = key.slice(0, suffixSeparator);
+  const queueNameSeparator = prefixAndQueueName.lastIndexOf(":");
+
+  if (queueNameSeparator === -1) {
+    return;
+  }
+
+  const prefix = prefixAndQueueName.slice(0, queueNameSeparator);
+  const name = prefixAndQueueName.slice(queueNameSeparator + 1);
+
+  if (!prefix || !name) {
+    return;
+  }
+
+  return { prefix, name };
+};
 
 export type RedisConnection = Redis | Cluster;
 
@@ -91,11 +118,12 @@ const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
       for (const key of queueKeys) {
         if (!foundQueues.has(key)) {
           // Extract queue name from key
-          const match = queueNameRegExp.exec(key);
+          const queue = parseQueueKey(key);
+          const queueLabel = queue ? `${queue.prefix}:${queue.name}` : key;
           console.log(
             chalk.yellow("Redis:") +
               chalk.red(
-                ` Queue "${match[1]}:${match[2]}" not found in Redis. Skipping...`
+                ` Queue "${queueLabel}" not found in Redis. Skipping...`
               )
           );
         }
@@ -121,11 +149,11 @@ export async function getConnectionQueues(
       const queues = await Promise.all(
         keys
           .map(function (key) {
-            var match = queueNameRegExp.exec(key);
-            if (match) {
+            const queue = parseQueueKey(key);
+            if (queue) {
               return {
-                prefix: match[1],
-                name: match[2],
+                prefix: queue.prefix,
+                name: queue.name,
                 type: "bull", // default to bull
               };
             }
