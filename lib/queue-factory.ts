@@ -9,7 +9,7 @@ import { Integration } from "./interfaces/integration";
 
 const chalk = require("chalk");
 
-const queueNameRegExp = new RegExp("(.*):(.*):id");
+const queueNameRegExp = new RegExp("(.*):(.*):(id|meta)");
 const maxCount = 150000;
 const maxTime = 40000;
 
@@ -28,9 +28,9 @@ export interface FoundQueue {
 
 const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
   let cursor = "0";
-  const keys = [];
+  const keys = new Set<string>();
   do {
-    const [nextCursor, scannedKeys] = await node.scan(
+    const [nextCursor, scannedIdKeys] = await node.scan(
       cursor,
       "MATCH",
       "*:*:id",
@@ -39,12 +39,22 @@ const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
       "TYPE",
       "string"
     );
+    const [, scannedMetaKeys] = await node.scan(
+      cursor,
+      "MATCH",
+      "*:*:meta",
+      "COUNT",
+      maxCount,
+      "TYPE",
+      "hash"
+    );
     cursor = nextCursor;
 
-    keys.push(...scannedKeys);
+    scannedIdKeys.forEach((key) => keys.add(key));
+    scannedMetaKeys.forEach((key) => keys.add(key.replace(/:meta$/, ":id")));
   } while (Date.now() - startTime < maxTime && cursor !== "0");
 
-  return keys;
+  return [...keys];
 };
 
 const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
