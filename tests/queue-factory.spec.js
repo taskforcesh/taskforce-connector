@@ -15,6 +15,16 @@ describe("queue auto discovery", () => {
     }),
   });
 
+  const createMockQueueLookupClient = (exists) => ({
+    exists: jest.fn().mockImplementation(exists),
+    hget: jest.fn().mockImplementation((_key, field) => {
+      if (field === "version") {
+        return Promise.resolve("bullmq:5.47.0");
+      }
+      return Promise.resolve(null);
+    }),
+  });
+
   it("discovers queue when only meta key exists", async () => {
     const client = createMockRedisClient([], ["bull:emails:meta"]);
 
@@ -44,5 +54,65 @@ describe("queue auto discovery", () => {
       name: "notifications",
     });
     expect(client.exists).toHaveBeenCalledTimes(1);
+  });
+
+  it("accepts provided queue names when only the meta key exists", async () => {
+    const client = createMockQueueLookupClient((...keys) =>
+      Promise.resolve(keys.includes("bull:emails:meta") ? 1 : 0)
+    );
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    const queues = await getConnectionQueues(
+      undefined,
+      undefined,
+      ["emails"],
+      client
+    );
+
+    expect(queues).toHaveLength(1);
+    expect(queues[0]).toMatchObject({
+      prefix: "bull",
+      name: "emails",
+      type: "bullmq",
+      majorVersion: 5,
+      version: "5.47.0",
+    });
+    expect(client.exists).toHaveBeenCalledWith(
+      "bull:emails:id",
+      "bull:emails:meta"
+    );
+    expect(consoleSpy).not.toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
+  });
+
+  it("does not duplicate provided queue names across cluster nodes", async () => {
+    const node = {
+      exists: jest.fn().mockResolvedValue(1),
+    };
+    const client = {
+      nodes: jest.fn().mockReturnValue([node, node]),
+      exists: jest.fn().mockResolvedValue(1),
+      hget: jest.fn().mockImplementation((_key, field) => {
+        if (field === "version") {
+          return Promise.resolve("bullmq:5.47.0");
+        }
+        return Promise.resolve(null);
+      }),
+    };
+
+    const queues = await getConnectionQueues(
+      undefined,
+      undefined,
+      ["emails"],
+      client
+    );
+
+    expect(queues).toHaveLength(1);
+    expect(queues[0]).toMatchObject({
+      prefix: "bull",
+      name: "emails",
+    });
+    expect(node.exists).toHaveBeenCalledTimes(1);
   });
 });

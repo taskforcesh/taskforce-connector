@@ -86,52 +86,58 @@ const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
 
 const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
   let nodes = "nodes" in client ? client.nodes("master") : [client];
-  let keys = [];
+  let keys: string[] = [];
   const startTime = Date.now();
   const foundQueues = new Set<string>();
+  const queueKeys = queueNames?.map((queueName) => {
+    // Separate queue name from prefix
+    let [prefix, name] = queueName.split(":");
+    if (!name) {
+      name = prefix;
+      prefix = "bull";
+    }
+
+    // If the queue name includes a prefix use that, otherwise use the default prefix "bull"
+    return `${prefix}:${name}:id`;
+  });
 
   for await (const node of nodes) {
     // If we have proposed queue names, lets check if they exist (including prefix)
     // Basically checking if there is a id key for the queue (prefix:name:id)
-    if (queueNames) {
-      const queueKeys = queueNames.map((queueName) => {
-        // Separate queue name from prefix
-        let [prefix, name] = queueName.split(":");
-        if (!name) {
-          name = prefix;
-          prefix = "bull";
+    if (queueKeys) {
+      for (const key of queueKeys) {
+        if (foundQueues.has(key)) {
+          continue;
         }
 
-        // If the queue name includes a prefix use that, otherwise use the default prefix "bull"
-        return `${prefix}:${name}:id`;
-      });
-
-      for (const key of queueKeys) {
-        const exists = await node.exists(key);
+        const metaKey = key.replace(/:id$/, ":meta");
+        const exists = await node.exists(key, metaKey);
         if (exists) {
           foundQueues.add(key);
-        }
-      }
-      keys.push(...foundQueues);
-
-      // Warn for missing queues
-      for (const key of queueKeys) {
-        if (!foundQueues.has(key)) {
-          // Extract queue name from key
-          const queue = parseQueueKey(key);
-          const queueLabel = queue ? `${queue.prefix}:${queue.name}` : key;
-          console.log(
-            chalk.yellow("Redis:") +
-              chalk.red(
-                ` Queue "${queueLabel}" not found in Redis. Skipping...`
-              )
-          );
         }
       }
     } else {
       keys.push(...(await scanForQueues(node, startTime)));
     }
   }
+
+  if (queueKeys) {
+    keys.push(...foundQueues);
+
+    // Warn for missing queues
+    for (const key of queueKeys) {
+      if (!foundQueues.has(key)) {
+        // Extract queue name from key
+        const queue = parseQueueKey(key);
+        const queueLabel = queue ? `${queue.prefix}:${queue.name}` : key;
+        console.log(
+          chalk.yellow("Redis:") +
+            chalk.red(` Queue "${queueLabel}" not found in Redis. Skipping...`)
+        );
+      }
+    }
+  }
+
   return keys;
 };
 
