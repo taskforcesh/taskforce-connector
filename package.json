@@ -48,6 +48,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "pretest": "yarn build",
     "test": "jest",
     "start": "node app.js",
     "prepare": "npm run build",
