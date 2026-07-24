@@ -9,9 +9,36 @@ import { Integration } from "./interfaces/integration";
 
 const chalk = require("chalk");
 
-const queueNameRegExp = new RegExp("(.*):(.*):id");
 const maxCount = 150000;
 const maxTime = 40000;
+
+const parseQueueKey = (key: string) => {
+  const suffixSeparator = key.lastIndexOf(":");
+  if (suffixSeparator === -1) {
+    return;
+  }
+
+  const keySuffix = key.slice(suffixSeparator + 1);
+  if (keySuffix !== "id" && keySuffix !== "meta") {
+    return;
+  }
+
+  const prefixAndQueueName = key.slice(0, suffixSeparator);
+  const queueNameSeparator = prefixAndQueueName.lastIndexOf(":");
+
+  if (queueNameSeparator === -1) {
+    return;
+  }
+
+  const prefix = prefixAndQueueName.slice(0, queueNameSeparator);
+  const name = prefixAndQueueName.slice(queueNameSeparator + 1);
+
+  if (!prefix || !name) {
+    return;
+  }
+
+  return { prefix, name };
+};
 
 export type RedisConnection = Redis | Cluster;
 
@@ -28,9 +55,9 @@ export interface FoundQueue {
 
 const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
   let cursor = "0";
-  const keys = [];
+  const keys = new Set<string>();
   do {
-    const [nextCursor, scannedKeys] = await node.scan(
+    const [nextCursor, scannedIdKeys] = await node.scan(
       cursor,
       "MATCH",
       "*:*:id",
@@ -39,61 +66,78 @@ const scanForQueues = async (node: Redis | Cluster, startTime: number) => {
       "TYPE",
       "string"
     );
+    const [, scannedMetaKeys] = await node.scan(
+      cursor,
+      "MATCH",
+      "*:*:meta",
+      "COUNT",
+      maxCount,
+      "TYPE",
+      "hash"
+    );
     cursor = nextCursor;
 
-    keys.push(...scannedKeys);
+    scannedIdKeys.forEach((key) => keys.add(key));
+    scannedMetaKeys.forEach((key) => keys.add(key.replace(/:meta$/, ":id")));
   } while (Date.now() - startTime < maxTime && cursor !== "0");
 
-  return keys;
+  return [...keys];
 };
 
 const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
   let nodes = "nodes" in client ? client.nodes("master") : [client];
-  let keys = [];
+  let keys: string[] = [];
   const startTime = Date.now();
   const foundQueues = new Set<string>();
+  const queueKeys = queueNames?.map((queueName) => {
+    // Separate queue name from prefix
+    let [prefix, name] = queueName.split(":");
+    if (!name) {
+      name = prefix;
+      prefix = "bull";
+    }
+
+    // If the queue name includes a prefix use that, otherwise use the default prefix "bull"
+    return `${prefix}:${name}:id`;
+  });
 
   for await (const node of nodes) {
     // If we have proposed queue names, lets check if they exist (including prefix)
     // Basically checking if there is a id key for the queue (prefix:name:id)
-    if (queueNames) {
-      const queueKeys = queueNames.map((queueName) => {
-        // Separate queue name from prefix
-        let [prefix, name] = queueName.split(":");
-        if (!name) {
-          name = prefix;
-          prefix = "bull";
+    if (queueKeys) {
+      for (const key of queueKeys) {
+        if (foundQueues.has(key)) {
+          continue;
         }
 
-        // If the queue name includes a prefix use that, otherwise use the default prefix "bull"
-        return `${prefix}:${name}:id`;
-      });
-
-      for (const key of queueKeys) {
-        const exists = await node.exists(key);
+        const metaKey = key.replace(/:id$/, ":meta");
+        const exists = await node.exists(key, metaKey);
         if (exists) {
           foundQueues.add(key);
-        }
-      }
-      keys.push(...foundQueues);
-
-      // Warn for missing queues
-      for (const key of queueKeys) {
-        if (!foundQueues.has(key)) {
-          // Extract queue name from key
-          const match = queueNameRegExp.exec(key);
-          console.log(
-            chalk.yellow("Redis:") +
-              chalk.red(
-                ` Queue "${match[1]}:${match[2]}" not found in Redis. Skipping...`
-              )
-          );
         }
       }
     } else {
       keys.push(...(await scanForQueues(node, startTime)));
     }
   }
+
+  if (queueKeys) {
+    keys.push(...foundQueues);
+
+    // Warn for missing queues
+    for (const key of queueKeys) {
+      if (!foundQueues.has(key)) {
+        // Extract queue name from key
+        const queue = parseQueueKey(key);
+        const queueLabel = queue ? `${queue.prefix}:${queue.name}` : key;
+        console.log(
+          chalk.yellow("Redis:") +
+            chalk.red(` Queue "${queueLabel}" not found in Redis. Skipping...`)
+        );
+      }
+    }
+  }
+
   return keys;
 };
 
@@ -111,11 +155,11 @@ export async function getConnectionQueues(
       const queues = await Promise.all(
         keys
           .map(function (key) {
-            var match = queueNameRegExp.exec(key);
-            if (match) {
+            const queue = parseQueueKey(key);
+            if (queue) {
               return {
-                prefix: match[1],
-                name: match[2],
+                prefix: queue.prefix,
+                name: queue.name,
                 type: "bull", // default to bull
               };
             }
