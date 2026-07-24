@@ -1,3 +1,15 @@
+# [1.38.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.37.0...v1.38.0) (2026-07-24)
+
+
+### Bug Fixes
+
+* fix vulnerabilities ([#132](https://github.com/taskforcesh/taskforce-connector/issues/132)) ([d9b6b83](https://github.com/taskforcesh/taskforce-connector/commit/d9b6b83d73f7649e381cef5d3cfcb42148a79ebe))
+
+
+### Features
+
+* add queue auto-discovery support for BullMQ meta keys ([#134](https://github.com/taskforcesh/taskforce-connector/issues/134)) ([7be3d31](https://github.com/taskforcesh/taskforce-connector/commit/7be3d31ee2ae7e0075d7a50875eca70f2b48230d))
+
 # [1.37.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.2...v1.37.0) (2025-12-04)
 
 
