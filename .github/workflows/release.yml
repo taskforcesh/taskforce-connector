@@ -13,6 +13,7 @@ jobs:
       contents: write # for release publishing
       pull-requests: write # for creating PRs
       issues: write # additional permission that might be needed
+      id-token: write # for NPM OIDC trusted publishing
 
     name: Release
     env:
@@ -30,12 +31,13 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
+      - name: Update npm for OIDC trusted publishing
+        run: npm install -g npm@latest
       - run: yarn build
       - name: Release
         id: semantic_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
       - name: Create PR with release changes
         if: ${{ success() && steps.semantic_release.outcome == 'success' }}
