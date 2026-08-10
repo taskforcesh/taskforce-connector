@@ -26,6 +26,11 @@ async function respondJobCommand(ws: WebSocketClient, queue: Queue, msg: any) {
   const startTime = Date.now();
   const job = await queue.getJob(data.jobId);
 
+  if (!job) {
+    respond(ws, startTime, msg.id, { error: "Job not found" });
+    return;
+  }
+
   switch (data.cmd) {
     case "retry":
       await job.retry();

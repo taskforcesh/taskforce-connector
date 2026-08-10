@@ -11,6 +11,13 @@ import {
 } from "./queue-factory";
 import { getQueueType, redisOptsFromUrl } from "./utils";
 import { Integration } from "./interfaces/integration";
+import {
+  PostgresConnectionOpts,
+  validatePostgresSchema,
+  discoverPostgresQueues,
+  getPostgresInfo,
+  getPostgresQueueType,
+} from "./postgres-validator";
 
 const { version } = require(`${__dirname}/../package.json`);
 
@@ -39,9 +46,10 @@ export const Socket = (
       [key: string]: Integration;
     };
     queueNames?: string[];
+    pgOpts?: PostgresConnectionOpts;
   } = {}
 ) => {
-  const { team, nodes } = opts;
+  const { team, nodes, pgOpts } = opts;
   const ws = new WebSocketClient();
   const redisOpts = isRedisInstance(connection)
     ? undefined
@@ -58,7 +66,9 @@ export const Socket = (
   console.log(
     `${chalk.yellow("WebSocket:")} ${chalk.blueBright(
       "opening connection to"
-    )} ${chalk.gray("Taskforce.sh")} (${chalk.blueBright(server)})`
+    )} ${chalk.gray("Taskforce.sh")} (${chalk.blueBright(
+      server
+    )}) ${chalk.blueBright("using token")} ${chalk.gray(maskToken(token))}`
   );
 
   ws.onopen = function open() {
@@ -89,16 +99,29 @@ export const Socket = (
     );
 
     try {
-      if (input === "authorized") {
+      // The authorization confirmation may arrive either as the legacy plain
+      // string "authorized" or as a JSON payload that also carries details
+      // about the account/team the token belongs to. We accept both.
+      const auth = parseAuthorized(input);
+      if (auth) {
         console.log(
           chalk.yellow("WebSocket: ") +
             chalk.green("Succesfully authorized to taskforce.sh service")
         );
 
+        logTargetAccount(auth);
+
         //
         // Send this connection.
         //
-        const queues = await updateQueuesCache(redisOpts, opts, redisClient);
+        let queues;
+        if (pgOpts) {
+          // PostgreSQL backend: validate schema first (never run migrations)
+          await validatePostgresSchema(pgOpts);
+          queues = await updateQueuesCache(redisOpts, opts, redisClient, pgOpts);
+        } else {
+          queues = await updateQueuesCache(redisOpts, opts, redisClient);
+        }
         console.log(
           `${chalk.yellow("WebSocket:")} ${chalk.green(
             "sending connection:"
@@ -139,18 +162,18 @@ export const Socket = (
           case "jobs":
             let cache = getCache();
             if (!cache) {
-              await updateQueuesCache(redisOpts, opts, redisClient);
+              await updateQueuesCache(redisOpts, opts, redisClient, pgOpts);
               cache = getCache();
               if (!cache) {
                 throw new Error("Unable to update queues");
               }
             }
-            const { queue, responders } =
+            const cacheEntry =
               cache[
                 queueKey({ name: queueName, prefix: queuePrefix || "bull" })
               ];
 
-            if (!queue) {
+            if (!cacheEntry || !cacheEntry.queue) {
               ws.send(
                 JSON.stringify({
                   id: msg.id,
@@ -159,6 +182,7 @@ export const Socket = (
                 startTime
               );
             } else {
+              const { queue, responders } = cacheEntry;
               switch (res) {
                 case "queues":
                   await responders.respondQueueCommand(ws, queue, msg);
@@ -188,7 +212,7 @@ export const Socket = (
         break;
       case "getConnection":
         {
-          const queues = await updateQueuesCache(redisOpts, opts, redisClient);
+          const queues = await updateQueuesCache(redisOpts, opts, redisClient, pgOpts);
 
           console.log(
             `${chalk.yellow("WebSocket:")} ${chalk.green(
@@ -210,7 +234,7 @@ export const Socket = (
         break;
       case "getQueues":
         {
-          const queues = await updateQueuesCache(redisOpts, opts, redisClient);
+          const queues = await updateQueuesCache(redisOpts, opts, redisClient, pgOpts);
 
           logSendingQueues(queues);
 
@@ -218,18 +242,26 @@ export const Socket = (
         }
         break;
       case "getInfo":
-        const info = await getRedisInfo(redisOpts, nodes, redisClient);
-        respond(msg.id, startTime, info);
+        {
+          const info = pgOpts
+            ? await getPostgresInfo(pgOpts)
+            : await getRedisInfo(redisOpts, nodes, redisClient);
+          respond(msg.id, startTime, info);
+        }
         break;
 
       case "getQueueType":
-        const queueType = await execRedisCommand(
-          redisOpts,
-          (client) => getQueueType(data.name, data.prefix, client),
-          nodes,
-          redisClient
-        );
-        respond(msg.id, startTime, { queueType });
+        {
+          const queueType = pgOpts
+            ? await getPostgresQueueType(pgOpts, data.name)
+            : await execRedisCommand(
+                redisOpts,
+                (client) => getQueueType(data.name, data.prefix, client),
+                nodes,
+                redisClient
+              );
+          respond(msg.id, startTime, { queueType });
+        }
         break;
     }
   }
@@ -259,7 +291,6 @@ export const Socket = (
 function isRedisInstance(connection: Connection): connection is RedisConnection {
   return connection instanceof Redis || connection instanceof Cluster;
 }
-
 function redisOptsFromConnection(connection: ConnectionOptions): RedisOptions {
   let opts: RedisOptions = {
     ...pick(connection, [
@@ -288,3 +319,77 @@ function redisOptsFromConnection(connection: ConnectionOptions): RedisOptions {
   };
   return opts;
 }
+
+interface AccountInfo {
+  email?: string;
+  name?: string;
+  account?: string;
+  team?: string;
+}
+
+interface Authorization {
+  account?: AccountInfo;
+}
+
+// Returns a partially obfuscated token so the user can verify which token is in
+// use without leaking the full secret to logs.
+function maskToken(token: string): string {
+  if (!token) {
+    return "";
+  }
+  if (token.length <= 8) {
+    return "****";
+  }
+  return `${token.slice(0, 4)}…${token.slice(-4)}`;
+}
+
+// Detects an authorization confirmation. Accepts the legacy plain "authorized"
+// string as well as a JSON payload of the form
+// `{ res: "authorized", account: { ... } }`. Returns undefined for any other
+// message so the regular command handling can take over.
+function parseAuthorized(input: string): Authorization | undefined {
+  if (input === "authorized") {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(input);
+    if (parsed && parsed.res === "authorized") {
+      return { account: parsed.account };
+    }
+  } catch (_err) {
+    // Not a JSON message, fall through.
+  }
+  return undefined;
+}
+
+// Logs which account/team the connection was associated with so the user can
+// confirm the token points to the expected account. When the server does not
+// report account details we print an actionable hint, since a connection that
+// silently lands in the wrong account is the most common cause of a connection
+// "not showing up" on the dashboard.
+function logTargetAccount(auth: Authorization) {
+  const account = auth.account;
+  const owner = account && (account.name || account.email || account.account);
+
+  if (owner) {
+    const email =
+      account && account.email && account.email !== owner
+        ? chalk.gray(` <${account.email}>`)
+        : "";
+    const team = account && account.team
+      ? `${chalk.green(" team ")}${chalk.blueBright(account.team)}`
+      : "";
+    console.log(
+      `${chalk.yellow("WebSocket:")} ${chalk.green(
+        "connection registered to account"
+      )} ${chalk.blueBright(owner)}${email}${team}`
+    );
+  } else {
+    console.log(
+      `${chalk.yellow("WebSocket:")} ${chalk.gray(
+        "The server did not report account details for this token. If the connection does not appear on your dashboard, verify the token belongs to the intended account (https://taskforce.sh/account)."
+      )}`
+    );
+  }
+}
+

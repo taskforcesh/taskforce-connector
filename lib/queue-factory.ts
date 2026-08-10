@@ -82,10 +82,11 @@ const getQueueKeys = async (client: Redis | Cluster, queueNames?: string[]) => {
         if (!foundQueues.has(key)) {
           // Extract queue name from key
           const match = queueNameRegExp.exec(key);
+          const queueLabel = match ? `${match[1]}:${match[2]}` : key;
           console.log(
             chalk.yellow("Redis:") +
               chalk.red(
-                ` Queue "${match[1]}:${match[2]}" not found in Redis. Skipping...`
+                ` Queue "${queueLabel}" not found in Redis. Skipping...`
               )
           );
         }
@@ -323,6 +324,11 @@ export function createQueue(
             createQueue: createQueueV5,
           } = require("./queue-factory/bullmqv5-factory");
           return createQueueV5(foundQueue.name, foundQueue.prefix, connection);
+        case 6:
+          const {
+            createQueue: createQueueV6,
+          } = require("./queue-factory/bullmqv6-factory");
+          return createQueueV6(foundQueue.name, foundQueue.prefix, connection);
         default:
           console.error(
             chalk.red(`ERROR:`) +
@@ -344,4 +350,5 @@ export function createQueue(
           `Unexpected queue type: ${foundQueue.type} for queue ${foundQueue.name}`
       );
   }
+  return undefined as any;
 }

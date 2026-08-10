@@ -79,6 +79,41 @@ export const run = (name: string, version: string) => {
         "file with queues to monitor"
       ).conflicts("queues")
     )
+    // PostgreSQL backend options (BullMQ v6+)
+    .addOption(
+      new Option(
+        "--pg-host [host]",
+        "PostgreSQL host (enables PG backend instead of Redis)"
+      )
+        .env("PG_HOST")
+        .conflicts(["uri", "nodes", "sentinels"])
+    )
+    .option(
+      "--pg-port [port]",
+      "PostgreSQL port [5432]",
+      process.env.PG_PORT || "5432"
+    )
+    .option(
+      "--pg-database [database]",
+      "PostgreSQL database name",
+      process.env.PG_DATABASE
+    )
+    .option(
+      "--pg-user [user]",
+      "PostgreSQL user",
+      process.env.PG_USER
+    )
+    .option(
+      "--pg-password [password]",
+      "PostgreSQL password",
+      process.env.PG_PASSWORD
+    )
+    .option(
+      "--pg-schema [schema]",
+      "PostgreSQL schema for BullMQ tables [bullmq]",
+      process.env.PG_SCHEMA
+    )
+    .option("--pg-ssl", "enable SSL for PostgreSQL connection")
     .parse(process.argv);
 
   const options = program.opts();
@@ -103,6 +138,22 @@ export const run = (name: string, version: string) => {
         )
       );
       process.exit(1);
+    }
+
+    // Validate PostgreSQL options when PG backend is selected
+    if (options.pgHost) {
+      if (!options.pgDatabase) {
+        console.error(
+          red("ERROR: --pg-database is required when using PostgreSQL backend")
+        );
+        process.exit(1);
+      }
+      if (!options.pgUser) {
+        console.error(
+          red("ERROR: --pg-user is required when using PostgreSQL backend")
+        );
+        process.exit(1);
+      }
     }
 
     const queueNames = options.queuesFile
@@ -152,6 +203,17 @@ export const run = (name: string, version: string) => {
       team: options.team,
       nodes: options.nodes ? options.nodes.split(",") : undefined,
       queueNames,
+      pgOpts: options.pgHost
+        ? {
+            host: options.pgHost,
+            port: parseInt(options.pgPort, 10),
+            database: options.pgDatabase,
+            user: options.pgUser,
+            password: options.pgPassword,
+            schema: options.pgSchema,
+            ssl: options.pgSsl || false,
+          }
+        : undefined,
     });
   });
 

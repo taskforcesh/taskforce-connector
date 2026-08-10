@@ -7,8 +7,8 @@ export function redisOptsFromUrl(urlString: string) {
   const redisOpts: RedisOptions = {};
   try {
     const redisUrl = url.parse(urlString);
-    redisOpts.port = parseInt(redisUrl.port) || 6379;
-    redisOpts.host = redisUrl.hostname;
+    redisOpts.port = parseInt(redisUrl.port || "6379") || 6379;
+    redisOpts.host = redisUrl.hostname || undefined;
     redisOpts.db = redisUrl.pathname
       ? parseInt(redisUrl.pathname.split("/")[1])
       : 0;
@@ -18,7 +18,7 @@ export function redisOptsFromUrl(urlString: string) {
       redisOpts.password = redisUrl.auth.split(":")[1];
     }
   } catch (e) {
-    throw new Error(e.message);
+    throw new Error((e as Error).message);
   }
   return redisOpts;
 }

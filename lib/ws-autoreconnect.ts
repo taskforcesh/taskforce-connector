@@ -1,5 +1,5 @@
-import * as WebSocket from "ws";
-import * as chalk from "chalk";
+import WebSocket = require("ws");
+import chalk = require("chalk");
 import { WebsocketError } from "./ws-errors.enum";
 
 const HEARTBEAT_INTERVAL = 15000;
@@ -7,10 +7,10 @@ const HEARTBEAT_INTERVAL = 15000;
 export class WebSocketClient {
   private number = 0; // Message number
   private autoReconnectInterval = 5 * 1000; // ms
-  private url: string;
-  private opts: object;
-  private instance: WebSocket;
-  private pingTimeout: NodeJS.Timeout;
+  private url!: string;
+  private opts!: object;
+  private instance!: WebSocket;
+  private pingTimeout!: NodeJS.Timeout;
 
   open(url: string, opts: object) {
     this.url = url;
@@ -69,7 +69,7 @@ export class WebSocketClient {
     fin?: boolean;
   }) {
     try {
-      this.instance.send(data, option, (err: Error) => {
+      this.instance.send(data, option || {}, (err?: Error) => {
         if (err) {
           console.log(
             `${chalk.yellow("WebSocket:")} ${chalk.red("send error", err)}`

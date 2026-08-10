@@ -6,7 +6,7 @@ export interface Integration {
   responders: Responders;
   createQueue: (
     foundQueue: FoundQueue,
-    redisOpts: RedisOptions,
+    redisOpts: RedisOptions | undefined,
     nodes?: string[]
   ) => any;
 }
