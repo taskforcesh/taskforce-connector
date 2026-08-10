@@ -110,6 +110,11 @@ async function respondQueueCommand(
       const count = await (<any>queue)[data.cmd]();
       respond(ws, startTime, msg.id, count);
       break;
+    case "getPrioritizedCount":
+      // Bull (v3/v4) has no prioritized set; report 0 so callers (e.g. the
+      // backlog monitor) can treat all queue types uniformly.
+      respond(ws, startTime, msg.id, 0);
+      break;
     case "getWorkersCount":
       const workers = await queue.getWorkers();
       respond(ws, startTime, msg.id, workers.length);

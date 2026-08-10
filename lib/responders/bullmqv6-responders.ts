@@ -119,6 +119,7 @@ async function respondQueueCommand(
     case "getDelayedCount":
     case "getCompletedCount":
     case "getFailedCount":
+    case "getPrioritizedCount":
       const count = await (<any>queue)[data.cmd]();
       respond(ws, startTime, msg.id, count);
       break;
