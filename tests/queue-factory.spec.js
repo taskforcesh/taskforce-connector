@@ -1,4 +1,4 @@
-const { getConnectionQueues } = require("../dist/queue-factory");
+const { createQueue, getConnectionQueues } = require("../dist/queue-factory");
 
 describe("queue auto discovery", () => {
   const createMockRedisClient = (idKeys, metaKeys) => ({
@@ -114,5 +114,27 @@ describe("queue auto discovery", () => {
       name: "emails",
     });
     expect(node.exists).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fall back to Bull for unsupported BullMQ versions", () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const queue = createQueue(
+      {
+        name: "emails",
+        prefix: "bull",
+        type: "bullmq",
+        majorVersion: 99,
+      },
+      undefined,
+      { redisClient: {} }
+    );
+
+    expect(queue).toBeUndefined();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Unexpected major version: 99")
+    );
+
+    consoleSpy.mockRestore();
   });
 });

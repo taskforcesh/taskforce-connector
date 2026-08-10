@@ -65,7 +65,7 @@ export async function updateQueuesCache(
   const newQueuesObject = keyBy(newQueues, (queue) => queueKey(queue));
 
   const toAdd = [];
-  const toRemove = [];
+  const toRemove: Array<{ key: string; queue: Bull.Queue<any> | Queue<any> }> = [];
 
   for (let i = 0; i < newQueues.length; i++) {
     const newQueue = newQueues[i];
@@ -81,15 +81,14 @@ export async function updateQueuesCache(
     const newQueue = newQueuesObject[oldQueue];
 
     if (!newQueue) {
-      toRemove.push(queuesCache[oldQueue]);
+      toRemove.push({ key: oldQueue, queue: queuesCache[oldQueue].queue });
     }
   }
 
   await Promise.all(
-    toRemove.map(function ({ queue }: { queue: Bull.Queue<any> | Queue<any> }) {
+    toRemove.map(function ({ key, queue }) {
       const closing = queue.close();
-      const name = (<any>queue)["name"] as string;
-      delete queuesCache![name];
+      delete queuesCache![key];
       return closing;
     })
   );

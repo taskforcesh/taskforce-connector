@@ -133,12 +133,16 @@ describe("BullMQV6Responders", () => {
     });
 
     it("should update job data", async () => {
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
       await BullMQV6Responders.respondJobCommand(ws, queue, {
         id: "msg-1",
         data: { jobId: "job-123", cmd: "update", data: { foo: "bar" } },
       });
 
       expect(queue._mockJob.updateData).toHaveBeenCalledWith({ foo: "bar" });
+      expect(consoleSpy).not.toHaveBeenCalled();
+      consoleSpy.mockRestore();
     });
 
     it("should send response with message id", async () => {
@@ -218,6 +222,15 @@ describe("BullMQV6Responders", () => {
       });
 
       expect(queue.getWaiting).toHaveBeenCalledWith(0, 10, undefined);
+    });
+
+    it("should preserve an explicit end of 0 when paginating", async () => {
+      await BullMQV6Responders.respondQueueCommand(ws, queue, {
+        id: "msg-1",
+        data: { cmd: "getWaiting", start: 0, end: 0 },
+      });
+
+      expect(queue.getWaiting).toHaveBeenCalledWith(0, 0, undefined);
     });
 
     it("should paginate getJobSchedulers", async () => {
@@ -331,6 +344,8 @@ describe("BullMQV6Responders", () => {
       });
 
       expect(queue.getJobLogs).toHaveBeenCalledWith("job-1", 0, 10);
+      expect(queue.getJobSchedulersCount).not.toHaveBeenCalled();
+      expect(ws.send).toHaveBeenCalledTimes(1);
     });
 
     it("should get count methods (getWaitingCount, getActiveCount, etc.)", async () => {

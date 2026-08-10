@@ -14,8 +14,8 @@ function paginate(
     excludeData: boolean;
   }
 ) {
-  start = start || 0;
-  end = end || -1;
+  start = start ?? 0;
+  end = end ?? -1;
   return (<any>queue)[method](start, end, opts).then(function (jobs: Job[]) {
     respond(ws, Date.now(), messageId, jobs);
   });
@@ -50,6 +50,7 @@ async function respondJobCommand(ws: WebSocketClient, queue: Queue, msg: any) {
       break;
     case "update":
       await job.updateData(data.data);
+      break;
     default:
       console.error(
         `Missing command ${data.cmd}. Too old version of taskforce-connector?`
@@ -106,6 +107,7 @@ async function respondQueueCommand(
     case "getJobLogs":
       const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
       respond(ws, startTime, msg.id, logs);
+      break;
 
     case "getJobSchedulersCount": {
       const count = await queue.getJobSchedulersCount();
