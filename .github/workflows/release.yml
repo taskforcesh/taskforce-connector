@@ -13,6 +13,7 @@ jobs:
       contents: write # for release publishing
       pull-requests: write # for creating PRs
       issues: write # additional permission that might be needed
+      id-token: write # for NPM OIDC trusted publishing
 
     name: Release
     env:
@@ -30,12 +31,13 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
+      - name: Update npm for OIDC trusted publishing
+        run: npm install -g npm@latest
       - run: yarn build
       - name: Release
         id: semantic_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
       - name: Create PR with release changes
         if: ${{ success() && steps.semantic_release.outcome == 'success' }}
@@ -70,21 +72,31 @@ jobs:
               # Push the branch
               git push origin $BRANCH_NAME
               
-              # Create PR using GitHub CLI
-              gh pr create \
-                --title "chore(release): ${VERSION}" \
-                --body "Automated release PR for version ${VERSION}
+              PR_TITLE="chore(release): ${VERSION}"
+              PR_BODY="Automated release PR for version ${VERSION}
 
               This PR contains:
               - Updated package.json version
               - Updated yarn.lock (if changed)
               - Updated CHANGELOG.md
 
-              Please review and merge to complete the release process." \
-                --head $BRANCH_NAME \
-                --base master
-              
-              echo "Created PR for release ${VERSION}"
+              Please review and merge to complete the release process."
+
+              EXISTING_PR_URL=$(gh api "repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:${BRANCH_NAME}&base=master&state=open" --jq '.[0].html_url // empty')
+
+              if [[ -n "$EXISTING_PR_URL" ]]; then
+                echo "Release PR already exists: ${EXISTING_PR_URL}"
+              else
+                gh api \
+                  --method POST \
+                  "repos/${{ github.repository }}/pulls" \
+                  -f title="$PR_TITLE" \
+                  -f body="$PR_BODY" \
+                  -f head="$BRANCH_NAME" \
+                  -f base="master" \
+                  --jq '.html_url'
+                echo "Created PR for release ${VERSION}"
+              fi
             else
               echo "No changes to commit after staging files"
               git checkout master
