@@ -367,11 +367,17 @@ export function createQueue(
             createQueue: createQueueV5,
           } = require("./queue-factory/bullmqv5-factory");
           return createQueueV5(foundQueue.name, foundQueue.prefix, connection);
+        case 6:
+          const {
+            createQueue: createQueueV6,
+          } = require("./queue-factory/bullmqv6-factory");
+          return createQueueV6(foundQueue.name, foundQueue.prefix, connection);
         default:
           console.error(
             chalk.red(`ERROR:`) +
               `Unexpected major version: ${foundQueue.majorVersion} for queue ${foundQueue.name}`
           );
+          return undefined as any;
       }
 
     case "bull":
@@ -388,4 +394,5 @@ export function createQueue(
           `Unexpected queue type: ${foundQueue.type} for queue ${foundQueue.name}`
       );
   }
+  return undefined as any;
 }

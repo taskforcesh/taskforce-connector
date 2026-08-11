@@ -1,11 +1,11 @@
-import * as Bull from "bull";
+import { Queue, Job } from "bullmq-v6";
 
 import { respond } from "./respond";
 import { WebSocketClient } from "../ws-autoreconnect";
 
 function paginate(
   ws: WebSocketClient,
-  queue: Bull.Queue,
+  queue: Queue,
   messageId: string,
   start: number,
   end: number,
@@ -14,20 +14,14 @@ function paginate(
     excludeData: boolean;
   }
 ) {
-  start = start || 0;
-  end = end || -1;
-  return (<any>queue)
-    [method](start, end, opts)
-    .then(function (jobs: Bull.Job[]) {
-      respond(ws, Date.now(), messageId, jobs);
-    });
+  start = start ?? 0;
+  end = end ?? -1;
+  return (<any>queue)[method](start, end, opts).then(function (jobs: Job[]) {
+    respond(ws, Date.now(), messageId, jobs);
+  });
 }
 
-async function respondJobCommand(
-  ws: WebSocketClient,
-  queue: Bull.Queue,
-  msg: any
-) {
+async function respondJobCommand(ws: WebSocketClient, queue: Queue, msg: any) {
   const data = msg.data;
   const startTime = Date.now();
   const job = await queue.getJob(data.jobId);
@@ -48,13 +42,15 @@ async function respondJobCommand(
       await job.remove();
       break;
     case "discard":
-      await job.discard();
+      // discard() was removed in v6; move to failed achieves the same effect
+      await job.moveToFailed(new Error("Discarded"), "0");
       break;
     case "moveToFailed":
-      await job.moveToFailed({ message: "Failed manually" });
+      await job.moveToFailed(new Error("Failed manually"), "0");
       break;
     case "update":
-      await job.update(data.data);
+      await job.updateData(data.data);
+      break;
     default:
       console.error(
         `Missing command ${data.cmd}. Too old version of taskforce-connector?`
@@ -65,11 +61,11 @@ async function respondJobCommand(
 
 async function respondQueueCommand(
   ws: WebSocketClient,
-  queue: Bull.Queue,
+  queue: Queue,
   msg: any
 ) {
-  const startTime = Date.now();
   const data = msg.data;
+  const startTime = Date.now();
   switch (data.cmd) {
     case "getJob":
       const job = await queue.getJob(data.jobId);
@@ -87,12 +83,23 @@ async function respondQueueCommand(
       );
       respond(ws, startTime, msg.id, metrics);
       break;
+    case "getDependencies":
+      const dependencies = await queue.getDependencies(
+        data.parentId,
+        data.type,
+        data.start,
+        data.end
+      );
+      respond(ws, startTime, msg.id, dependencies);
+      break;
+
+    case "getWaitingChildren":
     case "getWaiting":
     case "getActive":
     case "getDelayed":
     case "getCompleted":
     case "getFailed":
-    case "getRepeatableJobs":
+    case "getJobSchedulers":
     case "getWorkers":
       paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
       break;
@@ -100,35 +107,41 @@ async function respondQueueCommand(
     case "getJobLogs":
       const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
       respond(ws, startTime, msg.id, logs);
+      break;
 
+    case "getJobSchedulersCount": {
+      const count = await queue.getJobSchedulersCount();
+      respond(ws, startTime, msg.id, count);
+      break;
+    }
+
+    case "getWaitingChildrenCount":
     case "getWaitingCount":
     case "getActiveCount":
     case "getDelayedCount":
     case "getCompletedCount":
     case "getFailedCount":
-    case "getRepeatableCount":
+    case "getPrioritizedCount":
       const count = await (<any>queue)[data.cmd]();
       respond(ws, startTime, msg.id, count);
-      break;
-    case "getPrioritizedCount":
-      // Bull (v3/v4) has no prioritized set; report 0 so callers (e.g. the
-      // backlog monitor) can treat all queue types uniformly.
-      respond(ws, startTime, msg.id, 0);
       break;
     case "getWorkersCount":
       const workers = await queue.getWorkers();
       respond(ws, startTime, msg.id, workers.length);
       break;
     case "removeRepeatableByKey":
-      await queue.removeRepeatableByKey(data.key);
+    case "removeJobScheduler":
+      // In BullMQ v6, removeRepeatableByKey was replaced by removeJobScheduler
+      await queue.removeJobScheduler(data.key);
       respond(ws, startTime, msg.id);
       break;
     case "add":
-      await queue.add(...(data.args as [string, object, object]));
+      const [name, jobData, opts] = data.args as [string, object, object];
+      await queue.add(name, jobData, opts);
       respond(ws, startTime, msg.id);
       break;
     case "empty":
-      await queue.empty();
+      await queue.drain();
       respond(ws, startTime, msg.id);
       break;
     case "pause":
@@ -148,7 +161,7 @@ async function respondQueueCommand(
       respond(ws, startTime, msg.id);
       break;
     case "clean":
-      await queue.clean(data.grace, data.status, data.limit);
+      await queue.clean(data.grace, data.limit, data.status);
       respond(ws, startTime, msg.id);
       break;
     case "retryJobs":
@@ -162,11 +175,11 @@ async function respondQueueCommand(
       console.error(
         `Missing command ${data.cmd}. Too old version of taskforce-connector?`
       );
-      respond(ws, startTime, msg.id);
+      respond(ws, startTime, msg.id, null);
   }
 }
 
-export const BullResponders = {
+export const BullMQV6Responders = {
   respondJobCommand,
   respondQueueCommand,
 };

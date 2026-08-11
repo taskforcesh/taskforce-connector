@@ -1,0 +1,12 @@
+# OSV Scanner configuration for taskforce-connector
+# https://google.github.io/osv-scanner/configuration/
+
+[[IgnoredVulns]]
+id = "GHSA-52cp-r559-cp3m"
+ignoreUntil = 2026-12-31T00:00:00Z
+reason = "js-yaml duplicate-mapping-key issue (CVSS 7.5). Dev-only: js-yaml is pulled solely by jest's coverage tooling (babel-plugin-istanbul -> @istanbuljs/load-nyc-config). It is NOT part of the published package (only dist/ is shipped) and is NOT installed by end users (`yarn global add taskforce-connector` installs only dependencies). It parses developer-controlled config, never untrusted input. The fix requires js-yaml 5.x, which is ESM-only and incompatible with the CommonJS jest toolchain. Revisit when the tooling adopts a patched js-yaml."
+
+[[IgnoredVulns]]
+id = "GHSA-5p4m-2wfm-xmqj"
+ignoreUntil = 2026-12-31T00:00:00Z
+reason = "js-yaml `!!omap` quadratic CPU consumption (CVSS 7.5). Dev-only (jest coverage tooling), not shipped in the published package, and only parses developer-controlled config. Fix requires ESM-only js-yaml 5.x, incompatible with the CommonJS toolchain. Revisit when the tooling updates."

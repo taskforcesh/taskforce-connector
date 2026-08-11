@@ -17,34 +17,37 @@
     "dist"
   ],
   "dependencies": {
-    "bull": "^4.15.1",
+    "bull": "^4.16.5",
     "bullmq": "^5.77.7",
     "bullmq-v3": "npm:bullmq@^3.16.2",
     "bullmq-v4": "npm:bullmq@^4.18.2",
     "bullmq-v5": "npm:bullmq@^5.47.0",
+    "bullmq-v6": "npm:bullmq@^6.0.9",
     "chalk": "^4.1.0",
     "commander": "^12.1.0",
     "ioredis": "^5.4.1",
     "latest-version": "^9.0.0",
-    "lodash": "^4.17.21",
-    "semver": "^7.7.1",
-    "ws": "^8.17.0"
+    "lodash": "^4.18.1",
+    "pg": "^8.22.0",
+    "semver": "^7.8.5",
+    "ws": "^8.21.2"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^11.0.1",
-    "@semantic-release/npm": "^12.0.1",
-    "@semantic-release/release-notes-generator": "^14.0.3",
-    "@types/bull": "^3.15.8",
-    "@types/chalk": "^2.2.0",
-    "@types/lodash": "^4.17.6",
-    "@types/node": "^20.10.5",
-    "@types/semver": "^7.5.8",
-    "@types/ws": "^6.0.1",
-    "jest": "^30.2.0",
-    "typescript": "^5.3.3"
+    "@semantic-release/git": "^11.0.1",
+    "@semantic-release/github": "^12.0.9",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "@types/bull": "^4.10.4",
+    "@types/chalk": "^2.2.4",
+    "@types/lodash": "^4.17.25",
+    "@types/node": "^26.1.2",
+    "@types/pg": "^8.20.4",
+    "@types/semver": "^7.8.0",
+    "@types/ws": "^8.18.1",
+    "jest": "^30.4.2",
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "build": "tsc",
@@ -95,13 +98,13 @@
     "testEnvironment": "node"
   },
   "overrides": {
-    "brace-expansion": "2.0.3",
+    "brace-expansion": "2.1.4",
     "uuid": "11.1.1",
     "npm": "11.6.1",
     "glob": "10.5.0"
   },
   "resolutions": {
-    "brace-expansion": "2.0.3",
+    "brace-expansion": "2.1.4",
     "uuid": "11.1.1",
     "glob": "10.5.0",
     "js-yaml": "^4.1.0"
