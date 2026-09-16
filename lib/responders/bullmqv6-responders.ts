@@ -50,6 +50,7 @@ async function respondJobCommand(ws: WebSocketClient, queue: Queue, msg: any) {
       break;
     case "update":
       await job.updateData(data.data);
+      break;
     default:
       console.error(
         `Missing command ${data.cmd}. Too old version of taskforce-connector?`
@@ -100,12 +101,13 @@ async function respondQueueCommand(
     case "getFailed":
     case "getJobSchedulers":
     case "getWorkers":
-      await paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
+      paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
       break;
 
     case "getJobLogs":
       const logs = await queue.getJobLogs(data.jobId, data.start, data.end);
       respond(ws, startTime, msg.id, logs);
+      break;
 
     case "getJobSchedulersCount": {
       const count = await queue.getJobSchedulersCount();

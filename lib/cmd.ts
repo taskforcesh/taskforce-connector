@@ -82,7 +82,7 @@ export const run = (name: string, version: string) => {
     // PostgreSQL backend options (BullMQ v6+)
     .addOption(
       new Option(
-        "--pg-host [host]",
+        "--pg-host <host>",
         "PostgreSQL host (enables PG backend instead of Redis)"
       )
         .env("PG_HOST")
@@ -199,6 +199,8 @@ export const run = (name: string, version: string) => {
       });
     }
 
+    const parsedPgPort = Number.parseInt(options.pgPort, 10);
+
     Socket(options.name, options.backend, options.token, connection, {
       team: options.team,
       nodes: options.nodes ? options.nodes.split(",") : undefined,
@@ -206,7 +208,7 @@ export const run = (name: string, version: string) => {
       pgOpts: options.pgHost
         ? {
             host: options.pgHost,
-            port: parseInt(options.pgPort, 10),
+            port: Number.isNaN(parsedPgPort) ? 5432 : parsedPgPort,
             database: options.pgDatabase,
             user: options.pgUser,
             password: options.pgPassword,

@@ -377,6 +377,7 @@ export function createQueue(
             chalk.red(`ERROR:`) +
               `Unexpected major version: ${foundQueue.majorVersion} for queue ${foundQueue.name}`
           );
+          return undefined as any;
       }
 
     case "bull":

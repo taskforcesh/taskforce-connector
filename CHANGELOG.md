@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.38.0...v1.39.0) (2026-08-11)
+
+
+### Features
+
+* add support for bullmq v6 and postgresql ([#138](https://github.com/taskforcesh/taskforce-connector/issues/138)) ([2976a40](https://github.com/taskforcesh/taskforce-connector/commit/2976a403b0ff6611d11e153eb082c1cb809c20c6))
+
 # [1.37.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.36.2...v1.37.0) (2025-12-04)
 
 
