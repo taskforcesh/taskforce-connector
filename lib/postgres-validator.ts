@@ -267,6 +267,38 @@ export async function getPostgresQueueType(
   }
 }
 
+/**
+ * Performs a lightweight connectivity check against the PostgreSQL server,
+ * mirroring the Redis `PING` command. Returns "PONG" when the server responds.
+ */
+export async function pingPostgres(
+  opts: PostgresConnectionOpts
+): Promise<string> {
+  const poolConfig: PoolConfig = {
+    host: opts.host,
+    port: opts.port || 5432,
+    database: opts.database,
+    user: opts.user,
+    password: opts.password,
+    ssl: opts.ssl,
+    max: 1,
+  };
+
+  const pool = new Pool(poolConfig);
+  let client;
+
+  try {
+    client = await pool.connect();
+    await client.query("SELECT 1");
+    return "PONG";
+  } finally {
+    if (client) {
+      client.release();
+    }
+    await pool.end();
+  }
+}
+
 export async function getPostgresInfo(
   opts: PostgresConnectionOpts
 ): Promise<PostgresInfo> {
