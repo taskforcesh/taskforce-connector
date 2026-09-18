@@ -101,7 +101,7 @@ async function respondQueueCommand(
     case "getFailed":
     case "getJobSchedulers":
     case "getWorkers":
-      paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
+      await paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
       break;
 
     case "getJobLogs":

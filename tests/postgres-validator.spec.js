@@ -29,6 +29,7 @@ const pg = require("pg");
 const {
   validatePostgresSchema,
   discoverPostgresQueues,
+  pingPostgres,
 } = require("../dist/postgres-validator");
 
 const mockClient = pg.__mockClient;
@@ -219,5 +220,47 @@ describe("discoverPostgresQueues", () => {
     const queues = await discoverPostgresQueues(defaultOpts);
 
     expect(queues).toEqual([]);
+  });
+});
+
+describe("pingPostgres", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return PONG on a successful SELECT 1", async () => {
+    mockClient.query.mockResolvedValueOnce({ rows: [{ "?column?": 1 }] });
+
+    const result = await pingPostgres(defaultOpts);
+
+    expect(result).toBe("PONG");
+    expect(mockClient.query).toHaveBeenCalledWith("SELECT 1");
+  });
+
+  it("should release the client and end the pool on success", async () => {
+    mockClient.query.mockResolvedValueOnce({ rows: [{ "?column?": 1 }] });
+
+    await pingPostgres(defaultOpts);
+
+    expect(mockClient.release).toHaveBeenCalled();
+    expect(pg.__mockPool.end).toHaveBeenCalled();
+  });
+
+  it("should release the client and end the pool when the query fails", async () => {
+    mockClient.query.mockRejectedValueOnce(new Error("query failed"));
+
+    await expect(pingPostgres(defaultOpts)).rejects.toThrow("query failed");
+
+    expect(mockClient.release).toHaveBeenCalled();
+    expect(pg.__mockPool.end).toHaveBeenCalled();
+  });
+
+  it("should end the pool when the connection fails", async () => {
+    pg.__mockPool.connect.mockRejectedValueOnce(new Error("connect failed"));
+
+    await expect(pingPostgres(defaultOpts)).rejects.toThrow("connect failed");
+
+    expect(mockClient.release).not.toHaveBeenCalled();
+    expect(pg.__mockPool.end).toHaveBeenCalled();
   });
 });

@@ -14,8 +14,8 @@ function paginate(
     excludeData: boolean;
   }
 ) {
-  start = start || 0;
-  end = end || -1;
+  start = start ?? 0;
+  end = end ?? -1;
   return (<any>queue)[method](start, end, opts).then(function (jobs: Job[]) {
     respond(ws, Date.now(), messageId, jobs);
   });
@@ -100,7 +100,7 @@ async function respondQueueCommand(
     case "getRepeatableJobs":
     case "getJobSchedulers":
     case "getWorkers":
-      paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
+      await paginate(ws, queue, msg.id, data.start, data.end, data.cmd, data.opts);
       break;
 
     case "getJobLogs":
