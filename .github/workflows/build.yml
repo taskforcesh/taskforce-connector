@@ -3,6 +3,9 @@ name: Build container
 on:
   push:
 
+permissions:
+  contents: read
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: taskforcesh/taskforce-connector
