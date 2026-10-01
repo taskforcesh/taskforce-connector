@@ -17,6 +17,7 @@ import {
   discoverPostgresQueues,
   getPostgresInfo,
   getPostgresQueueType,
+  pingPostgres,
 } from "./postgres-validator";
 
 const { version } = require(`${__dirname}/../package.json`);
@@ -207,7 +208,9 @@ export const Socket = (
 
     switch (data.cmd) {
       case "ping":
-        const pong = await ping(redisOpts, nodes, redisClient);
+        const pong = pgOpts
+          ? await pingPostgres(pgOpts)
+          : await ping(redisOpts, nodes, redisClient);
         respond(msg.id, startTime, pong);
         break;
       case "getConnection":
