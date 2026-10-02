@@ -99,7 +99,7 @@
   },
   "overrides": {
     "brace-expansion": "2.1.7",
-    "ip-address": "10.7.2",
+    "ip-address": "10.7.3",
     "@semantic-release/github": {
       "undici": "7.29.1"
     },
@@ -109,7 +109,7 @@
   },
   "resolutions": {
     "brace-expansion": "2.1.7",
-    "ip-address": "10.7.2",
+    "ip-address": "10.7.3",
     "@semantic-release/github/undici": "7.29.1",
     "uuid": "11.1.1",
     "glob": "10.5.0",
