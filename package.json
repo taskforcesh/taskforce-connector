@@ -113,7 +113,7 @@
     "@semantic-release/github/undici": "7.29.1",
     "uuid": "11.1.1",
     "glob": "10.5.0",
-    "browserslist": "4.28.7",
+    "browserslist": "4.29.3",
     "js-yaml": "4.3.2"
   },
   "packageManager": "yarn@1.22.22"
