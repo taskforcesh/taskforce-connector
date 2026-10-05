@@ -1826,19 +1826,16 @@ bull@*, bull@^4.16.5:
     semver "^7.5.2"
     uuid "^8.3.0"
 
-"bullmq-v3@npm:bullmq@^3.16.2":
-  version "3.16.2"
-  resolved "https://registry.npmjs.org/bullmq/-/bullmq-3.16.2.tgz"
-  integrity sha512-wZIsCdI2H6lza6GdePquCWbrslhYHS7GnDPpP0hzoHkvKiBOt/5jHcsHcHhJi/fob+dfo8dazWKTSLlGLFFqUw==
+"bullmq-v3@npm:bullmq@^6.0.0":
+  version "6.3.11"
+  resolved "https://registry.yarnpkg.com/bullmq/-/bullmq-6.3.11.tgz#bd3a80fc1cf4326801e2796a9c5ebb6bf89cfa80"
+  integrity sha512-ylSY3FYil6E9IjqVtT+WHcZvS1rgTZ0L3Aev62u45NXQFe+H37a1AuC3WDATR7ScNDet1Ah8MnP3lf8XaUbPUw==
   dependencies:
-    cron-parser "^4.6.0"
-    glob "^8.0.3"
-    ioredis "^5.3.2"
-    lodash "^4.17.21"
-    msgpackr "^1.6.2"
-    semver "^7.3.7"
-    tslib "^2.0.0"
-    uuid "^9.0.0"
+    cron-parser "5.10.1"
+    msgpackr "2.1.0"
+    node-abort-controller "3.1.1"
+    semver "7.8.5"
+    tslib "2.8.1"
 
 "bullmq-v4@npm:bullmq@^4.18.2":
   version "4.18.3"
@@ -2095,6 +2092,13 @@ cron-parser@4.9.0, cron-parser@^4.6.0, cron-parser@^4.9.0:
   integrity sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==
   dependencies:
     luxon "^3.2.1"
+
+cron-parser@5.10.1:
+  version "5.10.1"
+  resolved "https://registry.yarnpkg.com/cron-parser/-/cron-parser-5.10.1.tgz#f390c639195891cbd06ca90b6c3ebdc02d0fc51d"
+  integrity sha512-pKRrRagItwk9rGIStcUyMxFX34x56zoX3KDf9HJ4ttwkXIK1qxK63EvXvEDmlxI9AdPJ+Y7TEKRftRlW5eSS7A==
+  dependencies:
+    luxon "^3.7.2"
 
 cron-parser@5.7.0:
   version "5.7.0"
@@ -3591,6 +3595,13 @@ msgpackr@2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/msgpackr/-/msgpackr-2.0.5.tgz#ea4308164fad112f1bd4a7bf008445a8a613658a"
   integrity sha512-cef05H/dSYpLpqp3sj/qyZh5vhUYCalnaLO7j1yOmpsR0y/XwLVtK7r5gn+U/F7CTEfMowcGhlUQJDLcLf7jcA==
+  optionalDependencies:
+    msgpackr-extract "^3.0.4"
+
+msgpackr@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/msgpackr/-/msgpackr-2.1.0.tgz#63618adb9f5ab185cccd0536609fad0731b9feb3"
+  integrity sha512-p/pBCVO63CsvvpkomUnNNag6+n38rULuDA6HHe70o2gtC8ODI52foF/4ko2qQcp6OiErJXTmrZeXmsGGHsIQNQ==
   optionalDependencies:
     msgpackr-extract "^3.0.4"
 
