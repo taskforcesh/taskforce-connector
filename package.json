@@ -23,7 +23,7 @@
     "bullmq-v4": "npm:bullmq@^4.18.2",
     "bullmq-v5": "npm:bullmq@^5.47.0",
     "bullmq-v6": "npm:bullmq@^6.0.9",
-    "chalk": "^4.1.0",
+    "chalk": "^6.0.0",
     "commander": "^12.1.0",
     "ioredis": "^5.4.1",
     "latest-version": "^9.0.0",
