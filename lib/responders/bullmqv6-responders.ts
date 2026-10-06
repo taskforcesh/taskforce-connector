@@ -1,6 +1,7 @@
 import { Queue, Job } from "bullmq-v6";
 
 import { respond } from "./respond";
+import { getJobCounts, getRateLimitStatus } from "./rate-limit";
 import { WebSocketClient } from "../ws-autoreconnect";
 
 function paginate(
@@ -72,7 +73,7 @@ async function respondQueueCommand(
       respond(ws, startTime, msg.id, job);
       break;
     case "getJobCounts":
-      const jobCounts = await queue.getJobCounts();
+      const jobCounts = await getJobCounts(queue, data);
       respond(ws, startTime, msg.id, jobCounts);
       break;
     case "getMetrics":
@@ -155,6 +156,9 @@ async function respondQueueCommand(
     case "isPaused":
       const isPaused = await queue.isPaused();
       respond(ws, startTime, msg.id, isPaused);
+      break;
+    case "getRateLimitStatus":
+      respond(ws, startTime, msg.id, await getRateLimitStatus(queue));
       break;
     case "obliterate":
       await queue.obliterate();
