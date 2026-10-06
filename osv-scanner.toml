@@ -4,4 +4,4 @@
 [[IgnoredVulns]]
 id = "GHSA-vfj7-8cjw-p6xm"
 ignoreUntil = 2026-12-31T00:00:00Z
-reason = "braces 3.0.3 stack-exhaustion issue; no patched npm release is available. This dependency is used only by @semantic-release/git through micromatch, is not shipped (only dist/ is published), and is not used to process untrusted input. Revisit when braces publishes a fix."
+reason = "braces 3.0.3 stack-exhaustion issue; no patched npm release is available. This is a transitive development-only dependency used by semantic-release tooling, is not shipped (only dist/ is published), and is not used to process untrusted input. Revisit when braces publishes a fix."
