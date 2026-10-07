@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.39.1...v1.40.0) (2026-10-07)
+
+
+### Features
+
+* report queue rate limit status ([#191](https://github.com/taskforcesh/taskforce-connector/issues/191)) ([5c60923](https://github.com/taskforcesh/taskforce-connector/commit/5c60923459e5a8f9a7b30739b6486763f7697446))
+
 ## [1.39.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.39.0...v1.39.1) (2026-09-26)
 
 
