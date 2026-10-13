@@ -1,3 +1,10 @@
+## [1.39.1](https://github.com/taskforcesh/taskforce-connector/compare/v1.39.0...v1.39.1) (2026-09-26)
+
+
+### Bug Fixes
+
+* **ci:** build and publish multi-arch (amd64/arm64) container image ([#141](https://github.com/taskforcesh/taskforce-connector/issues/141)) ([34c4640](https://github.com/taskforcesh/taskforce-connector/commit/34c46405920fa466afb9ff7b0c8b521e1b326532))
+
 # [1.39.0](https://github.com/taskforcesh/taskforce-connector/compare/v1.38.0...v1.39.0) (2026-08-11)
 
 

@@ -77,7 +77,13 @@ async function respondQueueCommand(
       break;
     case "getJobCounts":
       const jobCounts = await queue.getJobCounts();
-      respond(ws, startTime, msg.id, jobCounts);
+      // Bull does not expose queue rate limit status
+      respond(
+        ws,
+        startTime,
+        msg.id,
+        data.rateLimit ? { ...jobCounts, rateLimit: null } : jobCounts
+      );
       break;
     case "getMetrics":
       const metrics = await (<any>queue).getMetrics(
@@ -142,6 +148,10 @@ async function respondQueueCommand(
     case "isPaused":
       const isPaused = await queue.isPaused();
       respond(ws, startTime, msg.id, isPaused);
+      break;
+    case "getRateLimitStatus":
+      // Bull does not expose queue rate limit status
+      respond(ws, startTime, msg.id, null);
       break;
     case "obliterate":
       await queue.obliterate();
