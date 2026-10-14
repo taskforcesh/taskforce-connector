@@ -35,7 +35,7 @@ describe("RelayInspector", () => {
   afterAll(async () => {
     await inspector.close();
     await Promise.all(relays.map((relay) => relay.close()));
-    const keys = await client.keys(`${prefix}:relay:*`);
+    const keys = await client.keys(`${prefix}::relay:*`);
     if (keys.length) {
       await client.del(...keys);
     }
