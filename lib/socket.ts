@@ -18,6 +18,7 @@ import {
   getPostgresInfo,
   getPostgresQueueType,
 } from "./postgres-validator";
+import { RelayInspector } from "./relay";
 
 const { version } = require(`${__dirname}/../package.json`);
 
@@ -55,6 +56,12 @@ export const Socket = (
     ? undefined
     : redisOptsFromConnection(connection);
   const redisClient = isRedisInstance(connection) ? connection : undefined;
+  const relayInspector = new RelayInspector({
+    redisOpts,
+    nodes,
+    redisClient,
+    pgOpts,
+  });
 
   ws.open(server, {
     headers: {
@@ -247,6 +254,19 @@ export const Socket = (
             ? await getPostgresInfo(pgOpts)
             : await getRedisInfo(redisOpts, nodes, redisClient);
           respond(msg.id, startTime, info);
+        }
+        break;
+
+      case "getRelay":
+        {
+          // Errors (e.g. Redis older than 6.2) are part of the answer, so
+          // Taskforce.sh can tell the user why the relay can't be shown.
+          try {
+            const result = await relayInspector.run(data.request);
+            respond(msg.id, startTime, { result });
+          } catch (err) {
+            respond(msg.id, startTime, { error: `${(err as Error).message}` });
+          }
         }
         break;
 
