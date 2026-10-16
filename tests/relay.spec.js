@@ -92,6 +92,39 @@ describe("RelayInspector", () => {
     expect(getNodes).toHaveBeenCalledWith(10, 109);
   });
 
+  it("runs actions", async () => {
+    const received = [];
+    await relays[1].subscribe("dashboard.test", (message) => {
+      received.push(message.data);
+    });
+    expect(
+      await inspector.runAction({
+        action: "publish",
+        prefix,
+        namespace,
+        topic: "dashboard.test",
+        data: JSON.stringify({ hello: "relay" }),
+        retainMs: 60000,
+      })
+    ).toMatchObject({ nodes: 1, endpoints: 1 });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(received).toEqual([{ hello: "relay" }]);
+    expect(
+      await inspector.runAction({
+        action: "deleteRetained",
+        prefix,
+        namespace,
+        topic: "dashboard.test",
+      })
+    ).toEqual({ deleted: true });
+    expect(
+      await inspector.runAction({ action: "sweep", prefix, namespace })
+    ).toEqual({ removed: [] });
+    await expect(
+      inspector.runAction({ action: "drop", prefix, namespace })
+    ).rejects.toThrow("Unknown relay action");
+  });
+
   it("rejects unknown views", async () => {
     await expect(
       inspector.run({ view: "keys", prefix, namespace })

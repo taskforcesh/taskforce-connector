@@ -270,6 +270,15 @@ export const Socket = (
         }
         break;
 
+      case "relayAction":
+        try {
+          const result = await relayInspector.runAction(data.action);
+          respond(msg.id, startTime, { result });
+        } catch (err) {
+          respond(msg.id, startTime, { error: `${(err as Error).message}` });
+        }
+        break;
+
       case "getQueueType":
         {
           const queueType = pgOpts

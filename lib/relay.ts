@@ -111,6 +111,28 @@ export class RelayInspector {
     }
   }
 
+  /**
+   * Runs an action requested by Taskforce.sh (which validated it and checked
+   * the user's permissions): publish, delete a retained message, sweep.
+   */
+  async runAction(action: RelayAction): Promise<unknown> {
+    const backend = await this.getBackend(action.prefix, action.namespace);
+    switch (action.action) {
+      case "publish":
+        return backend.publish(action.topic, action.data, {
+          ts: Date.now(),
+          retainMs: action.retainMs,
+          maxSize: MAX_PUBLISH_BYTES,
+        });
+      case "deleteRetained":
+        return { deleted: await backend.deleteRetained(action.topic) };
+      case "sweep":
+        return { removed: await backend.sweep(100) };
+      default:
+        throw new Error(`Unknown relay action: ${(action as any).action}`);
+    }
+  }
+
   async close() {
     const backends = [...this.backends.values()];
     this.backends.clear();
@@ -176,3 +198,18 @@ export class RelayInspector {
     });
   }
 }
+
+export type RelayAction =
+  | {
+      action: "publish";
+      prefix: string;
+      namespace: string;
+      topic: string;
+      data: string;
+      retainMs: number;
+    }
+  | { action: "deleteRetained"; prefix: string; namespace: string; topic: string }
+  | { action: "sweep"; prefix: string; namespace: string };
+
+const MAX_PUBLISH_BYTES = 512 * 1024;
+
