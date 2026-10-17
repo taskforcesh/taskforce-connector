@@ -99,6 +99,7 @@
   },
   "overrides": {
     "brace-expansion": "2.1.7",
+    "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
     "ip-address": "10.7.3",
     "@semantic-release/github": {
@@ -110,6 +111,7 @@
   },
   "resolutions": {
     "brace-expansion": "2.1.7",
+    "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
     "ip-address": "10.7.3",
     "@semantic-release/github/undici": "8.11.2",
