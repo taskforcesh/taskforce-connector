@@ -101,7 +101,7 @@
     "brace-expansion": "2.1.7",
     "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
-    "ip-address": "10.7.4",
+    "ip-address": "10.7.5",
     "@semantic-release/github": {
       "undici": "8.12.3"
     },
@@ -113,7 +113,7 @@
     "brace-expansion": "2.1.7",
     "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
-    "ip-address": "10.7.4",
+    "ip-address": "10.7.5",
     "@semantic-release/github/undici": "8.12.3",
     "uuid": "11.1.1",
     "glob": "10.5.0",
