@@ -90,6 +90,29 @@ describe("RelayInspector", () => {
       end: 100000,
     });
     expect(getNodes).toHaveBeenCalledWith(10, 109);
+    await inspector.run({
+      view: "nodes",
+      prefix,
+      namespace,
+      start: 10,
+      end: -1,
+    });
+    expect(getNodes).toHaveBeenLastCalledWith(10, 109);
+  });
+
+  it("closes backends that fail readiness", async () => {
+    const error = new Error("backend not ready");
+    const backend = {
+      waitUntilReady: jest.fn().mockRejectedValue(error),
+      close: jest.fn().mockResolvedValue(undefined),
+    };
+    const failedInspector = new RelayInspector({});
+    jest.spyOn(failedInspector, "createBackend").mockReturnValue(backend);
+
+    await expect(
+      failedInspector.getBackend(prefix, namespace)
+    ).rejects.toBe(error);
+    expect(backend.close).toHaveBeenCalledTimes(1);
   });
 
   it("runs actions", async () => {

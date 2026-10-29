@@ -54,8 +54,12 @@ export class RelayInspector {
   async run(request: RelayRequest): Promise<unknown> {
     const { view, prefix, namespace } = request;
     const start = Math.max(0, Number(request.start) || 0);
+    const requestedEnd =
+      Number.isInteger(request.end) && request.end! >= 0
+        ? request.end!
+        : start + MAX_PAGE_SIZE - 1;
     const end = Math.min(
-      Number.isInteger(request.end) ? request.end! : start + MAX_PAGE_SIZE - 1,
+      requestedEnd,
       start + MAX_PAGE_SIZE - 1
     );
 
@@ -153,7 +157,14 @@ export class RelayInspector {
     }
     backend = (async () => {
       const instance = this.createBackend(prefix, namespace);
-      await instance.waitUntilReady();
+      try {
+        await instance.waitUntilReady();
+      } catch (error) {
+        try {
+          await instance.close();
+        } catch {}
+        throw error;
+      }
       return instance;
     })();
     backend.catch(() => this.backends.delete(key));
@@ -212,4 +223,3 @@ export type RelayAction =
   | { action: "sweep"; prefix: string; namespace: string };
 
 const MAX_PUBLISH_BYTES = 512 * 1024;
-
