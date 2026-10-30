@@ -70,17 +70,24 @@ export class RelayInspector {
         : request.prefixes || [];
       const result = [];
       for (const candidate of prefixes) {
-        const registry = await this.getBackend(candidate, "default");
-        const names = (await registry.getNamespaces()).slice(
-          0,
-          MAX_NAMESPACES
-        );
+        const registry = this.opts.pgOpts
+          ? await this.withTemporaryBackend(candidate, "default", (backend) =>
+              backend.getNamespaces()
+            )
+          : await (await this.getBackend(candidate, "default")).getNamespaces();
+        const names = registry.slice(0, MAX_NAMESPACES);
         for (const name of names) {
-          const backend = await this.getBackend(candidate, name);
+          const countsBackend = this.opts.pgOpts
+            ? this.withTemporaryBackend(candidate, name, (backend) =>
+                backend.getCounts()
+              )
+            : this.getBackend(candidate, name).then((backend) =>
+                backend.getCounts()
+              );
           result.push({
             prefix: candidate,
             namespace: name,
-            counts: await backend.getCounts(),
+            counts: await countsBackend,
           });
         }
       }
@@ -175,6 +182,22 @@ export class RelayInspector {
       oldest.then((instance) => instance.close()).catch(() => undefined);
     }
     return backend;
+  }
+
+  private async withTemporaryBackend<T>(
+    prefix: string,
+    namespace: string,
+    run: (backend: IRelayBackend) => Promise<T>
+  ): Promise<T> {
+    const backend = this.createBackend(prefix, namespace);
+    try {
+      await backend.waitUntilReady();
+      return await run(backend);
+    } finally {
+      try {
+        await backend.close();
+      } catch {}
+    }
   }
 
   private createBackend(prefix: string, namespace: string): IRelayBackend {
