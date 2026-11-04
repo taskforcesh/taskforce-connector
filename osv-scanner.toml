@@ -1,2 +1,7 @@
 # OSV Scanner configuration for taskforce-connector
 # https://google.github.io/osv-scanner/configuration/
+
+[[IgnoredVulns]]
+id = "GHSA-gcqx-w48m-w2h4"
+ignoreUntil = 2026-12-31T00:00:00Z
+reason = "CVE-2026-93753 affecting deepmerge 4.3.1 was rejected upstream, and no patched npm release is available. Revisit if the advisory status changes."
