@@ -102,21 +102,33 @@
     "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
     "ip-address": "10.7.4",
+    "@actions/http-client": {
+      "undici": "6.29.1"
+    },
+    "node-gyp": {
+      "undici": "6.29.1"
+    },
     "@semantic-release/github": {
       "undici": "8.12.3"
     },
     "uuid": "11.1.1",
     "npm": "12.2.1",
-    "glob": "10.5.0"
+    "glob": "14.0.2",
+    "minimatch": {
+      ".": "11.0.1"
+    }
   },
   "resolutions": {
     "brace-expansion": "2.1.7",
     "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
     "ip-address": "10.7.4",
+    "**/@actions/http-client/undici": "6.29.1",
+    "**/node-gyp/undici": "6.29.1",
     "@semantic-release/github/undici": "8.12.3",
     "uuid": "11.1.1",
-    "glob": "10.5.0",
+    "glob": "14.0.2",
+    "minimatch": "11.0.1",
     "browserslist": "4.29.5",
     "js-yaml": "5.5.0"
   },
