@@ -113,7 +113,7 @@
     },
     "uuid": "11.1.1",
     "npm": "12.2.2",
-    "glob": "14.0.2",
+    "glob": "14.0.5",
     "minimatch": {
       ".": "11.0.8"
     }
@@ -127,7 +127,7 @@
     "**/node-gyp/undici": "8.12.4",
     "@semantic-release/github/undici": "8.12.4",
     "uuid": "11.1.1",
-    "glob": "14.0.2",
+    "glob": "14.0.5",
     "minimatch": "11.0.8",
     "browserslist": "4.29.5",
     "js-yaml": "5.5.0"
