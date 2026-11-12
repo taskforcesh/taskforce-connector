@@ -103,13 +103,13 @@
     "http-cache-semantics": "4.3.0",
     "ip-address": "10.7.6",
     "@actions/http-client": {
-      "undici": "6.29.1"
+      "undici": "8.12.4"
     },
     "node-gyp": {
-      "undici": "6.29.1"
+      "undici": "8.12.4"
     },
     "@semantic-release/github": {
-      "undici": "8.12.3"
+      "undici": "8.12.4"
     },
     "uuid": "11.1.1",
     "npm": "12.2.1",
@@ -123,9 +123,9 @@
     "handlebars": "4.7.10",
     "http-cache-semantics": "4.3.0",
     "ip-address": "10.7.6",
-    "**/@actions/http-client/undici": "6.29.1",
-    "**/node-gyp/undici": "6.29.1",
-    "@semantic-release/github/undici": "8.12.3",
+    "**/@actions/http-client/undici": "8.12.4",
+    "**/node-gyp/undici": "8.12.4",
+    "@semantic-release/github/undici": "8.12.4",
     "uuid": "11.1.1",
     "glob": "14.0.2",
     "minimatch": "11.0.8",
