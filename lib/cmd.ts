@@ -24,7 +24,7 @@ export const run = (name: string, version: string) => {
     )
     .option(
       "-t, --token [token]",
-      "api token (get yours at https://taskforce.sh)",
+      "personal or organization token (get yours at https://taskforce.sh)",
       process.env.TASKFORCE_TOKEN
     )
     .option(

@@ -83,7 +83,7 @@ export const Socket = (
     var msg;
     if (err.message === "Unexpected server response: 401") {
       msg =
-        "Authorization failed, please check that you are using the correct token from your account page";
+        "Authorization failed: check that the token is correct and has not been revoked or expired (personal tokens are on your account page, organization tokens on the organization's Tokens tab)";
     } else {
       msg = err.message;
     }

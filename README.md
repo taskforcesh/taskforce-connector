@@ -35,7 +35,7 @@ Call the tool and get a help on the options:
 
     -V, --version               output the version number
     -n, --name [name]           connection name [My Connection] (default: "My Connection")
-    -t, --token [token]         api token (get yours at https://taskforce.sh)
+    -t, --token [token]         personal or organization token (get yours at https://taskforce.sh)
     -p, --port [port]           redis port [6379] (default: "6379")
     --tls [tls]                 (default: "Activate secured TLS connection to Redis")
     -h, --host [host]           redis host [localhost] (default: "localhost")
@@ -61,6 +61,17 @@ Example:
 ```
 
 The token `2cfe6a1b-5f0e-466f-99ad-12f51bea79a7` is a private token that can be retrieved at your [Taskforce account](https://taskforce.sh/account).
+
+### Personal and organization tokens
+
+- A **personal token** (from your account page) belongs to you: the connections it creates are yours, and it stops working if you leave the organization or delete your account.
+- An **organization token** (from the organization's **Tokens** tab, created by its owner or admins) belongs to the organization and keeps working whoever leaves or changes roles. Use it for shared environments such as production. Connections created with it belong to the organization, so the connector must be given a team with `--team` the first time it creates a connection:
+
+```bash
+✗ taskforce -n "transcoder connection" -t tfc_... --team "my awesome team"
+```
+
+An organization can have several tokens. To rotate one, create a new token (or use **Rotate**, which keeps the old one working for a few days), restart the connector with it using the same connection name and team, and it takes over the existing connection, with its queues, monitors and alerts. Revoked or expired tokens disconnect their connectors within a minute.
 
 After running the command, you should be able to see the connection appear automatically on the dashboard.
 
@@ -105,7 +116,7 @@ Services that support TLS can also be used using the connector, use the `--tls` 
 
 ## Teams
 
-You can use the connector to spawn queue connections to any team that you created on your organization, just pass the team name
+You can use the connector to spawn queue connections to any team of your organization where you can manage connections (or, with an organization token, any team of that organization), just pass the team name
 as an option:
 
 ```bash
