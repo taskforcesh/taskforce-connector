@@ -1,3 +1,4 @@
+import { Refusal } from "./connection-refusal";
 import { Integration } from "./interfaces/integration";
 import { Socket, Connection } from "./socket";
 
@@ -21,6 +22,7 @@ export const Connect = (
     integrations?: { [key: string]: Integration };
     nodes?: string[];
     queueNames?: string[];
+    onStop?: (refusal: Refusal) => void;
   } = {}
 ) => {
   return Socket(name, backend, token, connection, opts);

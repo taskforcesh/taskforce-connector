@@ -2,6 +2,7 @@ import { Redis, Cluster, RedisOptions } from "ioredis";
 import { pick } from "lodash";
 import { getCache, updateQueuesCache, queueKey } from "./queues-cache";
 import { WebSocketClient } from "./ws-autoreconnect";
+import { Refusal } from "./connection-refusal";
 import {
   FoundQueue,
   RedisConnection,
@@ -47,10 +48,14 @@ export const Socket = (
     };
     queueNames?: string[];
     pgOpts?: PostgresConnectionOpts;
+    // Called when the server refuses the token (401): the connector stops
+    // retrying
+    onStop?: (refusal: Refusal) => void;
   } = {}
 ) => {
   const { team, nodes, pgOpts } = opts;
   const ws = new WebSocketClient();
+  ws.onstop = (refusal) => opts.onStop?.(refusal);
   const redisOpts = isRedisInstance(connection)
     ? undefined
     : redisOptsFromConnection(connection);
@@ -60,6 +65,10 @@ export const Socket = (
     headers: {
       Authorization: "Bearer " + token,
       Taskforce: "connector",
+      // So that the server can refuse with a reason (401, 402, 403) before
+      // accepting the connection
+      "Taskforce-Connection": encodeURIComponent(name),
+      ...(team ? { "Taskforce-Team": encodeURIComponent(team) } : {}),
     },
   });
 
@@ -80,14 +89,7 @@ export const Socket = (
   };
 
   ws.onerror = function (err) {
-    var msg;
-    if (err.message === "Unexpected server response: 401") {
-      msg =
-        "Authorization failed: check that the token is correct and has not been revoked or expired (personal tokens are on your account page, organization tokens on the organization's Tokens tab)";
-    } else {
-      msg = err.message;
-    }
-    console.log(chalk.yellow("WebSocket: ") + chalk.red(msg));
+    console.log(chalk.yellow("WebSocket: ") + chalk.red(err.message));
   };
 
   ws.onmessage = async function incoming(input: string) {
@@ -97,6 +99,13 @@ export const Socket = (
       `${chalk.yellow("WebSocket:")} ${chalk.blueBright("received")} %s`,
       input
     );
+
+    // An error from the server, sent before it closes the connection
+    const serverError = parseServerError(input);
+    if (serverError) {
+      console.log(chalk.yellow("WebSocket: ") + chalk.red(serverError));
+      return;
+    }
 
     try {
       // The authorization confirmation may arrive either as the legacy plain
@@ -393,3 +402,13 @@ function logTargetAccount(auth: Authorization) {
   }
 }
 
+function parseServerError(input: string): string | null {
+  try {
+    const msg = JSON.parse(input.toString());
+    return msg && !msg.id && msg.data && typeof msg.data.err === "string"
+      ? msg.data.err
+      : null;
+  } catch {
+    return null;
+  }
+}

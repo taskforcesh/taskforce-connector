@@ -216,6 +216,8 @@ export const run = (name: string, version: string) => {
             ssl: options.pgSsl || false,
           }
         : undefined,
+      // A token that can't work: exit, so that it shows where it runs
+      onStop: () => process.exit(1),
     });
   });
 
